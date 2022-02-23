@@ -1932,7 +1932,7 @@ input, select, textarea {
 	}
 
 		#logo h1 {
-			background: #8271bb;
+			background: #00000000;
 			color: #fff;
 			border-radius: 6px;
 			font-family: 'Oleo Script', serif;
@@ -1945,7 +1945,7 @@ input, select, textarea {
 		}
 
 		#logo span {
-			font-weight: 800;
+			font-weight: 200;
 			line-height: 4.5em;
 			letter-spacing: 0.025em;
 			font-size: 0.9em;
