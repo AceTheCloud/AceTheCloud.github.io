@@ -1,0 +1,16 @@
+#  icons can be found on https://themify.me/themify-icons
+---
+enable: true
+title: You can benefit more than you think
+services:
+  - icon: ti-settings
+    title: Cloud Provisioning
+    description: Best Practices to migrate, modernize, and maximize your cloud and on-premises investments.
+
+  - icon: ti-check-box
+    title: Guidelines
+    description: Understand cloud compliance and make your design adhering to best practices.
+
+  - icon: ti-key
+    title: Cloud Security
+    description: Secure your digital transformation journey through practice of DevSecOps.

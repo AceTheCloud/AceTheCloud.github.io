@@ -1,0 +1,10 @@
+---
+enable: true
+comment1: Ultimate Case Studies
+comment2: with solutions of Multiple Cloud
+buttonName: Case Studies of
+button1text: Azure
+button2text: AWS
+button3text: GCP
+image: images/video/video.png
+video: https://www.youtube.com/watch?v=VXB3Me0Tcw4
