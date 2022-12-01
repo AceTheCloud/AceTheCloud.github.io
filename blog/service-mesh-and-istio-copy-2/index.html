@@ -2,7 +2,7 @@
 <html>
   <head>
   <meta charset="utf-8" />
-  <title>Ace The Cloud Blog</title>
+  <title>Service Mesh and Istio</title>
 
 
   
@@ -91,108 +91,75 @@
     <div id="content">
       
 
-<section class="page-header">
+<section class="page-header blog-single-header">
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <h1>Ace The Cloud Blog</h1>
-        <p>
-          News, tips, and inspiration to accelerate your digital transformation. Understand Cloud concepts through proven learning principles to create highly available, secure Cloud Native and Cloud Agnostic Applications, paired with comprehensive case studies and posts.
-        </p>
+    <div class="row">
+      <div class="col-lg-12">
+        <h2>
+          Service Mesh and Istio
+        </h2>
+        <div class="post-meta">
+          <ul>
+            <li>
+              <img src="https://acethecloud.com/images/client/abhishek.png" alt="author-thumb" />
+            </li>
+            <li>
+              <h5>
+                Abhishek Gupta
+              </h5>
+            </li>
+            <li>
+              September 7, 2020
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="blog">
+<section class="blog-single">
   <div class="container">
     <div class="row">
-      
-        <div class="col-lg-4 col-md-6">
-          <article class="blog-post-item">
-            <div class="blog-post-thumb">
-              <a href="https://acethecloud.com/blog/service-mesh-and-istio-copy-2/">
-                <img src="https://acethecloud.com/images/blog/istio.png" alt="blog-thumb"
-              /></a>
-            </div>
-            <div class="blog-post-content">
-              <h2>
-                <a href="https://acethecloud.com/blog/service-mesh-and-istio-copy-2/"
-                  >Service Mesh and Istio</a
-                >
-              </h2>
-              <div class="post-author">
-                <div class="thumb">
-                  <img src="https://acethecloud.com/images/client/abhishek.png" alt="author-thumb" />
-                </div>
-                <div class="meta">
-                  <h3>Abhishek Gupta</h3>
-                  <p>September 7, 2020</p>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      
-        <div class="col-lg-4 col-md-6">
-          <article class="blog-post-item">
-            <div class="blog-post-thumb">
-              <a href="https://acethecloud.com/blog/service-mesh-and-istio-copy/">
-                <img src="https://acethecloud.com/images/blog/istio.png" alt="blog-thumb"
-              /></a>
-            </div>
-            <div class="blog-post-content">
-              <h2>
-                <a href="https://acethecloud.com/blog/service-mesh-and-istio-copy/"
-                  >Service Mesh and Istio</a
-                >
-              </h2>
-              <div class="post-author">
-                <div class="thumb">
-                  <img src="https://acethecloud.com/images/client/abhishek.png" alt="author-thumb" />
-                </div>
-                <div class="meta">
-                  <h3>Abhishek Gupta</h3>
-                  <p>September 7, 2020</p>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      
-        <div class="col-lg-4 col-md-6">
-          <article class="blog-post-item">
-            <div class="blog-post-thumb">
-              <a href="https://acethecloud.com/blog/service-mesh-and-istio/">
-                <img src="https://acethecloud.com/images/blog/istio.png" alt="blog-thumb"
-              /></a>
-            </div>
-            <div class="blog-post-content">
-              <h2>
-                <a href="https://acethecloud.com/blog/service-mesh-and-istio/"
-                  >Service Mesh and Istio</a
-                >
-              </h2>
-              <div class="post-author">
-                <div class="thumb">
-                  <img src="https://acethecloud.com/images/client/abhishek.png" alt="author-thumb" />
-                </div>
-                <div class="meta">
-                  <h3>Abhishek Gupta</h3>
-                  <p>September 7, 2020</p>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      
-      <div class="col-lg-12">
-        <div class="blog-pagination">
-          <nav>
-            
-            
-          </nav>
-        </div>
+      <div class="col-lg-10 mx-auto">
+        <article class="blog-single-post">
+          <h2 id="background">Background</h2>
+<p>A lot has changed about how we built microservices, and most people have no choice but to deploy microservices as pods in Kubernetes.
+Let us take an example where we are running a web application that queries data for the products. If both of these functionalities were on the webserver, then a calculation could slow the response time of the web pages. Having it on a seperate server avoids this problem.</p>
+<h3 id="solution">Solution</h3>
+<p>Service mesh can act as a perfect load balancer and is also one of the core feature. It can be easily configured to divide traffic. Let&rsquo;s take an example to understand this.
+Consider you are running an application on multiple clusters. One of  devs has added a new feature to the core application and wants to test it out on production with live traffic. The easiest deployment strategy that he/she can test out his latest feature is by pushing it into a container or pod inside the cluster and then diverting a portion of the over traffic to collect essential logs and metrics.</p>
+<p>The service mesh sidecar is also designed to collect APM and logs that he can use for performing his analysis on the canary instance. These logs and metrics are collected using a tool like Splunk or Datadog. But With the help of OpsMx Autopilot, one can automate the whole process of testing out a deployment using a canary analysis and perform automatic rollbacks whenever necessary.</p>
+<p>It provides critical observability, reliability, and security features. As this runs on a platform level, it is not a burden on the core business application. It is a dominant feature that alleviates the developers crucial time so that they can focus on value-added activities .</p>
+<p>Service mesh is an essential management system that helps all the different pods to work in harmony. Here are several reasons why, you will want to implement service mesh in a Kubernetes environment.</p>
+<h3 id="why-you-should-use-a-service-mesh-with-microservices">Why you should use a service mesh with microservices</h3>
+<p>It supports microservices architecture and application deployments, along with the other benefits it brings to an organization.</p>
+<ul>
+<li>Ensures high availability and fault tolerance.</li>
+<li>Gain greater visibility.</li>
+<li>Maintain secure communications.</li>
+<li>Increase release flexibility.</li>
+</ul>
+<h3 id="istio">Istio</h3>
+<p>Istio extends Kubernetes to establish a programmable, application-aware network using the powerful Envoy service proxy. Working with both Kubernetes and traditional workloads, Istio brings standard, universal traffic management, telemetry, and security to complex deployments.</p>
+<p><img src="/images/blog/istio.png" alt="blog image"></p>
+<h3 id="trafic-management-through-istio">Trafic Management through Istio</h3>
+<p>Istio’s traffic routing rules let you easily control the flow of traffic and API calls between services. Istio simplifies configuration of service-level properties like circuit breakers, timeouts, and retries, and makes it easy to set up important tasks like A/B testing, canary rollouts, and staged rollouts with percentage-based traffic splits. It also provides out-of-box reliability features that help make your application more resilient against failures of dependent services or the network.</p>
+<h3 id="security">Security</h3>
+<p>Breaking down a monolithic application into atomic services offers various benefits, including better agility, better scalability and better ability to reuse services. However, microservices also have particular security needs:</p>
+<ul>
+<li>To defend against man-in-the-middle attacks, they need traffic encryption.</li>
+<li>To provide flexible service access control, they need mutual TLS and fine-grained access policies.</li>
+<li>To determine who did what at what time, they need auditing tools.</li>
+</ul>
+<p>Istio Security provides a comprehensive security solution to solve these issues. This page gives an overview on how you can use Istio security features to secure your services, wherever you run them. In particular, Istio security mitigates both insider and external threats against your data, endpoints, communication, and platform.</p>
+<h3 id="observability">Observability</h3>
+<p>Istio generates detailed telemetry for all service communications within a mesh. This telemetry provides observability of service behavior, empowering operators to troubleshoot, maintain, and optimize their applications – without imposing any additional burdens on service developers. Through Istio, operators gain a thorough understanding of how monitored services are interacting, both with other services and with the Istio components themselves.</p>
+<h2 id="sample-microservice-based-application-using-istio">Sample Microservice based application using ISTIO</h2>
+<p><img src="/images/blog/istio-bookinfo.jpg" alt="blog image"></p>
+<p><a href="https://istio.io/latest/docs/examples/bookinfo/">Read more about Book Info app here at official website of Istio</a></p>
+
+        </article>
       </div>
     </div>
   </div>
