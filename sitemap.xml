@@ -3,12 +3,12 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://acethecloud.com/</loc>
-    <lastmod>2020-09-07T20:18:07+06:00</lastmod>
+    <lastmod>2022-11-07T20:18:07+06:00</lastmod>
+  </url><url>
+    <loc>https://acethecloud.com/blog/famous-golang-frameworks/</loc>
+    <lastmod>2022-11-07T20:18:07+06:00</lastmod>
   </url><url>
     <loc>https://acethecloud.com/blog/service-mesh-and-istio-copy-2/</loc>
-    <lastmod>2020-09-07T20:18:07+06:00</lastmod>
-  </url><url>
-    <loc>https://acethecloud.com/blog/service-mesh-and-istio-copy/</loc>
     <lastmod>2020-09-07T20:18:07+06:00</lastmod>
   </url><url>
     <loc>https://acethecloud.com/blog/service-mesh-and-istio/</loc>

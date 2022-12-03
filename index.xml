@@ -6,22 +6,23 @@
     <description>Recent content on Ace the Cloud Skills</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 07 Sep 2020 20:18:07 +0600</lastBuildDate><atom:link href="https://acethecloud.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 07 Nov 2022 20:18:07 +0600</lastBuildDate><atom:link href="https://acethecloud.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Famous GoLang Frameworks</title>
+      <link>https://acethecloud.com/blog/famous-golang-frameworks/</link>
+      <pubDate>Mon, 07 Nov 2022 20:18:07 +0600</pubDate>
+      
+      <guid>https://acethecloud.com/blog/famous-golang-frameworks/</guid>
+      <description>Go is a multiparadigm, statically-typed, and compiled programming language designed by Google. It is similar to C, and if you’re a fan of C, this can be an easy language to pick up. Many developers have embraced this language because of its garbage collection, memory safety, and structural typing system.
+Why use Go? Before reviewing five top Go frameworks, what is Go truly used for? Aside from building general web applications, the language’s scope encompasses a wide range of use cases:</description>
+    </item>
+    
     <item>
       <title>Service Mesh and Istio</title>
       <link>https://acethecloud.com/blog/service-mesh-and-istio-copy-2/</link>
       <pubDate>Mon, 07 Sep 2020 20:18:07 +0600</pubDate>
       
       <guid>https://acethecloud.com/blog/service-mesh-and-istio-copy-2/</guid>
-      <description>Background A lot has changed about how we built microservices, and most people have no choice but to deploy microservices as pods in Kubernetes. Let us take an example where we are running a web application that queries data for the products. If both of these functionalities were on the webserver, then a calculation could slow the response time of the web pages. Having it on a seperate server avoids this problem.</description>
-    </item>
-    
-    <item>
-      <title>Service Mesh and Istio</title>
-      <link>https://acethecloud.com/blog/service-mesh-and-istio-copy/</link>
-      <pubDate>Mon, 07 Sep 2020 20:18:07 +0600</pubDate>
-      
-      <guid>https://acethecloud.com/blog/service-mesh-and-istio-copy/</guid>
       <description>Background A lot has changed about how we built microservices, and most people have no choice but to deploy microservices as pods in Kubernetes. Let us take an example where we are running a web application that queries data for the products. If both of these functionalities were on the webserver, then a calculation could slow the response time of the web pages. Having it on a seperate server avoids this problem.</description>
     </item>
     
