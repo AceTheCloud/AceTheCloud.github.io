@@ -2,7 +2,7 @@
 <html>
   <head>
   <meta charset="utf-8" />
-  <title>Ace The Cloud Blog</title>
+  <title>Amabassador Pattern</title>
 
 
   
@@ -90,135 +90,60 @@
 
     <div id="content">
       
-
-<section class="page-header">
+<meta property="og:image" content="https://acethecloud.com/images/blog/ambassador-pattern.jpg">
+<meta property="og:image:type" content="image/png">
+<section class="page-header blog-single-header">
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <h1>Ace The Cloud Blog</h1>
-        <p>
-          News, tips, and inspiration to accelerate your digital transformation. Understand Cloud concepts through proven learning principles to create highly available, secure Cloud Native and Cloud Agnostic Applications, paired with comprehensive case studies and posts.
-        </p>
+    <div class="row">
+      <div class="col-lg-12">
+        <h2>
+          Amabassador Pattern
+        </h2>
+        <div class="post-meta">
+          <ul>
+            <li>
+              <img src="https://acethecloud.com/images/client/abhishek.png" alt="author-thumb" />
+            </li>
+            <li>
+              <h5>
+                Abhishek Gupta
+              </h5>
+            </li>
+            <li>
+              December 4, 2022
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="blog">
+<section class="blog-single">
   <div class="container">
     <div class="row">
-      
-        <div class="col-lg-4 col-md-6">
-          <article class="blog-post-item">
-            <div class="blog-post-thumb">
-              <a href="https://acethecloud.com/blog/amabassador-pattern/">
-                <img src="https://acethecloud.com/images/blog/ambassador-pattern.jpg" alt="blog-thumb"
-              /></a>
-            </div>
-            <div class="blog-post-content">
-              <h2>
-                <a href="https://acethecloud.com/blog/amabassador-pattern/"
-                  >Amabassador Pattern</a
-                >
-              </h2>
-              <div class="post-author">
-                <div class="thumb">
-                  <img src="https://acethecloud.com/images/client/abhishek.png" alt="author-thumb" />
-                </div>
-                <div class="meta">
-                  <h3>Abhishek Gupta</h3>
-                  <p>December 4, 2022</p>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      
-        <div class="col-lg-4 col-md-6">
-          <article class="blog-post-item">
-            <div class="blog-post-thumb">
-              <a href="https://acethecloud.com/blog/famous-golang-frameworks/">
-                <img src="https://acethecloud.com/images/blog/golang-fx.png" alt="blog-thumb"
-              /></a>
-            </div>
-            <div class="blog-post-content">
-              <h2>
-                <a href="https://acethecloud.com/blog/famous-golang-frameworks/"
-                  >Famous GoLang Frameworks</a
-                >
-              </h2>
-              <div class="post-author">
-                <div class="thumb">
-                  <img src="https://acethecloud.com/images/client/abhishek.png" alt="author-thumb" />
-                </div>
-                <div class="meta">
-                  <h3>Abhishek Gupta</h3>
-                  <p>November 7, 2022</p>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      
-        <div class="col-lg-4 col-md-6">
-          <article class="blog-post-item">
-            <div class="blog-post-thumb">
-              <a href="https://acethecloud.com/blog/cloud-native-vs-cloud-agnostic/">
-                <img src="https://acethecloud.com/images/blog/cloudnativesvscloudagnostic.png" alt="blog-thumb"
-              /></a>
-            </div>
-            <div class="blog-post-content">
-              <h2>
-                <a href="https://acethecloud.com/blog/cloud-native-vs-cloud-agnostic/"
-                  >Cloud Native vs Cloud Agnostic</a
-                >
-              </h2>
-              <div class="post-author">
-                <div class="thumb">
-                  <img src="https://acethecloud.com/images/client/abhishek.png" alt="author-thumb" />
-                </div>
-                <div class="meta">
-                  <h3>Abhishek Gupta</h3>
-                  <p>April 4, 2021</p>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      
-        <div class="col-lg-4 col-md-6">
-          <article class="blog-post-item">
-            <div class="blog-post-thumb">
-              <a href="https://acethecloud.com/blog/service-mesh-and-istio/">
-                <img src="https://acethecloud.com/images/blog/istio.png" alt="blog-thumb"
-              /></a>
-            </div>
-            <div class="blog-post-content">
-              <h2>
-                <a href="https://acethecloud.com/blog/service-mesh-and-istio/"
-                  >Service Mesh and Istio</a
-                >
-              </h2>
-              <div class="post-author">
-                <div class="thumb">
-                  <img src="https://acethecloud.com/images/client/abhishek.png" alt="author-thumb" />
-                </div>
-                <div class="meta">
-                  <h3>Abhishek Gupta</h3>
-                  <p>September 7, 2020</p>
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      
-      <div class="col-lg-12">
-        <div class="blog-pagination">
-          <nav>
-            
-            
-          </nav>
-        </div>
+      <div class="col-lg-10 mx-auto">
+        <article class="blog-single-post">
+          <p><img src="/images/blog/ambassador-pattern.jpg" alt="blog image"></p>
+<p>Resilient cloud-based applications require features such as circuit breaking, routing, metering and monitoring, and the ability to make network-related configuration updates. It may be difficult or impossible to update legacy applications or existing code libraries to add these features, because the code is no longer maintained or can&rsquo;t be easily modified by the development team.</p>
+<p>Network calls may also require substantial configuration for connection, authentication, and authorization. If these calls are used across multiple applications, built using multiple languages and frameworks, the calls must be configured for each of these instances. In addition, network and security functionality may need to be managed by a central team within your organization. With a large code base, it can be risky for that team to update application code they aren&rsquo;t familiar with.</p>
+<h3 id="solution">Solution</h3>
+<p>Put client frameworks and libraries into an external process that acts as a proxy between your application and external services. Deploy the proxy on the same host environment as your application to allow control over routing, resiliency, security features, and to avoid any host-related access restrictions. You can also use the ambassador pattern to standardize and extend instrumentation. The proxy can monitor performance metrics such as latency or resource usage, and this monitoring happens in the same host environment as the application.</p>
+<h3 id="when-to-use-this-pattern">When to use this pattern</h3>
+<p>Use this pattern when you:</p>
+<ul>
+<li>Need to build a common set of client connectivity features for multiple languages or frameworks.</li>
+<li>Need to offload cross-cutting client connectivity concerns to infrastructure developers or other more specialized teams.</li>
+<li>Need to support cloud or cluster connectivity requirements in a legacy application or an application that is difficult to modify.</li>
+</ul>
+<h3 id="this-pattern-may-not-be-suitable">This pattern may not be suitable:</h3>
+<ul>
+<li>When network request latency is critical. A proxy will introduce some overhead, although minimal, and in some cases this may affect the application.</li>
+<li>When client connectivity features are consumed by a single language. In that case, a better option might be a client library that is distributed to the development teams as a package.</li>
+<li>When connectivity features cannot be generalized and require deeper integration with the client application.</li>
+</ul>
+
+        </article>
       </div>
     </div>
   </div>
