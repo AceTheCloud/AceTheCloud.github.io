@@ -18,12 +18,12 @@ Why use Go? Before reviewing five top Go frameworks, what is Go truly used for? 
     </item>
     
     <item>
-      <title>Service Mesh and Istio</title>
-      <link>https://acethecloud.com/blog/service-mesh-and-istio-copy-2/</link>
-      <pubDate>Mon, 07 Sep 2020 20:18:07 +0600</pubDate>
+      <title>Cloud Native vs Cloud Agnostic</title>
+      <link>https://acethecloud.com/blog/cloud-native-vs-cloud-agnostic/</link>
+      <pubDate>Sun, 04 Apr 2021 20:18:07 +0600</pubDate>
       
-      <guid>https://acethecloud.com/blog/service-mesh-and-istio-copy-2/</guid>
-      <description>Background A lot has changed about how we built microservices, and most people have no choice but to deploy microservices as pods in Kubernetes. Let us take an example where we are running a web application that queries data for the products. If both of these functionalities were on the webserver, then a calculation could slow the response time of the web pages. Having it on a seperate server avoids this problem.</description>
+      <guid>https://acethecloud.com/blog/cloud-native-vs-cloud-agnostic/</guid>
+      <description>Background Speed ​​is an important factor for business in this era when customers are looking for instant gratification. If the fact doesn&amp;rsquo;t convince you, the statistics might. An element as simple as a website&amp;rsquo;s load time carries weight. Statistics indicate that the first five seconds of a page load time have the greatest impact on conversion rates. So when consumer behavior has the greatest impact, it is profitable in the long run to modernize a business model accordingly.</description>
     </item>
     
     <item>
