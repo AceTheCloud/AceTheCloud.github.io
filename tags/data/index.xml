@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>data on Ace the Cloud Skills</title>
+    <link>https://acethecloud.com/tags/data/</link>
+    <description>Recent content in data on Ace the Cloud Skills</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 21 Nov 2022 22:18:07 +0600</lastBuildDate><atom:link href="https://acethecloud.com/tags/data/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Azure Databricks for Enthusiasts: A Beginner&#39;s Guide</title>
+      <link>https://acethecloud.com/blog/when-and-why-to-use-azure-databricks/</link>
+      <pubDate>Mon, 21 Nov 2022 22:18:07 +0600</pubDate>
+      
+      <guid>https://acethecloud.com/blog/when-and-why-to-use-azure-databricks/</guid>
+      <description>Azure Data Bricks Azure Databricks is a powerful analytics platform that combines the best of Apache Spark and Azure cloud computing. It is a fully managed service that allows users to quickly and easily build, train, and deploy machine learning models, as well as explore and analyze large data sets.
+So, when might Azure Databricks be a good choice for your organization? Here are a few key scenarios:
+➼ Large-scale data processing and analysis: If you have large data sets that need to be processed and analyzed quickly, Azure Databricks can be a great solution.</description>
+    </item>
+    
+  </channel>
+</rss>
