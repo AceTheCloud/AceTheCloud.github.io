@@ -383,6 +383,8 @@
 </span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">74
 </span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">75
 </span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">76
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">77
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">78
 </span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> (
@@ -416,7 +418,8 @@
 </span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>return</span> rows
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic>// The `filter` function takes a slice of rows and a predicate function, and returns a new slice with the rows that satisfy the predicate.
+</span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic>// The `filter` function takes a slice of rows and a predicate function, 
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic>// and returns a new slice with the rows that satisfy the predicate.
 </span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>filter</span>(rows [][]<span style=color:#902000>string</span>, predicate <span style=color:#007020;font-weight:700>func</span>(row []<span style=color:#902000>string</span>) <span style=color:#902000>bool</span>) [][]<span style=color:#902000>string</span> {
 </span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>var</span> result [][]<span style=color:#902000>string</span>
 </span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>for</span> _, row <span style=color:#666>:=</span> <span style=color:#007020;font-weight:700>range</span> rows {
@@ -427,7 +430,8 @@
 </span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>return</span> result
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic>// The `sum` function takes a slice of rows and a column index, and returns the sum of the values in that column.
+</span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic>// The `sum` function takes a slice of rows and a column index, 
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic>// and returns the sum of the values in that column.
 </span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>sum</span>(rows [][]<span style=color:#902000>string</span>, col <span style=color:#902000>int</span>) <span style=color:#902000>int</span> {
 </span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>var</span> total <span style=color:#902000>int</span>
 </span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>for</span> _, row <span style=color:#666>:=</span> <span style=color:#007020;font-weight:700>range</span> rows {
