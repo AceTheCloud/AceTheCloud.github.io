@@ -1,0 +1,256 @@
+<!doctype html><html><head><meta charset=utf-8><title>Using GoLang and Elasticsearch to Crawl and Analyze Amazon.com Data 👨🏼‍💻</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><link rel=stylesheet href=https://acethecloud.com/themify/themify.css><link href=https://acethecloud.com/scss/critical.min.css rel=stylesheet><link rel=stylesheet href=https://acethecloud.com/css/custom.css><link rel="shortcut icon" href=https://acethecloud.com/images/favicon.png type=image/x-icon><link rel=icon href=https://acethecloud.com/images/favicon.png type=image/x-icon><script async src="https://www.googletagmanager.com/gtag/js?id=G-54XSTRSXS5"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-54XSTRSXS5")</script></head><body><nav class="main-nav navbar navbar-expand-lg"><div class=container-fluid><a class=navbar-brand href=https://acethecloud.com><img class=logo-main src=https://acethecloud.com/images/logo.png alt=logo-white></a>
+<button class="navbar-toggler collapsed" type=button data-toggle=collapse data-target=#mainNav>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+<span class=icon-bar></span></button><div class="collapse navbar-collapse nav-list" id=mainNav><ul class="navbar-nav ml-auto"><li class=nav-item><a href=https://acethecloud.com#hero class=nav-link>Home</a></li><li class=nav-item><a href=https://acethecloud.com#faq class=nav-link>Clouds</a></li><li class=nav-item><a href=https://acethecloud.com/contact class=nav-link>Contact</a></li></ul><div class="account-list list-inline"><li class=list-inline-item><a href=https://acethecloud.com/blog class="btn btn-sm btn-violate">Blog</a></li></div></div></div></nav><div id=content><meta property="og:image" content="https://acethecloud.com/images/blog/golang-elastic.png"><meta property="og:image:type" content="image/png"><section class="page-header blog-single-header"><div class=container><div class=row><div class=col-lg-12><h2>Using GoLang and Elasticsearch to Crawl and Analyze Amazon.com Data 👨🏼‍💻</h2><div class=post-meta><img src=https://acethecloud.com/images/blog/golang-elastic.png style=margin-left:-30px;width:390px alt=feature-image></div><div class=post-meta><ul><li><img src=https://acethecloud.com/images/client/abhishek.png alt=author-thumb><h5>Abhishek</h5></li><li></li><li><b>Date Posted</b><br>December 21, 2022</li><li></li><li><b>Read Time</b> :<br>4 minutes</li></ul><br><div style=scroll-behavior:auto><ul><li class=tag><b>Topics ⇢</b></li><li class=tag><a href=https://acethecloud.com/tags/go-lang/>go-lang</a></li><li class=tag><a href=https://acethecloud.com/tags/elastic/>elastic</a></li><li class=tag><a href=https://acethecloud.com/tags/crawler/>crawler</a></li></ul></div></div></div></div></div></section><section class=blog-single><div class=container style=width:100%><div style=width:100%><article class=blog-single-post style=padding:30px><p>Golang, or Go, is a programming language that is known for its simplicity, concurrency support, and efficient memory management. Concurrency in Go allows developers to write programs that can perform multiple tasks concurrently, allowing for faster and more efficient execution.</p><p>Crawling Amazon.com and storing the data in Elasticsearch using GoLang is a common use case for web crawlers. Elasticsearch is a popular search engine that can be used to store and search large amounts of data, making it an ideal choice for storing the results of a web crawl. In this blog post, we will learn how to build a web crawler for Amazon.com using GoLang and store the data in Elasticsearch.</p><p>To get started, we will need to install and set up Elasticsearch on our machine. You can find instructions for doing this in the Elasticsearch documentation.</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> (
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;net/http&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;io/ioutil&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;golang.org/x/net/html&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;github.com/olivere/elastic&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></td></tr></table></div></div><p>The &ldquo;fmt&rdquo; and &ldquo;net/http&rdquo; packages are used for printing messages and making HTTP requests, the &ldquo;io/ioutil&rdquo; package is used for reading the response from the server, the &ldquo;html&rdquo; package is used for parsing the HTML content, and the &ldquo;elastic&rdquo; package is used for interacting with Elasticsearch.</p><p>Next, we will define a function to connect to Elasticsearch:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>connectToElasticsearch</span>() <span style=color:#666>*</span>elastic.Client {
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Set the Elasticsearch URL
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	url <span style=color:#666>:=</span> <span style=color:#4070a0>&#34;http://localhost:9200&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Create a new Elasticsearch client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	client, err <span style=color:#666>:=</span> elastic.<span style=color:#06287e>NewClient</span>(elastic.<span style=color:#06287e>SetURL</span>(url))
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		fmt.<span style=color:#06287e>Println</span>(err)
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>return</span> <span style=color:#007020;font-weight:700>nil</span>
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Return the client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	<span style=color:#007020;font-weight:700>return</span> client
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>In this function, we set the URL of our Elasticsearch instance and create a new Elasticsearch client using the &ldquo;elastic&rdquo; package. We then return the client to be used in other functions.</p><p>Next, let&rsquo;s define the main function of our web crawler:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>main</span>() {
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Set the starting URL
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	url <span style=color:#666>:=</span> <span style=color:#4070a0>&#34;https://www.amazon.com/products&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Make an HTTP GET request to the URL
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	response, err <span style=color:#666>:=</span> http.<span style=color:#06287e>Get</span>(url)
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		fmt.<span style=color:#06287e>Println</span>(err)
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>return</span>
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>defer</span> response.Body.<span style=color:#06287e>Close</span>()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Read the response body
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	body, err <span style=color:#666>:=</span> ioutil.<span style=color:#06287e>ReadAll</span>(response.Body)
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		fmt.<span style=color:#06287e>Println</span>(err)
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>return</span>
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Parse the HTML content
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	doc, err <span style=color:#666>:=</span> html.<span style=color:#06287e>Parse</span>(strings.<span style=color:#06287e>NewReader</span>(<span style=color:#007020>string</span>(body)))
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		fmt.<span style=color:#06287e>Println</span>(err)
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>return</span>
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Connect to Elasticsearch
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	client <span style=color:#666>:=</span> <span style=color:#06287e>connectToElasticsearch</span>()
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> client <span style=color:#666>==</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		fmt.<span style=color:#06287e>Println</span>(<span style=color:#4070a0>&#34;Unable to connect to Elasticsearch&#34;</span>)
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>return</span>
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Call the function to extract product data from the HTML
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	<span style=color:#06287e>extractProductData</span>(doc, client)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>In this function, we set the starting URL of our crawl, make an HTTP GET request to the URL, read the response body, and parse the HTML content using the &ldquo;html&rdquo; package. We then connect to Elasticsearch using the &ldquo;connectToElasticsearch&rdquo; function and call the &ldquo;extractProductData&rdquo; function to extract the product data from the HTML.</p><p>Next, let&rsquo;s define the &ldquo;extractProductData&rdquo; function:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>extractProductData</span>(n <span style=color:#666>*</span>html.Node, client <span style=color:#666>*</span>elastic.Client) {
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Check if the node is an element node
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	<span style=color:#007020;font-weight:700>if</span> n.Type <span style=color:#666>==</span> html.ElementNode {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Check if the element is a &#34;div&#34; with the class &#34;product&#34;
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		<span style=color:#007020;font-weight:700>if</span> n.Data <span style=color:#666>==</span> <span style=color:#4070a0>&#34;div&#34;</span> {
+</span></span><span style=display:flex><span>			<span style=color:#007020;font-weight:700>for</span> _, attr <span style=color:#666>:=</span> <span style=color:#007020;font-weight:700>range</span> n.Attr {
+</span></span><span style=display:flex><span>				<span style=color:#007020;font-weight:700>if</span> attr.Key <span style=color:#666>==</span> <span style=color:#4070a0>&#34;class&#34;</span> <span style=color:#666>&amp;&amp;</span> attr.Val <span style=color:#666>==</span> <span style=color:#4070a0>&#34;product&#34;</span> {
+</span></span><span style=display:flex><span>					<span style=color:#60a0b0;font-style:italic>// Extract the product data from the element
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>					product <span style=color:#666>:=</span> <span style=color:#06287e>extractProductDataFromElement</span>(n)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>					<span style=color:#60a0b0;font-style:italic>// Index the product data in Elasticsearch
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>					<span style=color:#06287e>indexProduct</span>(product, client)
+</span></span><span style=display:flex><span>				}
+</span></span><span style=display:flex><span>			}
+</span></span><span style=display:flex><span>		}
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Recursively call the function for each child node
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	<span style=color:#007020;font-weight:700>for</span> c <span style=color:#666>:=</span> n.FirstChild; c <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span>; c = c.NextSibling {
+</span></span><span style=display:flex><span>		<span style=color:#06287e>extractProductData</span>(c, client)
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>In this function, we use a recursive approach to traverse the HTML tree and search for &ldquo;div&rdquo; elements with the class &ldquo;product&rdquo;. Whenever we find such an element, we call the &ldquo;extractProductDataFromElement&rdquo; function to extract the product data from the element, and then call the &ldquo;indexProduct&rdquo; function to index the data in Elasticsearch.</p><p>Here is the &ldquo;extractProductDataFromElement&rdquo; function:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>extractProductDataFromElement</span>(n <span style=color:#666>*</span>html.Node) <span style=color:#666>*</span>Product {
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Initialize a product struct
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	product <span style=color:#666>:=</span> <span style=color:#666>&amp;</span>Product{}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Traverse the children of the element
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	<span style=color:#007020;font-weight:700>for</span> c <span style=color:#666>:=</span> n.FirstChild; c <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span>; c {
+</span></span><span style=display:flex><span>        <span style=color:#60a0b0;font-style:italic>// Check if the child is an element node
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        <span style=color:#007020;font-weight:700>if</span> c.Type <span style=color:#666>==</span> html.ElementNode {
+</span></span><span style=display:flex><span>            <span style=color:#60a0b0;font-style:italic>// Extract the product name
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>            <span style=color:#007020;font-weight:700>if</span> c.Data <span style=color:#666>==</span> <span style=color:#4070a0>&#34;h3&#34;</span> {
+</span></span><span style=display:flex><span>                <span style=color:#007020;font-weight:700>for</span> _, attr <span style=color:#666>:=</span> <span style=color:#007020;font-weight:700>range</span> c.Attr {
+</span></span><span style=display:flex><span>                    <span style=color:#007020;font-weight:700>if</span> attr.Key <span style=color:#666>==</span> <span style=color:#4070a0>&#34;class&#34;</span> <span style=color:#666>&amp;&amp;</span> attr.Val <span style=color:#666>==</span> <span style=color:#4070a0>&#34;name&#34;</span> {
+</span></span><span style=display:flex><span>                        product.Name = c.FirstChild.Data
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>            <span style=color:#60a0b0;font-style:italic>// Extract the product price
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>            <span style=color:#007020;font-weight:700>if</span> c.Data <span style=color:#666>==</span> <span style=color:#4070a0>&#34;span&#34;</span> {
+</span></span><span style=display:flex><span>                <span style=color:#007020;font-weight:700>for</span> _, attr <span style=color:#666>:=</span> <span style=color:#007020;font-weight:700>range</span> c.Attr {
+</span></span><span style=display:flex><span>                    <span style=color:#007020;font-weight:700>if</span> attr.Key <span style=color:#666>==</span> <span style=color:#4070a0>&#34;class&#34;</span> <span style=color:#666>&amp;&amp;</span> attr.Val <span style=color:#666>==</span> <span style=color:#4070a0>&#34;price&#34;</span> {
+</span></span><span style=display:flex><span>                        product.Price = c.FirstChild.Data
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                }
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Return the product struct
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	<span style=color:#007020;font-weight:700>return</span> product
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>In this function, we traverse the children of the element and extract the product name and price using the HTML tag names and class attributes. We then store the data in a &ldquo;Product&rdquo; struct and return it to the caller.</p><p>Finally, let&rsquo;s define the &ldquo;indexProduct&rdquo; function:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>indexProduct</span>(product <span style=color:#666>*</span>Product, client <span style=color:#666>*</span>elastic.Client) {
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Index the product in Elasticsearch
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	_, err <span style=color:#666>:=</span> client.<span style=color:#06287e>Index</span>().
+</span></span><span style=display:flex><span>		<span style=color:#06287e>Index</span>(<span style=color:#4070a0>&#34;products&#34;</span>).
+</span></span><span style=display:flex><span>		<span style=color:#06287e>Type</span>(<span style=color:#4070a0>&#34;product&#34;</span>).
+</span></span><span style=display:flex><span>		<span style=color:#06287e>Id</span>(product.Name).
+</span></span><span style=display:flex><span>		<span style=color:#06287e>BodyJson</span>(product).
+</span></span><span style=display:flex><span>		<span style=color:#06287e>Do</span>(context.<span style=color:#06287e>Background</span>())
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		fmt.<span style=color:#06287e>Println</span>(err)
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>return</span>
+</span></span><span style=display:flex><span>	}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Print a message to the console
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	fmt.<span style=color:#06287e>Println</span>(<span style=color:#4070a0>&#34;Product indexed:&#34;</span>, product.Name)
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></td></tr></table></div></div><p>In this function, we use the Elasticsearch client to index the product data in the &ldquo;products&rdquo; index and &ldquo;product&rdquo; type. We set the ID of the document to be the product name, and the body of the document to be the product struct.</p><p>Now that we have all of the functions defined, we can run our web crawler by calling the &ldquo;main&rdquo; function. The web crawler will make an HTTP request to the starting URL, parse the HTML content, extract the product data from the HTML, and index the data in Elasticsearch.</p><p>This is just a basic example of how to build a web crawler for Amazon.com using GoLang and store the data in Elasticsearch. With a little modification and customization, you can use this as a starting point to build a more sophisticated web crawler that meets your specific needs.</p></article></div></div><div class=container style=padding:50px><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//acethecloud.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></section></div><footer class=footer><div class=container><div class=row><div class=col-lg-12><div class=footer-subscribe-title><h2>Get the latest blog updates</h2></div></div><div class="col-lg-8 mx-auto"><form action=# class=footer-subscribe-form><div class=from-group><div class=input-group><input type=email class=form-control placeholder="Enter Your E-mail"><div class=subscribe><button class="btn btn-subscribe" type=submit>
+<span class=btn-area>Subscribe</span><svg class="icon-left" xmlns="http://www.w3.org/2000/svg" width="16.317" height="15.323" viewBox="0 0 16.317 15.323"><g data-name="Group 1167"><g data-name="Group 1166"><path data-name="Path 1349" d="M.004 5.359a.7.7.0 00.587.693l6.091 1.609L.591 9.27a.7.7.0 00-.587.693v4.656a.7.7.0 00.206.5.726.726.0 00.119.1.7.7.0 00.675.044l14.911-6.958a.7.7.0 000-1.274L1.004.066a.7.7.0 00-1 .637zm13.952 2.3" fill="#fff"/></g></g></svg><svg class="icon-center" xmlns="http://www.w3.org/2000/svg" width="16.317" height="15.323" viewBox="0 0 16.317 15.323"><g data-name="Group 1167"><g data-name="Group 1166"><path data-name="Path 1349" d="M.004 5.359a.7.7.0 00.587.693l6.091 1.609L.591 9.27a.7.7.0 00-.587.693v4.656a.7.7.0 00.206.5.726.726.0 00.119.1.7.7.0 00.675.044l14.911-6.958a.7.7.0 000-1.274L1.004.066a.7.7.0 00-1 .637zm13.952 2.3" fill="#fff"/></g></g></svg></button></div></div></div></form></div></div><div class=row><div class="col-lg-4 col-md-4"><div class=footer-description><img src=https://acethecloud.com/images/logo.png alt=logo><p>All right reserved</br>Copyright © <a href=https://AceTheCloud.com/ target=_blank>AceTheCloud</a> 2022</p><ul class=footer-description-social><li><a href=https://facebook.com/cloud.and.mobile.evangelist/><i class=ti-facebook></i></a></li><li><a href=https://twitter.com/AbhiForTweeting><i class=ti-twitter-alt></i></a></li><li><a href=https://github.com/AbhiOnGithub><i class=ti-github></i></a></li></ul></div></div><div class="col-lg-4 col-md-4"><div class=footer-widget><h4>Sitemap</h4><div class=footer-widget-list><ul><li><a href=https://acethecloud.com>Home</a></li><li><a href=https://acethecloud.com/blog>Latest Article</a></li><li><a href=https://acethecloud.com/privacy>Privacy & Policy</a></li><li><a href=https://acethecloud.com/contact>Contact</a></li></ul></div></div></div><div class="col-lg-4 col-md-4"><div class=footer-widget><h4>Address</h4><div class=footer-widget-list><ul><li><a href=tel:><i class=ti-mobile></i></a></li><li><a href=mailto:abhishek@acethecloud.com><i class=ti-email></i>abhishek@acethecloud.com</a></li><li><p><i class=ti-pin></i></p></li></ul></div></div></div></div></div></footer><link href=https://acethecloud.com/scss/non-critical.min.css rel=stylesheet><script src=https://acethecloud.com/js/vendor.min.js></script>
+<script src=https://acethecloud.com/js/script.min.js></script></body></html>
