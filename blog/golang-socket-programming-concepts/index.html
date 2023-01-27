@@ -3,282 +3,551 @@
 <button type=button class="navbar-toggler collapsed" data-toggle=collapse data-target=#navbarCollapse>
 <span class=navbar-toggler-icon></span>
 <span class=navbar-toggler-icon></span>
-<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse justify-content-between" id=navbarCollapse><ul class="nav navbar-nav main-navigation my-0 mx-auto"><li class=nav-item><a href=https://acethecloud.com/#home class="nav-link text-dark text-sm-center p-2">Home</a></li><li class=nav-item><a href=https://acethecloud.com/#about class="nav-link text-dark text-sm-center p-2">About</a></li><li class=nav-item><a href=https://acethecloud.com/#resume class="nav-link text-dark text-sm-center p-2">Cloud</a></li><li class=nav-item><a href=https://acethecloud.com/#skills class="nav-link text-dark text-sm-center p-2">Cloud Share</a></li><li class=nav-item><a href=https://acethecloud.com/#contact class="nav-link text-dark text-sm-center p-2">Subscribe</a></li></ul><div class=navbar-nav><a href=https://acethecloud.com/blog class="btn btn-primary btn-zoom hire_button">Blog</a></div></div></div></nav><div id=content><header class=breadCrumb><div class=container><div class=row><div class="col-lg-10 col-md-12 offset-lg-1 offset-md-0 text-center"><h3 class=breadCrumb__title>Going deeper with Go sockets: Advanced concepts and techniques 🫡</h3><nav aria-label=breadcrumb class="d-flex justify-content-center"><ol class="breadcrumb align-items-center"><li class=breadcrumb-item><a href=https://acethecloud.com/>Home</a></li><li class=breadcrumb-item><a href=https://acethecloud.com/blog>All Post</a></li><li class="breadcrumb-item active" aria-current=page>Going deeper with Go sockets: Advanced concepts and techniques 🫡</li></ol></nav></div></div><ul class=post-meta><li><i class="fa fa-calendar"></i>
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse justify-content-between" id=navbarCollapse><ul class="nav navbar-nav main-navigation my-0 mx-auto"><li class=nav-item><a href=https://acethecloud.com/#home class="nav-link text-dark text-sm-center p-2">Home</a></li><li class=nav-item><a href=https://acethecloud.com/#about class="nav-link text-dark text-sm-center p-2">About</a></li><li class=nav-item><a href=https://acethecloud.com/#resume class="nav-link text-dark text-sm-center p-2">Cloud</a></li><li class=nav-item><a href=https://acethecloud.com/#skills class="nav-link text-dark text-sm-center p-2">Cloud Share</a></li><li class=nav-item><a href=https://acethecloud.com/#contact class="nav-link text-dark text-sm-center p-2">Subscribe</a></li></ul><div class=navbar-nav><a href=https://acethecloud.com/blog class="btn btn-primary btn-zoom hire_button">Blog</a></div></div></div></nav><div id=content><header class=breadCrumb><div class=container><div class=row><div class="col-lg-10 col-md-12 offset-lg-1 offset-md-0 text-center"><h3 class=breadCrumb__title>Going deeper with Go sockets: Advanced concepts and techniques 🫡</h3><nav aria-label=breadcrumb class="d-flex justify-content-center"><ol class="breadcrumb align-items-center"><li class=breadcrumb-item><a href=https://acethecloud.com/><u>Home</u></a></li><li class=breadcrumb-item>-> <a href=https://acethecloud.com/blog><u>All Post</u></a></li><li class="breadcrumb-item active" aria-current=page>-><u>Going deeper with Go sockets: Advanced concepts and techniques 🫡</u></li></ol></nav></div></div><ul class=post-meta><li><i class="fa fa-calendar"></i>
 December 23, 2022</li><li><i class="fa fa-clock-o"></i>
-8 mins read</li><li><i class="fa fa-tag"></i>
+9 mins to read</li><li><i class="fa fa-folder-open"></i>
+<a class=text-capitalize href=https://acethecloud.com/categories/blog/>blog</a></li></ul><div class=post-meta>Tags :>
 <a class=text-capitalize href=https://acethecloud.com/tags/go-lang/>go-lang</a>
 <a class=text-capitalize href=https://acethecloud.com/tags/socket/>socket</a>
 <a class=text-capitalize href=https://acethecloud.com/tags/distributed_systems/>distributed_systems</a>
-<a class=text-capitalize href=https://acethecloud.com/tags/web/>web</a></li><li><i class="fa fa-folder-open"></i>
-<a class=text-capitalize href=https://acethecloud.com/categories/blog/>blog</a></li></ul></div></div></div></div></header><section class="section singleBlog"><div class=svg-img><img src=https://acethecloud.com/images/hero/figure-svg.svg alt></div><div class=animate-shape><img src=https://acethecloud.com/images/skill/skill-background-shape.svg alt><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 600 600"><defs><linearGradient id="d" x1=".929" y1=".111" x2=".263" y2=".935" gradientUnits="objectBoundingBox"><stop offset="0" stop-color="#f1f6f9"/><stop offset="1" stop-color="#f1f6f9" stop-opacity="0"/></linearGradient></defs><g data-name="blob-shape (3)"><path class="blob" fill="url(#d)" d="M455.4 151.1c43.1 36.7 73.4 92.8 60.8 136.3-12.7 43.5-68.1 74.4-111.3 119.4-43.1 45-74 104.1-109.8 109-35.9 5-76.7-44.2-111.8-89.2-35.2-45-64.7-85.8-70.8-132.6-6-46.8 11.6-99.6 46.7-136.3 35.2-36.6 88-57.2 142.4-58.8 54.5-1.7 110.6 15.6 153.8 52.2z"/></g></svg></div><div class=animate-pattern><img src=https://acethecloud.com/images/service/background-pattern.svg alt=background-shape></div><div class=container><div class=row><div class=col-lg-12><div class=singleBlog__feature><img src=https://acethecloud.com/images/blog/golang.png alt=feature-image></div></div></div><div class="row mt-5"><div class=col-lg-12><div class=singleBlog__content><p>Welcome to this tutorial on advanced techniques for socket programming in Go! If you&rsquo;re already familiar with the basics of socket programming in Go, or if you&rsquo;ve completed one of our previous tutorials on the subject, you&rsquo;re ready to take your skills to the next level.</p><p>In this tutorial, we&rsquo;ll explore some advanced concepts and techniques for building more powerful and scalable networked applications using Go sockets. We&rsquo;ll start with a brief overview of the socket API in Go, and then dive into a few specific areas where you can use sockets to build more advanced systems.</p><h2 id=the-go-socket-api>The Go Socket API</h2><p>The Go standard library provides a comprehensive set of APIs for working with sockets. The net package contains all of the functions and types you&rsquo;ll need to create and use sockets, as well as a number of sub-packages for working with specific network protocols like TCP, UDP, and HTTP.</p><p>To get started with socket programming in Go, you&rsquo;ll need to import the net package and use one of the Dial or Listen functions to create a socket. Here&rsquo;s a simple example of how to create a client socket and connect to a server:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+<a class=text-capitalize href=https://acethecloud.com/tags/web/>web</a></div></div></div></div></div></header><section class="section singleBlog"><div class=svg-img><img src=https://acethecloud.com/images/hero/figure-svg.svg alt></div><div class=animate-shape><img src=https://acethecloud.com/images/skill/skill-background-shape.svg alt><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 600 600"><defs><linearGradient id="d" x1=".929" y1=".111" x2=".263" y2=".935" gradientUnits="objectBoundingBox"><stop offset="0" stop-color="#f1f6f9"/><stop offset="1" stop-color="#f1f6f9" stop-opacity="0"/></linearGradient></defs><g data-name="blob-shape (3)"><path class="blob" fill="url(#d)" d="M455.4 151.1c43.1 36.7 73.4 92.8 60.8 136.3-12.7 43.5-68.1 74.4-111.3 119.4-43.1 45-74 104.1-109.8 109-35.9 5-76.7-44.2-111.8-89.2-35.2-45-64.7-85.8-70.8-132.6-6-46.8 11.6-99.6 46.7-136.3 35.2-36.6 88-57.2 142.4-58.8 54.5-1.7 110.6 15.6 153.8 52.2z"/></g></svg></div><div class=animate-pattern><img src=https://acethecloud.com/images/service/background-pattern.svg alt=background-shape></div><div class=container><div class=row><div class=col-lg-12><div class=singleBlog__feature style=margin-top:-300px;margin-bottom:-300px><img src=https://acethecloud.com/images/blog/golang.png alt=feature-image></div></div></div><div class="row mt-5"><div class=col-lg-12><div class=singleBlog__content><p>Welcome to this tutorial on advanced techniques for socket programming in Go! If you&rsquo;re already familiar with the basics of socket programming in Go, or if you&rsquo;ve completed one of our previous tutorials on the subject, you&rsquo;re ready to take your skills to the next level.</p><p>In this tutorial, we&rsquo;ll explore some advanced concepts and techniques for building more powerful and scalable networked applications using Go sockets. We&rsquo;ll start with a brief overview of the socket API in Go, and then dive into a few specific areas where you can use sockets to build more advanced systems.</p><h2 id=the-go-socket-api>The Go Socket API</h2><p>The Go standard library provides a comprehensive set of APIs for working with sockets. The net package contains all of the functions and types you&rsquo;ll need to create and use sockets, as well as a number of sub-packages for working with specific network protocols like TCP, UDP, and HTTP.</p><p>To get started with socket programming in Go, you&rsquo;ll need to import the net package and use one of the Dial or Listen functions to create a socket. Here&rsquo;s a simple example of how to create a client socket and connect to a server:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;net&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> (
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;net&#34;</span>
 </span></span><span style=display:flex><span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Dial a TCP socket to a server at a specific address
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>conn</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>net</span>.<span style=color:#a6e22e>Dial</span>(<span style=color:#e6db74>&#34;tcp&#34;</span>, <span style=color:#e6db74>&#34;localhost:8080&#34;</span>)
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	}
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>main</span>() {
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Dial a TCP socket to a server at a specific address
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	conn, err <span style=color:#666>:=</span> net.<span style=color:#06287e>Dial</span>(<span style=color:#4070a0>&#34;tcp&#34;</span>, <span style=color:#4070a0>&#34;localhost:8080&#34;</span>)
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Send a message to the server
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Fprintf</span>(<span style=color:#a6e22e>conn</span>, <span style=color:#e6db74>&#34;Hello, server!&#34;</span>)
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Send a message to the server
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	fmt.<span style=color:#06287e>Fprintf</span>(conn, <span style=color:#4070a0>&#34;Hello, server!&#34;</span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Read a response from the server
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>buf</span> <span style=color:#f92672>:=</span> make([]<span style=color:#66d9ef>byte</span>, <span style=color:#ae81ff>1024</span>)
-</span></span><span style=display:flex><span>	<span style=color:#a6e22e>n</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>Read</span>(<span style=color:#a6e22e>buf</span>)
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	}
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Read a response from the server
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	buf <span style=color:#666>:=</span> <span style=color:#007020>make</span>([]<span style=color:#902000>byte</span>, <span style=color:#40a070>1024</span>)
+</span></span><span style=display:flex><span>	n, err <span style=color:#666>:=</span> conn.<span style=color:#06287e>Read</span>(buf)
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Print the response
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(string(<span style=color:#a6e22e>buf</span>[:<span style=color:#a6e22e>n</span>]))
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Print the response
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	fmt.<span style=color:#06287e>Println</span>(<span style=color:#007020>string</span>(buf[:n]))
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Close the connection
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>Close</span>()
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Close the connection
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	conn.<span style=color:#06287e>Close</span>()
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>To create a server socket, you can use the Listen function to bind to a specific address and port, and then use the Accept function to listen for incoming connections:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+</span></span></code></pre></td></tr></table></div></div><p>To create a server socket, you can use the Listen function to bind to a specific address and port, and then use the Accept function to listen for incoming connections:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;net&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> (
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;net&#34;</span>
 </span></span><span style=display:flex><span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Bind a TCP socket to a specific address and port
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>ln</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>net</span>.<span style=color:#a6e22e>Listen</span>(<span style=color:#e6db74>&#34;tcp&#34;</span>, <span style=color:#e6db74>&#34;localhost:8080&#34;</span>)
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	}
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>defer</span> <span style=color:#a6e22e>ln</span>.<span style=color:#a6e22e>Close</span>()
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>main</span>() {
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Bind a TCP socket to a specific address and port
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	ln, err <span style=color:#666>:=</span> net.<span style=color:#06287e>Listen</span>(<span style=color:#4070a0>&#34;tcp&#34;</span>, <span style=color:#4070a0>&#34;localhost:8080&#34;</span>)
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	}
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>defer</span> ln.<span style=color:#06287e>Close</span>()
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>for</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Accept an incoming connection
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>conn</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>ln</span>.<span style=color:#a6e22e>Accept</span>()
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>			<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		}
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>for</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Accept an incoming connection
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		conn, err <span style=color:#666>:=</span> ln.<span style=color:#06287e>Accept</span>()
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>			<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Read a message from the client
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>buf</span> <span style=color:#f92672>:=</span> make([]<span style=color:#66d9ef>byte</span>, <span style=color:#ae81ff>1024</span>)
-</span></span><span style=display:flex><span>		<span style=color:#a6e22e>n</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>Read</span>(<span style=color:#a6e22e>buf</span>)
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>			<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		}
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Read a message from the client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		buf <span style=color:#666>:=</span> <span style=color:#007020>make</span>([]<span style=color:#902000>byte</span>, <span style=color:#40a070>1024</span>)
+</span></span><span style=display:flex><span>		n, err <span style=color:#666>:=</span> conn.<span style=color:#06287e>Read</span>(buf)
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>			<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Print the message
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(string(<span style=color:#a6e22e>buf</span>[:<span style=color:#a6e22e>n</span>]))
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Print the message
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		fmt.<span style=color:#06287e>Println</span>(<span style=color:#007020>string</span>(buf[:n]))
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Send a response to the client
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Fprintf</span>(<span style=color:#a6e22e>conn</span>, <span style=color:#e6db74>&#34;Hello, client!&#34;</span>)
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Send a response to the client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		fmt.<span style=color:#06287e>Fprintf</span>(conn, <span style=color:#4070a0>&#34;Hello, client!&#34;</span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Close the connection
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>Close</span>()
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Close the connection
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		conn.<span style=color:#06287e>Close</span>()
 </span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><h2 id=advanced-socket-techniques>Advanced Socket Techniques</h2><p>Now that you have a basic understanding of how to create and use sockets in Go, let&rsquo;s look at a few advanced techniques you can use to build more powerful and scalable networked applications.</p><h3 id=concurrent-server>Concurrent Server</h3><p>One common pattern for building networked servers is to use concurrency to handle multiple clients simultaneously. In Go, you can use goroutines and channels to handle multiple connections concurrently without blocking the main thread.</p><p>Here&rsquo;s an example of a concurrent server that uses a goroutine to handle each incoming connection:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=advanced-socket-techniques>Advanced Socket Techniques</h2><p>Now that you have a basic understanding of how to create and use sockets in Go, let&rsquo;s look at a few advanced techniques you can use to build more powerful and scalable networked applications.</p><h3 id=concurrent-server>Concurrent Server</h3><p>One common pattern for building networked servers is to use concurrency to handle multiple clients simultaneously. In Go, you can use goroutines and channels to handle multiple connections concurrently without blocking the main thread.</p><p>Here&rsquo;s an example of a concurrent server that uses a goroutine to handle each incoming connection:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;net&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> (
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;net&#34;</span>
 </span></span><span style=display:flex><span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>handleConnection</span>(<span style=color:#a6e22e>conn</span> <span style=color:#a6e22e>net</span>.<span style=color:#a6e22e>Conn</span>) {
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Read a message from the client
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>buf</span> <span style=color:#f92672>:=</span> make([]<span style=color:#66d9ef>byte</span>, <span style=color:#ae81ff>1024</span>)
-</span></span><span style=display:flex><span>	<span style=color:#a6e22e>n</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>Read</span>(<span style=color:#a6e22e>buf</span>)
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	}
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>handleConnection</span>(conn net.Conn) {
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Read a message from the client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	buf <span style=color:#666>:=</span> <span style=color:#007020>make</span>([]<span style=color:#902000>byte</span>, <span style=color:#40a070>1024</span>)
+</span></span><span style=display:flex><span>	n, err <span style=color:#666>:=</span> conn.<span style=color:#06287e>Read</span>(buf)
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Print the message
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(string(<span style=color:#a6e22e>buf</span>[:<span style=color:#a6e22e>n</span>]))
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Print the message
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	fmt.<span style=color:#06287e>Println</span>(<span style=color:#007020>string</span>(buf[:n]))
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Send a response to the client
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Fprintf</span>(<span style=color:#a6e22e>conn</span>, <span style=color:#e6db74>&#34;Hello, client!&#34;</span>)
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Send a response to the client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	fmt.<span style=color:#06287e>Fprintf</span>(conn, <span style=color:#4070a0>&#34;Hello, client!&#34;</span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Close the connection
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>Close</span>()
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Close the connection
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	conn.<span style=color:#06287e>Close</span>()
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Bind a TCP socket to a specific address and port
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>ln</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>net</span>.<span style=color:#a6e22e>Listen</span>(<span style=color:#e6db74>&#34;tcp&#34;</span>, <span style=color:#e6db74>&#34;localhost:8080&#34;</span>)
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	}
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>defer</span> <span style=color:#a6e22e>ln</span>.<span style=color:#a6e22e>Close</span>()
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>main</span>() {
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Bind a TCP socket to a specific address and port
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	ln, err <span style=color:#666>:=</span> net.<span style=color:#06287e>Listen</span>(<span style=color:#4070a0>&#34;tcp&#34;</span>, <span style=color:#4070a0>&#34;localhost:8080&#34;</span>)
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	}
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>defer</span> ln.<span style=color:#06287e>Close</span>()
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>for</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Accept an incoming connection
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>conn</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>ln</span>.<span style=color:#a6e22e>Accept</span>()
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>			<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		}
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>for</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Accept an incoming connection
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		conn, err <span style=color:#666>:=</span> ln.<span style=color:#06287e>Accept</span>()
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>			<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Handle the connection in a goroutine
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#66d9ef>go</span> <span style=color:#a6e22e>handleConnection</span>(<span style=color:#a6e22e>conn</span>)
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Handle the connection in a goroutine
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		<span style=color:#007020;font-weight:700>go</span> <span style=color:#06287e>handleConnection</span>(conn)
 </span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>Using this pattern, you can build servers that can handle a large number of concurrent connections without running into performance issues.</p><h3 id=non-blocking-io>Non-Blocking I/O</h3><p>By default, the Read and Write functions in Go&rsquo;s socket API are blocking, which means they will wait until they are able to read or write data before returning. This can be a problem if you&rsquo;re building a high-performance server that needs to handle a large number of connections concurrently.</p><p>To overcome this issue, you can use non-blocking I/O to allow your server to handle multiple connections without waiting for blocking I/O operations to complete. To do this, you&rsquo;ll need to use the SetReadDeadline and SetWriteDeadline functions to set a timeout for read and write operations, and then use the IsTimeout function to check for timeouts.</p><p>Here&rsquo;s an example of a server that uses non-blocking I/O to handle multiple connections concurrently:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+</span></span></code></pre></td></tr></table></div></div><p>Using this pattern, you can build servers that can handle a large number of concurrent connections without running into performance issues.</p><h3 id=non-blocking-io>Non-Blocking I/O</h3><p>By default, the Read and Write functions in Go&rsquo;s socket API are blocking, which means they will wait until they are able to read or write data before returning. This can be a problem if you&rsquo;re building a high-performance server that needs to handle a large number of connections concurrently.</p><p>To overcome this issue, you can use non-blocking I/O to allow your server to handle multiple connections without waiting for blocking I/O operations to complete. To do this, you&rsquo;ll need to use the SetReadDeadline and SetWriteDeadline functions to set a timeout for read and write operations, and then use the IsTimeout function to check for timeouts.</p><p>Here&rsquo;s an example of a server that uses non-blocking I/O to handle multiple connections concurrently:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">56
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">57
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">58
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;net&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;time&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> (
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;net&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;time&#34;</span>
 </span></span><span style=display:flex><span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>handleConnection</span>(<span style=color:#a6e22e>conn</span> <span style=color:#a6e22e>net</span>.<span style=color:#a6e22e>Conn</span>) {
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>for</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Set a deadline for reading data
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>SetReadDeadline</span>(<span style=color:#a6e22e>time</span>.<span style=color:#a6e22e>Now</span>().<span style=color:#a6e22e>Add</span>(<span style=color:#a6e22e>time</span>.<span style=color:#a6e22e>Second</span>))
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>handleConnection</span>(conn net.Conn) {
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>for</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Set a deadline for reading data
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		conn.<span style=color:#06287e>SetReadDeadline</span>(time.<span style=color:#06287e>Now</span>().<span style=color:#06287e>Add</span>(time.Second))
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Read data from the client
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>buf</span> <span style=color:#f92672>:=</span> make([]<span style=color:#66d9ef>byte</span>, <span style=color:#ae81ff>1024</span>)
-</span></span><span style=display:flex><span>		<span style=color:#a6e22e>n</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>Read</span>(<span style=color:#a6e22e>buf</span>)
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>			<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>netErr</span>, <span style=color:#a6e22e>ok</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>err</span>.(<span style=color:#a6e22e>net</span>.<span style=color:#a6e22e>Error</span>); <span style=color:#a6e22e>ok</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#a6e22e>netErr</span>.<span style=color:#a6e22e>Timeout</span>() {
-</span></span><span style=display:flex><span>				<span style=color:#75715e>// The read operation timed out, so we&#39;ll just continue
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>				<span style=color:#66d9ef>continue</span>
-</span></span><span style=display:flex><span>			} <span style=color:#66d9ef>else</span> {
-</span></span><span style=display:flex><span>				<span style=color:#75715e>// There was an error other than a timeout, so we&#39;ll break out of the loop
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>				<span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Read data from the client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		buf <span style=color:#666>:=</span> <span style=color:#007020>make</span>([]<span style=color:#902000>byte</span>, <span style=color:#40a070>1024</span>)
+</span></span><span style=display:flex><span>		n, err <span style=color:#666>:=</span> conn.<span style=color:#06287e>Read</span>(buf)
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>			<span style=color:#007020;font-weight:700>if</span> netErr, ok <span style=color:#666>:=</span> err.(net.Error); ok <span style=color:#666>&amp;&amp;</span> netErr.<span style=color:#06287e>Timeout</span>() {
+</span></span><span style=display:flex><span>				<span style=color:#60a0b0;font-style:italic>// The read operation timed out, so we&#39;ll just continue
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>				<span style=color:#007020;font-weight:700>continue</span>
+</span></span><span style=display:flex><span>			} <span style=color:#007020;font-weight:700>else</span> {
+</span></span><span style=display:flex><span>				<span style=color:#60a0b0;font-style:italic>// There was an error other than a timeout, so we&#39;ll break out of the loop
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>				<span style=color:#007020;font-weight:700>break</span>
 </span></span><span style=display:flex><span>	        }
 </span></span><span style=display:flex><span>        }
 </span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Print the message
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(string(<span style=color:#a6e22e>buf</span>[:<span style=color:#a6e22e>n</span>]))
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Print the message
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	fmt.<span style=color:#06287e>Println</span>(<span style=color:#007020>string</span>(buf[:n]))
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Set a deadline for writing data
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>SetWriteDeadline</span>(<span style=color:#a6e22e>time</span>.<span style=color:#a6e22e>Now</span>().<span style=color:#a6e22e>Add</span>(<span style=color:#a6e22e>time</span>.<span style=color:#a6e22e>Second</span>))
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Set a deadline for writing data
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	conn.<span style=color:#06287e>SetWriteDeadline</span>(time.<span style=color:#06287e>Now</span>().<span style=color:#06287e>Add</span>(time.Second))
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Send a response to the client
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Fprintf</span>(<span style=color:#a6e22e>conn</span>, <span style=color:#e6db74>&#34;Hello, client!&#34;</span>)
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Send a response to the client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	fmt.<span style=color:#06287e>Fprintf</span>(conn, <span style=color:#4070a0>&#34;Hello, client!&#34;</span>)
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// Close the connection
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>Close</span>()
+</span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic>// Close the connection
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>conn.<span style=color:#06287e>Close</span>()
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>    <span style=color:#75715e>// Bind a TCP socket to a specific address and port
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    <span style=color:#a6e22e>ln</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>net</span>.<span style=color:#a6e22e>Listen</span>(<span style=color:#e6db74>&#34;tcp&#34;</span>, <span style=color:#e6db74>&#34;localhost:8080&#34;</span>)
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>    }
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>defer</span> <span style=color:#a6e22e>ln</span>.<span style=color:#a6e22e>Close</span>()
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>main</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#60a0b0;font-style:italic>// Bind a TCP socket to a specific address and port
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>    ln, err <span style=color:#666>:=</span> net.<span style=color:#06287e>Listen</span>(<span style=color:#4070a0>&#34;tcp&#34;</span>, <span style=color:#4070a0>&#34;localhost:8080&#34;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>        <span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>    }
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>defer</span> ln.<span style=color:#06287e>Close</span>()
 </span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> {
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// Accept an incoming connection
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#a6e22e>conn</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>ln</span>.<span style=color:#a6e22e>Accept</span>()
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>            <span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        }
-</span></span><span style=display:flex><span>        <span style=color:#75715e>// Handle the connection in a goroutine
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>        <span style=color:#66d9ef>go</span> <span style=color:#a6e22e>handleConnection</span>(<span style=color:#a6e22e>conn</span>)
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>for</span> {
+</span></span><span style=display:flex><span>        <span style=color:#60a0b0;font-style:italic>// Accept an incoming connection
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        conn, err <span style=color:#666>:=</span> ln.<span style=color:#06287e>Accept</span>()
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>            <span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        }
+</span></span><span style=display:flex><span>        <span style=color:#60a0b0;font-style:italic>// Handle the connection in a goroutine
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        <span style=color:#007020;font-weight:700>go</span> <span style=color:#06287e>handleConnection</span>(conn)
 </span></span><span style=display:flex><span>    }
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>Using non-blocking I/O can significantly improve the performance of your socket-based servers, especially when handling a large number of concurrent connections.</p><h3 id=udp-sockets>UDP Sockets</h3><p>In addition to TCP sockets, Go&rsquo;s <code>net</code> package also provides support for working with UDP sockets. UDP is a connectionless protocol that allows you to send and receive datagrams without establishing a connection. This makes it well-suited for real-time applications where low latency is important, such as online gaming or voice over IP (VoIP).</p><p>To use UDP sockets in Go, you&rsquo;ll need to use the <code>DialUDP</code> and <code>ListenUDP</code> functions to create client and server sockets, respectively. Here&rsquo;s an example of a simple UDP client and server:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// UDP client
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+</span></span></code></pre></td></tr></table></div></div><p>Using non-blocking I/O can significantly improve the performance of your socket-based servers, especially when handling a large number of concurrent connections.</p><h3 id=udp-sockets>UDP Sockets</h3><p>In addition to TCP sockets, Go&rsquo;s <code>net</code> package also provides support for working with UDP sockets. UDP is a connectionless protocol that allows you to send and receive datagrams without establishing a connection. This makes it well-suited for real-time applications where low latency is important, such as online gaming or voice over IP (VoIP).</p><p>To use UDP sockets in Go, you&rsquo;ll need to use the <code>DialUDP</code> and <code>ListenUDP</code> functions to create client and server sockets, respectively. Here&rsquo;s an example of a simple UDP client and server:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">41
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">42
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">43
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">44
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">45
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">46
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">47
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">48
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">49
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">50
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">51
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">52
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">53
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">54
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">55
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">56
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic>// UDP client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span><span style=color:#007020;font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;net&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> (
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;net&#34;</span>
 </span></span><span style=display:flex><span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Dial a UDP socket
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>conn</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>net</span>.<span style=color:#a6e22e>Dial</span>(<span style=color:#e6db74>&#34;udp&#34;</span>, <span style=color:#e6db74>&#34;localhost:8080&#34;</span>)
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	}
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>defer</span> <span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>Close</span>()
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>main</span>() {
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Dial a UDP socket
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	conn, err <span style=color:#666>:=</span> net.<span style=color:#06287e>Dial</span>(<span style=color:#4070a0>&#34;udp&#34;</span>, <span style=color:#4070a0>&#34;localhost:8080&#34;</span>)
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	}
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>defer</span> conn.<span style=color:#06287e>Close</span>()
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Send a message to the server
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Fprintf</span>(<span style=color:#a6e22e>conn</span>, <span style=color:#e6db74>&#34;Hello, server!&#34;</span>)
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Send a message to the server
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	fmt.<span style=color:#06287e>Fprintf</span>(conn, <span style=color:#4070a0>&#34;Hello, server!&#34;</span>)
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e>// UDP server
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+</span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic>// UDP server
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span><span style=color:#007020;font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;net&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> (
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;net&#34;</span>
 </span></span><span style=display:flex><span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>	<span style=color:#75715e>// Bind a UDP socket to a specific address and port
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>addr</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>net</span>.<span style=color:#a6e22e>ResolveUDPAddr</span>(<span style=color:#e6db74>&#34;udp&#34;</span>, <span style=color:#e6db74>&#34;localhost:8080&#34;</span>)
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	}
-</span></span><span style=display:flex><span>	<span style=color:#a6e22e>conn</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>net</span>.<span style=color:#a6e22e>ListenUDP</span>(<span style=color:#e6db74>&#34;udp&#34;</span>, <span style=color:#a6e22e>addr</span>)
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	}
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>defer</span> <span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>Close</span>()
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>main</span>() {
+</span></span><span style=display:flex><span>	<span style=color:#60a0b0;font-style:italic>// Bind a UDP socket to a specific address and port
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	addr, err <span style=color:#666>:=</span> net.<span style=color:#06287e>ResolveUDPAddr</span>(<span style=color:#4070a0>&#34;udp&#34;</span>, <span style=color:#4070a0>&#34;localhost:8080&#34;</span>)
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	}
+</span></span><span style=display:flex><span>	conn, err <span style=color:#666>:=</span> net.<span style=color:#06287e>ListenUDP</span>(<span style=color:#4070a0>&#34;udp&#34;</span>, addr)
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>	}
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>defer</span> conn.<span style=color:#06287e>Close</span>()
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>for</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Read a message from the client
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>buf</span> <span style=color:#f92672>:=</span> make([]<span style=color:#66d9ef>byte</span>, <span style=color:#ae81ff>1024</span>)
-</span></span><span style=display:flex><span>		<span style=color:#a6e22e>n</span>, <span style=color:#a6e22e>_</span>, <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>ReadFromUDP</span>(<span style=color:#a6e22e>buf</span>)
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>			<span style=color:#75715e>// Handle error
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		}
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>for</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Read a message from the client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		buf <span style=color:#666>:=</span> <span style=color:#007020>make</span>([]<span style=color:#902000>byte</span>, <span style=color:#40a070>1024</span>)
+</span></span><span style=display:flex><span>		n, _, err <span style=color:#666>:=</span> conn.<span style=color:#06287e>ReadFromUDP</span>(buf)
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>			<span style=color:#60a0b0;font-style:italic>// Handle error
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Print the message
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(string(<span style=color:#a6e22e>buf</span>[:<span style=color:#a6e22e>n</span>]))
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Print the message
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		fmt.<span style=color:#06287e>Println</span>(<span style=color:#007020>string</span>(buf[:n]))
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Send a response to the client
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>conn</span>.<span style=color:#a6e22e>WriteToUDP</span>([]byte(<span style=color:#e6db74>&#34;Hello, client!&#34;</span>), <span style=color:#a6e22e>addr</span>)
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Send a response to the client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		conn.<span style=color:#06287e>WriteToUDP</span>([]<span style=color:#007020>byte</span>(<span style=color:#4070a0>&#34;Hello, client!&#34;</span>), addr)
 </span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>UDP sockets can be a powerful tool for building real-time networked applications, but it&rsquo;s important to note that they do not provide the same level of reliability as TCP sockets. Because UDP is a connectionless protocol, there is no guarantee that a datagram will be delivered, and there is no mechanism for retransmitting lost datagrams.</p><p>If you need to ensure reliable delivery of data, you may want to consider using TCP sockets or a higher-level protocol like HTTP or WebSockets. However, if low latency is more important than reliability, UDP can be a good choice.</p><h3 id=websockets>WebSockets</h3><p><img src=/images/blog/websocket.png alt="Web Sockets"></p><p>WebSockets are a web technology that provides a full-duplex communication channel over a single TCP connection. They are commonly used to build real-time web applications, such as chat systems or online games.</p><p>To use WebSockets in Go, you can use the websocket package in the golang.org/x/net repository. This package provides a comprehensive API for working with WebSockets, including support for handling the WebSocket handshake and framing messages.</p><p>Here&rsquo;s an example of a simple WebSocket server that echoes back any messages it receives:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+</span></span></code></pre></td></tr></table></div></div><p>UDP sockets can be a powerful tool for building real-time networked applications, but it&rsquo;s important to note that they do not provide the same level of reliability as TCP sockets. Because UDP is a connectionless protocol, there is no guarantee that a datagram will be delivered, and there is no mechanism for retransmitting lost datagrams.</p><p>If you need to ensure reliable delivery of data, you may want to consider using TCP sockets or a higher-level protocol like HTTP or WebSockets. However, if low latency is more important than reliability, UDP can be a good choice.</p><h3 id=websockets>WebSockets</h3><p><img src=/images/blog/websocket.png alt="Web Sockets"></p><p>WebSockets are a web technology that provides a full-duplex communication channel over a single TCP connection. They are commonly used to build real-time web applications, such as chat systems or online games.</p><p>To use WebSockets in Go, you can use the websocket package in the golang.org/x/net repository. This package provides a comprehensive API for working with WebSockets, including support for handling the WebSocket handshake and framing messages.</p><p>Here&rsquo;s an example of a simple WebSocket server that echoes back any messages it receives:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-golang data-lang=golang><span style=display:flex><span><span style=color:#007020;font-weight:700>package</span> main
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> (
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;fmt&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;log&#34;</span>
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;net/http&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> (
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;fmt&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;log&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;net/http&#34;</span>
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;golang.org/x/net/websocket&#34;</span>
+</span></span><span style=display:flex><span>	<span style=color:#4070a0>&#34;golang.org/x/net/websocket&#34;</span>
 </span></span><span style=display:flex><span>)
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>echoServer</span>(<span style=color:#a6e22e>ws</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>websocket</span>.<span style=color:#a6e22e>Conn</span>) {
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>for</span> {
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Read a message from the client
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>msg</span> <span style=color:#66d9ef>string</span>
-</span></span><span style=display:flex><span>		<span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>websocket</span>.<span style=color:#a6e22e>Message</span>.<span style=color:#a6e22e>Receive</span>(<span style=color:#a6e22e>ws</span>, <span style=color:#f92672>&amp;</span><span style=color:#a6e22e>msg</span>)
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>			<span style=color:#75715e>// The connection was closed, so we&#39;ll break out of the loop
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>			<span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>echoServer</span>(ws <span style=color:#666>*</span>websocket.Conn) {
+</span></span><span style=display:flex><span>	<span style=color:#007020;font-weight:700>for</span> {
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Read a message from the client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		<span style=color:#007020;font-weight:700>var</span> msg <span style=color:#902000>string</span>
+</span></span><span style=display:flex><span>		err <span style=color:#666>:=</span> websocket.Message.<span style=color:#06287e>Receive</span>(ws, <span style=color:#666>&amp;</span>msg)
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>			<span style=color:#60a0b0;font-style:italic>// The connection was closed, so we&#39;ll break out of the loop
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>			<span style=color:#007020;font-weight:700>break</span>
 </span></span><span style=display:flex><span>		}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		<span style=color:#75715e>// Echo the message back to the client
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>		<span style=color:#a6e22e>err</span> = <span style=color:#a6e22e>websocket</span>.<span style=color:#a6e22e>Message</span>.<span style=color:#a6e22e>Send</span>(<span style=color:#a6e22e>ws</span>, <span style=color:#a6e22e>msg</span>)
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
-</span></span><span style=display:flex><span>			<span style=color:#75715e>// The connection was closed, so we&#39;ll break out of the loop
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>			<span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>		<span style=color:#60a0b0;font-style:italic>// Echo the message back to the client
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>		err = websocket.Message.<span style=color:#06287e>Send</span>(ws, msg)
+</span></span><span style=display:flex><span>		<span style=color:#007020;font-weight:700>if</span> err <span style=color:#666>!=</span> <span style=color:#007020;font-weight:700>nil</span> {
+</span></span><span style=display:flex><span>			<span style=color:#60a0b0;font-style:italic>// The connection was closed, so we&#39;ll break out of the loop
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>			<span style=color:#007020;font-weight:700>break</span>
 </span></span><span style=display:flex><span>		}
 </span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>}
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
-</span></span><span style=display:flex><span>	<span style=color:#a6e22e>http</span>.<span style=color:#a6e22e>Handle</span>(<span style=color:#e6db74>&#34;/echo&#34;</span>, <span style=color:#a6e22e>websocket</span>.<span style=color:#a6e22e>Handler</span>(<span style=color:#a6e22e>echoServer</span>))
-</span></span><span style=display:flex><span>	<span style=color:#a6e22e>log</span>.<span style=color:#a6e22e>Fatal</span>(<span style=color:#a6e22e>http</span>.<span style=color:#a6e22e>ListenAndServe</span>(<span style=color:#e6db74>&#34;:8080&#34;</span>, <span style=color:#66d9ef>nil</span>))
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>func</span> <span style=color:#06287e>main</span>() {
+</span></span><span style=display:flex><span>	http.<span style=color:#06287e>Handle</span>(<span style=color:#4070a0>&#34;/echo&#34;</span>, websocket.<span style=color:#06287e>Handler</span>(echoServer))
+</span></span><span style=display:flex><span>	log.<span style=color:#06287e>Fatal</span>(http.<span style=color:#06287e>ListenAndServe</span>(<span style=color:#4070a0>&#34;:8080&#34;</span>, <span style=color:#007020;font-weight:700>nil</span>))
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>To connect to this server from a client, you can use the WebSocket constructor in JavaScript:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-javascript data-lang=javascript><span style=display:flex><span><span style=color:#66d9ef>const</span> <span style=color:#a6e22e>ws</span> <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>WebSocket</span>(<span style=color:#e6db74>&#39;ws://localhost:8080/echo&#39;</span>);
+</span></span></code></pre></td></tr></table></div></div><p>To connect to this server from a client, you can use the WebSocket constructor in JavaScript:</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">7
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-javascript data-lang=javascript><span style=display:flex><span><span style=color:#007020;font-weight:700>const</span> ws <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>new</span> WebSocket(<span style=color:#4070a0>&#39;ws://localhost:8080/echo&#39;</span>);
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#a6e22e>ws</span>.<span style=color:#a6e22e>onmessage</span> <span style=color:#f92672>=</span> (<span style=color:#a6e22e>event</span>) =&gt; {
-</span></span><span style=display:flex><span>  <span style=color:#a6e22e>console</span>.<span style=color:#a6e22e>log</span>(<span style=color:#a6e22e>event</span>.<span style=color:#a6e22e>data</span>);
+</span></span><span style=display:flex><span>ws.onmessage <span style=color:#666>=</span> (event) =&gt; {
+</span></span><span style=display:flex><span>  console.log(event.data);
 </span></span><span style=display:flex><span>};
 </span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#a6e22e>ws</span>.<span style=color:#a6e22e>send</span>(<span style=color:#e6db74>&#39;Hello, server!&#39;</span>);
-</span></span></code></pre></div><p>WebSockets can be a powerful tool for building real-time web applications, and the websocket package in Go makes it easy to work with them in your server-side code.</p><p>Conclusion
-In this tutorial, we&rsquo;ve explored some advanced concepts and techniques for socket programming in Go. We&rsquo;ve looked at how to build concurrent servers, use non-blocking I/O, work with UDP sockets, and use WebSockets to build real-time web applications.</p><p>With these techniques in your toolkit, you&rsquo;ll be well-equipped to build powerful and scalable networked applications using Go sockets.</p></div></div></div></div></section></div><section class=footer id=contact><div class=footer__background_shape><svg viewBox="0 0 1920 79"><path d="M0 0h1920v79L0 0z" data-name="Path 1450"/></svg></div><div class=container><div class=row><div class=col-lg-12><div class=footer__cta><div class=shape-1><svg xmlns="http://www.w3.org/2000/svg" width="357" height="315.029" viewBox="0 0 357 315.029"><path data-name="Path 1449" d="M76.1-157.222C91.746-135.8 87.2-94.273 99.993-61.945c12.7 32.328 42.661 55.459 39.248 73.282-3.318 17.823-40.007 30.337-65.6 43.325-25.5 12.988-39.912 26.545-60.01 42.566-20.1 16.116-46.074 34.6-63.328 27.682-17.349-6.921-25.976-39.153-59.915-59.82s-93.1-29.768-105.325-51.478 22.373-56.028 43.609-93.949c21.331-37.921 29.2-79.35 53.563-96.793 24.459-17.444 65.414-10.9 103.9-6.921 38.396 3.982 74.326 5.404 89.965 26.829z" transform="translate(217.489 188.626)"/></svg></div><div class=shape-2><svg xmlns="http://www.w3.org/2000/svg" width="357" height="315.029" viewBox="0 0 357 315.029"><path data-name="Path 1449" d="M76.1-157.222C91.746-135.8 87.2-94.273 99.993-61.945c12.7 32.328 42.661 55.459 39.248 73.282-3.318 17.823-40.007 30.337-65.6 43.325-25.5 12.988-39.912 26.545-60.01 42.566-20.1 16.116-46.074 34.6-63.328 27.682-17.349-6.921-25.976-39.153-59.915-59.82s-93.1-29.768-105.325-51.478 22.373-56.028 43.609-93.949c21.331-37.921 29.2-79.35 53.563-96.793 24.459-17.444 65.414-10.9 103.9-6.921 38.396 3.982 74.326 5.404 89.965 26.829z" transform="translate(217.489 188.626)"/></svg></div><div class="text-light footer__cta_content"><span>Contact me</span><h3 class=mb-0>Let’s Discuss on your Cloud Journey</h3></div><div class=footer__cta_action><a class="btn btn-light btn-zoom" href=https://acethecloud.com/contact>Get in
+</span></span><span style=display:flex><span>ws.send(<span style=color:#4070a0>&#39;Hello, server!&#39;</span>);
+</span></span></code></pre></td></tr></table></div></div><p>WebSockets can be a powerful tool for building real-time web applications, and the websocket package in Go makes it easy to work with them in your server-side code.</p><p>Conclusion
+In this tutorial, we&rsquo;ve explored some advanced concepts and techniques for socket programming in Go. We&rsquo;ve looked at how to build concurrent servers, use non-blocking I/O, work with UDP sockets, and use WebSockets to build real-time web applications.</p><p>With these techniques in your toolkit, you&rsquo;ll be well-equipped to build powerful and scalable networked applications using Go sockets.</p><div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3068198368246884" crossorigin=anonymous></script>
+<ins class=adsbygoogle style=display:block data-ad-client=ca-pub-3068198368246884 data-ad-slot=9807437796 data-ad-format=auto data-full-width-responsive=true></ins>
+<script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div><div class=container style=padding:50px><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//acethecloud.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div></div></div></div></div></section></div><section class=footer id=contact><div class=footer__background_shape><svg viewBox="0 0 1920 79"><path d="M0 0h1920v79L0 0z" data-name="Path 1450"/></svg></div><div class=container><div class=row><div class=col-lg-12><div class=footer__cta><div class=shape-1><svg xmlns="http://www.w3.org/2000/svg" width="357" height="315.029" viewBox="0 0 357 315.029"><path data-name="Path 1449" d="M76.1-157.222C91.746-135.8 87.2-94.273 99.993-61.945c12.7 32.328 42.661 55.459 39.248 73.282-3.318 17.823-40.007 30.337-65.6 43.325-25.5 12.988-39.912 26.545-60.01 42.566-20.1 16.116-46.074 34.6-63.328 27.682-17.349-6.921-25.976-39.153-59.915-59.82s-93.1-29.768-105.325-51.478 22.373-56.028 43.609-93.949c21.331-37.921 29.2-79.35 53.563-96.793 24.459-17.444 65.414-10.9 103.9-6.921 38.396 3.982 74.326 5.404 89.965 26.829z" transform="translate(217.489 188.626)"/></svg></div><div class=shape-2><svg xmlns="http://www.w3.org/2000/svg" width="357" height="315.029" viewBox="0 0 357 315.029"><path data-name="Path 1449" d="M76.1-157.222C91.746-135.8 87.2-94.273 99.993-61.945c12.7 32.328 42.661 55.459 39.248 73.282-3.318 17.823-40.007 30.337-65.6 43.325-25.5 12.988-39.912 26.545-60.01 42.566-20.1 16.116-46.074 34.6-63.328 27.682-17.349-6.921-25.976-39.153-59.915-59.82s-93.1-29.768-105.325-51.478 22.373-56.028 43.609-93.949c21.331-37.921 29.2-79.35 53.563-96.793 24.459-17.444 65.414-10.9 103.9-6.921 38.396 3.982 74.326 5.404 89.965 26.829z" transform="translate(217.489 188.626)"/></svg></div><div class="text-light footer__cta_content"><span>Contact me</span><h3 class=mb-0>Let’s Discuss on your Cloud Journey</h3></div><div class=footer__cta_action><a class="btn btn-light btn-zoom" href=https://acethecloud.com/contact>Get in
 touch</a></div></div></div></div><div class="row footer__widget"><div class=col-lg-4><div class="footer__widget_logo mb-5"><img src=https://acethecloud.com/images/contact/widget-logo.png style=width:400px alt=widget-logo></div></div><div class=col-lg-4 style=margin-left:100px><div class="text-light footer__widget_address mb-5"><h4 class=base-font>Sitemap</h4><ul class="unstyle-list small"><li class=mb-2><a class=text-light href=https://acethecloud.com/about>About Author</a></li><li class=mb-2><a class=text-light href=https://acethecloud.com/>Frequently Ask Question</a></li><li class=mb-2><a class=text-light href=https://acethecloud.com/>Privacy & Policy</a></li><li class=mb-2><a class=text-light href=https://acethecloud.com/>Latest Article</a></li></ul><h4 class=base-font>Address</h4><ul class="fa-ul small"><li class=mb-2><a class=text-light href=tel:><span class=fa-li><i class="fa fa-phone"></i></span></a></li><li class=mb-2><a class=text-light href=mailto:abhishek@acethecloud.com><span class=fa-li><i class="fa fa-envelope"></i></span>abhishek@acethecloud.com</a></li><li class=mb-2><span class=fa-li><i class="fa fa-map-marker"></i></span></a></li></ul></div></div></div><div class="row footer__footer"><div class=col-lg-6><div class="footer__footer_copy text-light"><p>Copyright 2023 - All Rights Reserved by <a class=text-light href=https://AceTheCloud.com/ target=_blank>AceTheCloud</a></p></div></div><div class=col-lg-6><div class=footer__footer_social><ul class=unstyle-list><li class="d-inline-block mx-2"><a class=text-light target=_blank href=https://facebook.com/cloud.and.mobile.evangelist/><i class="fa fa-facebook-official"></i></a></li><li class="d-inline-block mx-2"><a class=text-light target=_blank href=https://www.linkedin.com/in/enterprise-cloud-architect/><i class="fa fa-linkedin-square"></i></a></li><li class="d-inline-block mx-2"><a class=text-light target=_blank href=https://www.pinterest.com/><i class="fa fa-pinterest-square"></i></a></li><li class="d-inline-block mx-2"><a class=text-light target=_blank href=https://twitter.com/AceTheCloud><i class="fa fa-twitter-square"></i></a></li></ul></div></div></div></div></section><script src="https://maps.googleapis.com/maps/api/js?key=&libraries=geometry"></script>
 <script src=https://acethecloud.com/plugins/jQuery/jquery.min.js></script>
 <script src=https://acethecloud.com/plugins/bootstrap/bootstrap.min.js></script>
