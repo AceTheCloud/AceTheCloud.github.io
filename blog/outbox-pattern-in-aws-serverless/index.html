@@ -1,0 +1,216 @@
+<!doctype html><html><head><meta charset=utf-8><title>Eliminating Data Loss in AWS Serverless Architectures with the Outbox Pattern</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><link rel=stylesheet href=https://acethecloud.com/plugins/slick/slick.css><link rel=stylesheet href=https://acethecloud.com/plugins/slick/slick-theme.css><link rel=stylesheet href=https://acethecloud.com/plugins/font-awesome/css/font-awesome.min.css><link rel=stylesheet href=https://acethecloud.com/plugins/magnafic-popup/magnific-popup.css><link href=https://acethecloud.com/scss/style.min.css rel=stylesheet><link rel="shortcut icon" href=https://acethecloud.com/images/favicon.ico type=image/x-icon><link rel=icon href=https://acethecloud.com/images/favicon.png type=image/x-icon><script async src="https://www.googletagmanager.com/gtag/js?id=G-54XSTRSXS5"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-54XSTRSXS5")</script></head><body><nav class="navbar navbar-expand-lg fixed-top"><div class=container><a href=https://acethecloud.com/ class=navbar-brand><img src=https://acethecloud.com/images/site-navigation/logo.png alt=site-logo></a>
+<button type=button class="navbar-toggler collapsed" data-toggle=collapse data-target=#navbarCollapse>
+<span class=navbar-toggler-icon></span>
+<span class=navbar-toggler-icon></span>
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse justify-content-between" id=navbarCollapse><ul class="nav navbar-nav main-navigation my-0 mx-auto"><li class=nav-item><a href=https://acethecloud.com/#home class="nav-link text-dark text-sm-center p-2">Home</a></li><li class=nav-item><a href=https://acethecloud.com/#about class="nav-link text-dark text-sm-center p-2">About</a></li><li class=nav-item><a href=https://acethecloud.com/#resume class="nav-link text-dark text-sm-center p-2">Cloud</a></li><li class=nav-item><a href=https://acethecloud.com/#skills class="nav-link text-dark text-sm-center p-2">Cloud Share</a></li><li class=nav-item><a href=https://acethecloud.com/#contact class="nav-link text-dark text-sm-center p-2">Subscribe</a></li></ul><div class=navbar-nav><a href=https://acethecloud.com/blog class="btn btn-primary btn-zoom hire_button">Blog</a></div></div></div></nav><div id=content><header class=breadCrumb><div class=container><div class=row><div class="col-lg-10 col-md-12 offset-lg-1 offset-md-0 text-center"><h3 class=breadCrumb__title>Eliminating Data Loss in AWS Serverless Architectures with the Outbox Pattern</h3><nav aria-label=breadcrumb class="d-flex justify-content-center"><ol class="breadcrumb align-items-center"><li class=breadcrumb-item><a href=https://acethecloud.com/><u>Home</u></a></li><li class=breadcrumb-item>-> <a href=https://acethecloud.com/blog><u>All Post</u></a></li><li class="breadcrumb-item active" aria-current=page>-><u>Eliminating Data Loss in AWS Serverless Architectures with the Outbox Pattern</u></li></ol></nav></div></div><ul class=post-meta><li><i class="fa fa-calendar"></i>
+January 9, 2023</li><li><i class="fa fa-clock-o"></i>
+6 mins to read</li><li><i class="fa fa-folder-open"></i>
+<a class=text-capitalize href=https://acethecloud.com/categories/blogs/>blogs</a></li></ul><div class=post-meta>Tags :>
+<a class=text-capitalize href=https://acethecloud.com/tags/serverless/>serverless</a>
+<a class=text-capitalize href=https://acethecloud.com/tags/aws/>Aws</a>
+<a class=text-capitalize href=https://acethecloud.com/tags/lambda/>lambda</a>
+<a class=text-capitalize href=https://acethecloud.com/tags/design/>design</a>
+<a class=text-capitalize href=https://acethecloud.com/tags/programming/>programming</a></div></div></div></div></div></header><section class="section singleBlog"><div class=svg-img><img src=https://acethecloud.com/images/hero/figure-svg.svg alt></div><div class=animate-shape><img src=https://acethecloud.com/images/skill/skill-background-shape.svg alt><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 600 600"><defs><linearGradient id="d" x1=".929" y1=".111" x2=".263" y2=".935" gradientUnits="objectBoundingBox"><stop offset="0" stop-color="#f1f6f9"/><stop offset="1" stop-color="#f1f6f9" stop-opacity="0"/></linearGradient></defs><g data-name="blob-shape (3)"><path class="blob" fill="url(#d)" d="M455.4 151.1c43.1 36.7 73.4 92.8 60.8 136.3-12.7 43.5-68.1 74.4-111.3 119.4-43.1 45-74 104.1-109.8 109-35.9 5-76.7-44.2-111.8-89.2-35.2-45-64.7-85.8-70.8-132.6-6-46.8 11.6-99.6 46.7-136.3 35.2-36.6 88-57.2 142.4-58.8 54.5-1.7 110.6 15.6 153.8 52.2z"/></g></svg></div><div class=animate-pattern><img src=https://acethecloud.com/images/service/background-pattern.svg alt=background-shape></div><div class=container><div class=row><div class=col-lg-12><div class=singleBlog__feature style=margin-top:-300px;margin-bottom:-300px><img src=https://acethecloud.com/images/blog/aws.png alt=feature-image></div></div></div><div class="row mt-5"><div class=col-lg-12><div class=singleBlog__content><p>As organizations continue to migrate their applications to the cloud, serverless architectures have become increasingly popular due to their scalability, cost-effectiveness, and ease of deployment. However, with the benefits of serverless comes the challenge of ensuring data consistency and minimizing data loss.</p><p>One solution to this challenge is the Outbox Pattern. This pattern ensures that any changes made to the system are recorded in a reliable data store, making it possible to recover data in the event of an outage. In this blog post, we will explore how the Outbox Pattern can be used to eliminate data loss in AWS serverless architectures.</p><p>What is the Outbox Pattern?</p><p>The Outbox Pattern is a design pattern used to ensure data consistency in distributed systems. It involves using a reliable messaging system to capture changes made to the system, and recording these changes in an outbox table within a database. This table acts as a buffer between the application and the messaging system, ensuring that any messages that fail to be delivered are not lost.</p><p>When a change is made to the system, such as creating a new item or updating an existing one, a message is sent to the messaging system. The message contains details of the change, such as the type of change and the affected data. The messaging system then delivers the message to the appropriate destination, such as another service or a database.</p><p>If the message fails to be delivered, it is stored in the outbox table. The application can then periodically check the outbox table for any messages that need to be re-sent, ensuring that no data is lost in the event of an outage.</p><p>Implementing the Outbox Pattern in AWS</p><p>To implement the Outbox Pattern in AWS, we will use Lambda functions to handle the creation and updating of items, and Amazon Simple Queue Service (SQS) to capture changes made to the system.</p><p>We will also use Amazon DynamoDB to store the outbox table, which will be used to buffer any messages that fail to be delivered. Finally, we will use the AWS SDK for JavaScript to interact with DynamoDB and SQS.</p><p>Let&rsquo;s take a look at the code:</p><p>Creating the Outbox Table</p><p>First, we will create the outbox table. This table will have three columns: id, data, and processed. The id column will contain a unique identifier for each message, while the data column will contain the message payload. The processed column will indicate whether the message has been successfully processed or not.</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">36
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">37
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">38
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">39
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">40
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#007020;font-weight:700>const</span> AWS <span style=color:#666>=</span> require(<span style=color:#4070a0>&#39;aws-sdk&#39;</span>);
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>const</span> dynamodb <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>new</span> AWS.DynamoDB();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>const</span> params <span style=color:#666>=</span> {
+</span></span><span style=display:flex><span>    TableName<span style=color:#666>:</span> <span style=color:#4070a0>&#39;outbox&#39;</span>,
+</span></span><span style=display:flex><span>    KeySchema<span style=color:#666>:</span> [
+</span></span><span style=display:flex><span>        { AttributeName<span style=color:#666>:</span> <span style=color:#4070a0>&#39;id&#39;</span>, KeyType<span style=color:#666>:</span> <span style=color:#4070a0>&#39;HASH&#39;</span> }
+</span></span><span style=display:flex><span>    ],
+</span></span><span style=display:flex><span>    AttributeDefinitions<span style=color:#666>:</span> [
+</span></span><span style=display:flex><span>        { AttributeName<span style=color:#666>:</span> <span style=color:#4070a0>&#39;id&#39;</span>, AttributeType<span style=color:#666>:</span> <span style=color:#4070a0>&#39;S&#39;</span> },
+</span></span><span style=display:flex><span>        { AttributeName<span style=color:#666>:</span> <span style=color:#4070a0>&#39;processed&#39;</span>, AttributeType<span style=color:#666>:</span> <span style=color:#4070a0>&#39;BOOL&#39;</span> }
+</span></span><span style=display:flex><span>    ],
+</span></span><span style=display:flex><span>    ProvisionedThroughput<span style=color:#666>:</span> {
+</span></span><span style=display:flex><span>        ReadCapacityUnits<span style=color:#666>:</span> <span style=color:#40a070>1</span>,
+</span></span><span style=display:flex><span>        WriteCapacityUnits<span style=color:#666>:</span> <span style=color:#40a070>1</span>
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    GlobalSecondaryIndexes<span style=color:#666>:</span> [
+</span></span><span style=display:flex><span>        {
+</span></span><span style=display:flex><span>            IndexName<span style=color:#666>:</span> <span style=color:#4070a0>&#39;processed-index&#39;</span>,
+</span></span><span style=display:flex><span>            KeySchema<span style=color:#666>:</span> [
+</span></span><span style=display:flex><span>                { AttributeName<span style=color:#666>:</span> <span style=color:#4070a0>&#39;processed&#39;</span>, KeyType<span style=color:#666>:</span> <span style=color:#4070a0>&#39;HASH&#39;</span> }
+</span></span><span style=display:flex><span>            ],
+</span></span><span style=display:flex><span>            Projection<span style=color:#666>:</span> {
+</span></span><span style=display:flex><span>                ProjectionType<span style=color:#666>:</span> <span style=color:#4070a0>&#39;ALL&#39;</span>
+</span></span><span style=display:flex><span>            },
+</span></span><span style=display:flex><span>            ProvisionedThroughput<span style=color:#666>:</span> {
+</span></span><span style=display:flex><span>                ReadCapacityUnits<span style=color:#666>:</span> <span style=color:#40a070>1</span>,
+</span></span><span style=display:flex><span>                WriteCapacityUnits<span style=color:#666>:</span> <span style=color:#40a070>1</span>
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    ]
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>dynamodb.createTable(params, (err, data) =&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>if</span> (err) {
+</span></span><span style=display:flex><span>        console.error(err);
+</span></span><span style=display:flex><span>    } <span style=color:#007020;font-weight:700>else</span> {
+</span></span><span style=display:flex><span>        console.log(data);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>});
+</span></span></code></pre></td></tr></table></div></div><p>This code uses the AWS SDK to create the outbox table in DynamoDB. We define the table name, key schema, attribute definitions, and provisioned throughput. We also create a global secondary index on the processed column, which will be used to query the table for messages that need to be re-sent.</p><p>Capturing Changes with SQS</p><p>Next, we will use SQS to capture changes made to the system. When a change is made, such as creating a new item or updating an existing one, we will send a message to an SQS queue.</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#007020;font-weight:700>const</span> AWS <span style=color:#666>=</span> require(<span style=color:#4070a0>&#39;aws-sdk&#39;</span>);
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>const</span> sqs <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>new</span> AWS.SQS();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>const</span> params <span style=color:#666>=</span> {
+</span></span><span style=display:flex><span>    QueueUrl<span style=color:#666>:</span> <span style=color:#4070a0>&#39;https://sqs.us-east-1.amazonaws.com/123456789012/outbox-queue&#39;</span>
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>const</span> data <span style=color:#666>=</span> {
+</span></span><span style=display:flex><span>    type<span style=color:#666>:</span> <span style=color:#4070a0>&#39;create&#39;</span>,
+</span></span><span style=display:flex><span>    id<span style=color:#666>:</span> <span style=color:#4070a0>&#39;123456&#39;</span>,
+</span></span><span style=display:flex><span>    name<span style=color:#666>:</span> <span style=color:#4070a0>&#39;John Doe&#39;</span>
+</span></span><span style=display:flex><span>};
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>sqs.sendMessage({ ...params, MessageBody<span style=color:#666>:</span> JSON.stringify(data) }, (err, data) =&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>if</span> (err) {
+</span></span><span style=display:flex><span>        console.error(err);
+</span></span><span style=display:flex><span>    } <span style=color:#007020;font-weight:700>else</span> {
+</span></span><span style=display:flex><span>        console.log(data);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>});
+</span></span></code></pre></td></tr></table></div></div><p>This code uses the AWS SDK to send a message to an SQS queue. We define the queue URL and the message payload, which contains details of the change made to the system.</p><p>Handling Messages with Lambda</p><p>Finally, we will use Lambda functions to handle the messages captured by SQS. When a message is received, the Lambda function will process the message, update the system accordingly, and mark the message as processed in the outbox table.</p><div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">31
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">32
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">33
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">34
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">35
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#007020;font-weight:700>const</span> AWS <span style=color:#666>=</span> require(<span style=color:#4070a0>&#39;aws-sdk&#39;</span>);
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>const</span> dynamodb <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>new</span> AWS.DynamoDB();
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>const</span> sqs <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>new</span> AWS.SQS();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>exports.handler <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>async</span> (event) =&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>const</span> message <span style=color:#666>=</span> JSON.parse(event.Records[<span style=color:#40a070>0</span>].body);
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>const</span> params <span style=color:#666>=</span> {
+</span></span><span style=display:flex><span>        TableName<span style=color:#666>:</span> <span style=color:#4070a0>&#39;outbox&#39;</span>,
+</span></span><span style=display:flex><span>        Item<span style=color:#666>:</span> {
+</span></span><span style=display:flex><span>            id<span style=color:#666>:</span> { S<span style=color:#666>:</span> event.Records[<span style=color:#40a070>0</span>].messageId },
+</span></span><span style=display:flex><span>            data<span style=color:#666>:</span> { S<span style=color:#666>:</span> event.Records[<span style=color:#40a070>0</span>].body },
+</span></span><span style=display:flex><span>            processed<span style=color:#666>:</span> { BOOL<span style=color:#666>:</span> <span style=color:#007020;font-weight:700>false</span> }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>try</span> {
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>await</span> dynamodb.putItem(params).promise();
+</span></span><span style=display:flex><span>        console.log(<span style=color:#4070a0>`Saved message </span><span style=color:#70a0d0>${</span>event.Records[<span style=color:#40a070>0</span>].messageId<span style=color:#70a0d0>}</span><span style=color:#4070a0> to outbox`</span>);
+</span></span><span style=display:flex><span>        <span style=color:#60a0b0;font-style:italic>// Process message and update system accordingly
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        <span style=color:#007020;font-weight:700>await</span> processMessage(message);
+</span></span><span style=display:flex><span>        <span style=color:#60a0b0;font-style:italic>// Mark message as processed in outbox table
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        <span style=color:#007020;font-weight:700>const</span> updateParams <span style=color:#666>=</span> {
+</span></span><span style=display:flex><span>            TableName<span style=color:#666>:</span> <span style=color:#4070a0>&#39;outbox&#39;</span>,
+</span></span><span style=display:flex><span>            Key<span style=color:#666>:</span> { id<span style=color:#666>:</span> { S<span style=color:#666>:</span> event.Records[<span style=color:#40a070>0</span>].messageId } },
+</span></span><span style=display:flex><span>            UpdateExpression<span style=color:#666>:</span> <span style=color:#4070a0>&#39;SET processed = :processed&#39;</span>,
+</span></span><span style=display:flex><span>            ExpressionAttributeValues<span style=color:#666>:</span> { <span style=color:#4070a0>&#39;:processed&#39;</span><span style=color:#666>:</span> { BOOL<span style=color:#666>:</span> <span style=color:#007020;font-weight:700>true</span> } }
+</span></span><span style=display:flex><span>        };
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>await</span> dynamodb.updateItem(updateParams).promise();
+</span></span><span style=display:flex><span>        console.log(<span style=color:#4070a0>`Marked message </span><span style=color:#70a0d0>${</span>event.Records[<span style=color:#40a070>0</span>].messageId<span style=color:#70a0d0>}</span><span style=color:#4070a0> as processed`</span>);
+</span></span><span style=display:flex><span>    } <span style=color:#007020;font-weight:700>catch</span> (err) {
+</span></span><span style=display:flex><span>        console.error(err);
+</span></span><span style=display:flex><span>        <span style=color:#60a0b0;font-style:italic>// If message fails to be processed, re-queue it
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        <span style=color:#007020;font-weight:700>await</span> sqs.sendMessage({ QueueUrl<span style=color:#666>:</span> params.QueueUrl, MessageBody<span style=color:#666>:</span> event.Records[<span style=color:#40a070>0</span>].body }).promise();
+</span></span><span style=display:flex><span>        console.log(<span style=color:#4070a0>`Re-queued message </span><span style=color:#70a0d0>${</span>event.Records[<span style=color:#40a070>0</span>].messageId<span style=color:#70a0d0>}</span><span style=color:#4070a0>`</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>};
+</span></span></code></pre></td></tr></table></div></div><p>This code defines a Lambda function that processes messages received from the SQS queue. We parse the message payload, store the message in the outbox table, and process the message. If processing is successful, we mark the message as processed in the outbox table. If processing fails, we re-queue the message.</p><p>Conclusion</p><p>The Outbox Pattern provides a reliable way to handle data consistency and minimize data loss in distributed systems. By capturing changes made to the system in a messaging system and buffering any failed messages in an outbox table, we can ensure that data is not lost in the event of an outage.</p><p>In this blog post, we have explored how the Outbox Pattern can be implemented in AWS serverless architectures using Lambda functions, SQS, and DynamoDB. With this implementation, we can eliminate data loss and ensure reliable data consistency in our applications.</p><div class=container><div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3068198368246884" crossorigin=anonymous></script>
+<ins class=adsbygoogle style=display:block data-ad-client=ca-pub-3068198368246884 data-ad-slot=9807437796 data-ad-format=auto data-full-width-responsive=true></ins>
+<script>(adsbygoogle=window.adsbygoogle||[]).push({})</script></div></div></div></div></div></div></section></div><section class=footer id=contact><div class=footer__background_shape><svg viewBox="0 0 1920 79"><path d="M0 0h1920v79L0 0z" data-name="Path 1450"/></svg></div><div class=container><div class=row><div class=col-lg-12><div class=footer__cta><div class=shape-1><svg xmlns="http://www.w3.org/2000/svg" width="357" height="315.029" viewBox="0 0 357 315.029"><path data-name="Path 1449" d="M76.1-157.222C91.746-135.8 87.2-94.273 99.993-61.945c12.7 32.328 42.661 55.459 39.248 73.282-3.318 17.823-40.007 30.337-65.6 43.325-25.5 12.988-39.912 26.545-60.01 42.566-20.1 16.116-46.074 34.6-63.328 27.682-17.349-6.921-25.976-39.153-59.915-59.82s-93.1-29.768-105.325-51.478 22.373-56.028 43.609-93.949c21.331-37.921 29.2-79.35 53.563-96.793 24.459-17.444 65.414-10.9 103.9-6.921 38.396 3.982 74.326 5.404 89.965 26.829z" transform="translate(217.489 188.626)"/></svg></div><div class=shape-2><svg xmlns="http://www.w3.org/2000/svg" width="357" height="315.029" viewBox="0 0 357 315.029"><path data-name="Path 1449" d="M76.1-157.222C91.746-135.8 87.2-94.273 99.993-61.945c12.7 32.328 42.661 55.459 39.248 73.282-3.318 17.823-40.007 30.337-65.6 43.325-25.5 12.988-39.912 26.545-60.01 42.566-20.1 16.116-46.074 34.6-63.328 27.682-17.349-6.921-25.976-39.153-59.915-59.82s-93.1-29.768-105.325-51.478 22.373-56.028 43.609-93.949c21.331-37.921 29.2-79.35 53.563-96.793 24.459-17.444 65.414-10.9 103.9-6.921 38.396 3.982 74.326 5.404 89.965 26.829z" transform="translate(217.489 188.626)"/></svg></div><div class="text-light footer__cta_content"><span>Contact me</span><h3 class=mb-0>Let’s Discuss on your Cloud Journey</h3></div><div class=footer__cta_action><a class="btn btn-light btn-zoom" href=https://acethecloud.com/contact>Get in
+touch</a></div></div></div></div><div class="row footer__widget"><div class=col-lg-4><div class="footer__widget_logo mb-5"><img src=https://acethecloud.com/images/contact/widget-logo.png style=width:400px alt=widget-logo></div></div><div class=col-lg-4 style=margin-left:100px><div class="text-light footer__widget_address mb-5"><h4 class=base-font>Sitemap</h4><ul class="unstyle-list small"><li class=mb-2><a class=text-light href=https://acethecloud.com/about>About Author</a></li><li class=mb-2><a class=text-light href=https://acethecloud.com/>Frequently Ask Question</a></li><li class=mb-2><a class=text-light href=https://acethecloud.com/>Privacy & Policy</a></li><li class=mb-2><a class=text-light href=https://acethecloud.com/>Latest Article</a></li></ul><h4 class=base-font>Address</h4><ul class="fa-ul small"><li class=mb-2><a class=text-light href=tel:><span class=fa-li><i class="fa fa-phone"></i></span></a></li><li class=mb-2><a class=text-light href=mailto:abhishek@acethecloud.com><span class=fa-li><i class="fa fa-envelope"></i></span>abhishek@acethecloud.com</a></li><li class=mb-2><span class=fa-li><i class="fa fa-map-marker"></i></span></a></li></ul></div></div></div><div class="row footer__footer"><div class=col-lg-6><div class="footer__footer_copy text-light"><p>Copyright 2023 - All Rights Reserved by <a class=text-light href=https://AceTheCloud.com/ target=_blank>AceTheCloud</a></p></div></div><div class=col-lg-6><div class=footer__footer_social><ul class=unstyle-list><li class="d-inline-block mx-2"><a class=text-light target=_blank href=https://facebook.com/cloud.and.mobile.evangelist/><i class="fa fa-facebook-official"></i></a></li><li class="d-inline-block mx-2"><a class=text-light target=_blank href=https://www.linkedin.com/in/enterprise-cloud-architect/><i class="fa fa-linkedin-square"></i></a></li><li class="d-inline-block mx-2"><a class=text-light target=_blank href=https://www.pinterest.com/><i class="fa fa-pinterest-square"></i></a></li><li class="d-inline-block mx-2"><a class=text-light target=_blank href=https://twitter.com/AceTheCloud><i class="fa fa-twitter-square"></i></a></li></ul></div></div></div></div></section><script src="https://maps.googleapis.com/maps/api/js?key=&libraries=geometry"></script>
+<script src=https://acethecloud.com/plugins/jQuery/jquery.min.js></script>
+<script src=https://acethecloud.com/plugins/bootstrap/bootstrap.min.js></script>
+<script src=https://acethecloud.com/plugins/slick/slick.min.js></script>
+<script src=https://acethecloud.com/plugins/waypoint/jquery.waypoints.min.js></script>
+<script src=https://acethecloud.com/plugins/magnafic-popup/jquery.magnific-popup.min.js></script>
+<script src=https://acethecloud.com/plugins/tweenmax/TweenMax.min.js></script>
+<script src=https://acethecloud.com/plugins/imagesloaded/imagesloaded.min.js></script>
+<script src=https://acethecloud.com/plugins/masonry/masonry.min.js></script>
+<script src=https://acethecloud.com/js/script.min.js></script></body></html>
