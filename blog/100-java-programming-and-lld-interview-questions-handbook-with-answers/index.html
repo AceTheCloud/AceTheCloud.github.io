@@ -5,7 +5,7 @@
 <span class=navbar-toggler-icon></span>
 <span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse justify-content-between" id=navbarCollapse><ul class="nav navbar-nav main-navigation my-0 mx-auto"><li class=nav-item><a href=https://acethecloud.com/#home class="nav-link text-dark text-sm-center p-2">Home</a></li><li class=nav-item><a href=https://acethecloud.com/#about class="nav-link text-dark text-sm-center p-2">About</a></li><li class=nav-item><a href=https://acethecloud.com/#resume class="nav-link text-dark text-sm-center p-2">Cloud</a></li><li class=nav-item><a href=https://acethecloud.com/#skills class="nav-link text-dark text-sm-center p-2">Cloud Share</a></li><li class=nav-item><a href=https://acethecloud.com/#contact class="nav-link text-dark text-sm-center p-2">Subscribe</a></li></ul><div class=navbar-nav><a href=https://acethecloud.com/blog class="btn btn-primary btn-zoom hire_button">Blog</a></div></div></div></nav><div id=content><header class=breadCrumb><div class=container><div class=row><div class="col-lg-10 col-md-12 offset-lg-1 offset-md-0 text-center"><h3 class=breadCrumb__title>100 Java Programming and LLD Interview Questions Handbook with Answers</h3><nav aria-label=breadcrumb class="d-flex justify-content-center"><ol class="breadcrumb align-items-center"><li class=breadcrumb-item><a href=https://acethecloud.com/><u>Home</u></a></li><li class=breadcrumb-item>-> <a href=https://acethecloud.com/blog><u>All Post</u></a></li><li class="breadcrumb-item active" aria-current=page>-><u>100 Java Programming and LLD Interview Questions Handbook with Answers</u></li></ol></nav></div></div><ul class=post-meta><li><i class="fa fa-calendar"></i>
 September 25, 2023</li><li><i class="fa fa-clock-o"></i>
-23 mins to read</li><li><i class="fa fa-folder-open"></i>
+27 mins to read</li><li><i class="fa fa-folder-open"></i>
 <a class=text-capitalize href=https://acethecloud.com/categories/blog/>blog</a></li></ul><div class=post-meta>Tags :>
 <a class=text-capitalize href=https://acethecloud.com/tags/java/>java</a>
 <a class=text-capitalize href=https://acethecloud.com/tags/interview/>interview</a>
@@ -1110,7 +1110,287 @@ To avoid these, you should:</li><li>Nullify references when they&rsquo;re no lon
 </span></span><span style=display:flex><span>        <span style=color:#666>}</span>
 </span></span><span style=display:flex><span>    <span style=color:#666>}</span>
 </span></span><span style=display:flex><span><span style=color:#666>}</span>
-</span></span></code></pre></td></tr></table></div></div></li></ul><p>Stay tuned for other answers. :)</p><p>If you found this article helpful share this articles with others on LinkedIn, it motivates me to write more such useful articles in the future.
+</span></span></code></pre></td></tr></table></div></div></li></ul><ol start=33><li><strong>How do Java Futures work?</strong></li></ol><ul><li>Answer: A <code>Future</code> represents the result of an asynchronous computation. Methods are provided to check if the computation is complete, to wait for its completion, and to retrieve the result.</li><li>Code:<div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> <span style=color:#0e84b5;font-weight:700>java.util.concurrent.*</span><span style=color:#666>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>class</span> <span style=color:#0e84b5;font-weight:700>FutureDemo</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>static</span> <span style=color:#902000>void</span> <span style=color:#06287e>main</span><span style=color:#666>(</span>String<span style=color:#666>[]</span> args<span style=color:#666>)</span> <span style=color:#007020;font-weight:700>throws</span> ExecutionException<span style=color:#666>,</span> InterruptedException <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        ExecutorService executor <span style=color:#666>=</span> Executors<span style=color:#666>.</span><span style=color:#4070a0>newFixedThreadPool</span><span style=color:#666>(</span><span style=color:#40a070>2</span><span style=color:#666>);</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        Future<span style=color:#666>&lt;</span>Integer<span style=color:#666>&gt;</span> future <span style=color:#666>=</span> executor<span style=color:#666>.</span><span style=color:#4070a0>submit</span><span style=color:#666>(()</span> <span style=color:#666>-&gt;</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>            TimeUnit<span style=color:#666>.</span><span style=color:#4070a0>SECONDS</span><span style=color:#666>.</span><span style=color:#4070a0>sleep</span><span style=color:#666>(</span><span style=color:#40a070>2</span><span style=color:#666>);</span>
+</span></span><span style=display:flex><span>            <span style=color:#007020;font-weight:700>return</span> <span style=color:#40a070>123</span><span style=color:#666>;</span>
+</span></span><span style=display:flex><span>        <span style=color:#666>});</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        System<span style=color:#666>.</span><span style=color:#4070a0>out</span><span style=color:#666>.</span><span style=color:#4070a0>println</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;Is the future done? &#34;</span> <span style=color:#666>+</span> future<span style=color:#666>.</span><span style=color:#4070a0>isDone</span><span style=color:#666>());</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        Integer result <span style=color:#666>=</span> future<span style=color:#666>.</span><span style=color:#4070a0>get</span><span style=color:#666>();</span>  <span style=color:#60a0b0;font-style:italic>// This will block until the result is available
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>
+</span></span><span style=display:flex><span>        System<span style=color:#666>.</span><span style=color:#4070a0>out</span><span style=color:#666>.</span><span style=color:#4070a0>println</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;Is the future done? &#34;</span> <span style=color:#666>+</span> future<span style=color:#666>.</span><span style=color:#4070a0>isDone</span><span style=color:#666>());</span>
+</span></span><span style=display:flex><span>        System<span style=color:#666>.</span><span style=color:#4070a0>out</span><span style=color:#666>.</span><span style=color:#4070a0>println</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;Result: &#34;</span> <span style=color:#666>+</span> result<span style=color:#666>);</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        executor<span style=color:#666>.</span><span style=color:#4070a0>shutdown</span><span style=color:#666>();</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span><span style=color:#666>}</span>
+</span></span></code></pre></td></tr></table></div></div></li></ul><ol start=34><li><strong>Describe Java lambda expressions and their benefits.</strong></li></ol><ul><li>Answer: Lambda expressions, introduced in Java 8, are a way to represent instances of single-method interfaces (functional interfaces). They can be used primarily to define inline implementations of functional interfaces.</li><li>Benefits: More readable and concise code, functional programming constructs, easier-to-use APIs (especially in collections and streams).</li><li>Code:<div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> <span style=color:#0e84b5;font-weight:700>java.util.*</span><span style=color:#666>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>class</span> <span style=color:#0e84b5;font-weight:700>LambdaDemo</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>static</span> <span style=color:#902000>void</span> <span style=color:#06287e>main</span><span style=color:#666>(</span>String<span style=color:#666>[]</span> args<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        List<span style=color:#666>&lt;</span>String<span style=color:#666>&gt;</span> names <span style=color:#666>=</span> Arrays<span style=color:#666>.</span><span style=color:#4070a0>asList</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;Alice&#34;</span><span style=color:#666>,</span> <span style=color:#4070a0>&#34;Bob&#34;</span><span style=color:#666>,</span> <span style=color:#4070a0>&#34;Charlie&#34;</span><span style=color:#666>);</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#60a0b0;font-style:italic>// Without lambda
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        Collections<span style=color:#666>.</span><span style=color:#4070a0>sort</span><span style=color:#666>(</span>names<span style=color:#666>,</span> <span style=color:#007020;font-weight:700>new</span> Comparator<span style=color:#666>&lt;</span>String<span style=color:#666>&gt;()</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#007020;font-weight:700>public</span> <span style=color:#902000>int</span> <span style=color:#06287e>compare</span><span style=color:#666>(</span>String a<span style=color:#666>,</span> String b<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>                <span style=color:#007020;font-weight:700>return</span> b<span style=color:#666>.</span><span style=color:#4070a0>compareTo</span><span style=color:#666>(</span>a<span style=color:#666>);</span>
+</span></span><span style=display:flex><span>            <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>        <span style=color:#666>});</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#60a0b0;font-style:italic>// With lambda
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        Collections<span style=color:#666>.</span><span style=color:#4070a0>sort</span><span style=color:#666>(</span>names<span style=color:#666>,</span> <span style=color:#666>(</span>a<span style=color:#666>,</span> b<span style=color:#666>)</span> <span style=color:#666>-&gt;</span> b<span style=color:#666>.</span><span style=color:#4070a0>compareTo</span><span style=color:#666>(</span>a<span style=color:#666>));</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span><span style=color:#666>}</span>
+</span></span></code></pre></td></tr></table></div></div></li></ul><ol start=35><li><strong>What are default methods in Java interfaces?</strong></li></ol><ul><li>Answer: Default methods, introduced in Java 8, allow developers to add new methods to interfaces with keeping backward compatibility. These methods have a default implementation and can be overridden by implementing classes.</li><li>Code:<div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>interface</span> <span style=color:#0e84b5;font-weight:700>Animal</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#902000>void</span> <span style=color:#06287e>sound</span><span style=color:#666>();</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>default</span> <span style=color:#902000>void</span> <span style=color:#06287e>breathe</span><span style=color:#666>()</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        System<span style=color:#666>.</span><span style=color:#4070a0>out</span><span style=color:#666>.</span><span style=color:#4070a0>println</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;Breathing...&#34;</span><span style=color:#666>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span><span style=color:#666>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>class</span> <span style=color:#0e84b5;font-weight:700>Dog</span> <span style=color:#007020;font-weight:700>implements</span> Animal <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#555;font-weight:700>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#902000>void</span> <span style=color:#06287e>sound</span><span style=color:#666>()</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        System<span style=color:#666>.</span><span style=color:#4070a0>out</span><span style=color:#666>.</span><span style=color:#4070a0>println</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;Woof!&#34;</span><span style=color:#666>);</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>static</span> <span style=color:#902000>void</span> <span style=color:#06287e>main</span><span style=color:#666>(</span>String<span style=color:#666>[]</span> args<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        Dog dog <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>new</span> Dog<span style=color:#666>();</span>
+</span></span><span style=display:flex><span>        dog<span style=color:#666>.</span><span style=color:#4070a0>sound</span><span style=color:#666>();</span>
+</span></span><span style=display:flex><span>        dog<span style=color:#666>.</span><span style=color:#4070a0>breathe</span><span style=color:#666>();</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span><span style=color:#666>}</span>
+</span></span></code></pre></td></tr></table></div></div></li></ul><ol start=36><li><strong>Explain the difference between <code>notify()</code>, <code>notifyAll()</code>, and <code>wait()</code> methods in Java.</strong></li></ol><ul><li>Answer:<ul><li><code>notify()</code>: Wakes up a single waiting thread from the same object&rsquo;s monitor.</li><li><code>notifyAll()</code>: Wakes up all the waiting threads from the same object&rsquo;s monitor.</li><li><code>wait()</code>: Causes the current thread to wait until another thread invokes the <code>notify()</code> or <code>notifyAll()</code> method for the same object.</li></ul></li><li>These methods are used for inter-thread communication and synchronization.</li><li>Code:<div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">17
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">18
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">19
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">20
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">21
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">22
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">23
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">24
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">25
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">26
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">27
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">28
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">29
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">30
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>class</span> <span style=color:#0e84b5;font-weight:700>WaitNotifyDemo</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>private</span> <span style=color:#007020;font-weight:700>final</span> Object lock <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>new</span> Object<span style=color:#666>();</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#902000>void</span> <span style=color:#06287e>method1</span><span style=color:#666>()</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>synchronized</span> <span style=color:#666>(</span>lock<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#007020;font-weight:700>try</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>                System<span style=color:#666>.</span><span style=color:#4070a0>out</span><span style=color:#666>.</span><span style=color:#4070a0>println</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;Method 1: Waiting...&#34;</span><span style=color:#666>);</span>
+</span></span><span style=display:flex><span>                lock<span style=color:#666>.</span><span style=color:#4070a0>wait</span><span style=color:#666>();</span>
+</span></span><span style=display:flex><span>                System<span style=color:#666>.</span><span style=color:#4070a0>out</span><span style=color:#666>.</span><span style=color:#4070a0>println</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;Method 1: Resumed&#34;</span><span style=color:#666>);</span>
+</span></span><span style=display:flex><span>            <span style=color:#666>}</span> <span style=color:#007020;font-weight:700>catch</span> <span style=color:#666>(</span>InterruptedException e<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>                e<span style=color:#666>.</span><span style=color:#4070a0>printStackTrace</span><span style=color:#666>();</span>
+</span></span><span style=display:flex><span>            <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>        <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#902000>void</span> <span style=color:#06287e>method2</span><span style=color:#666>()</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>synchronized</span> <span style=color:#666>(</span>lock<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>            System<span style=color:#666>.</span><span style=color:#4070a0>out</span><span style=color:#666>.</span><span style=color:#4070a0>println</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;Method 2: Running...&#34;</span><span style=color:#666>);</span>
+</span></span><span style=display:flex><span>            lock<span style=color:#666>.</span><span style=color:#4070a0>notify</span><span style=color:#666>();</span>
+</span></span><span style=display:flex><span>            System<span style=color:#666>.</span><span style=color:#4070a0>out</span><span style=color:#666>.</span><span style=color:#4070a0>println</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;Method 2: Sent notification&#34;</span><span style=color:#666>);</span>
+</span></span><span style=display:flex><span>        <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>static</span> <span style=color:#902000>void</span> <span style=color:#06287e>main</span><span style=color:#666>(</span>String<span style=color:#666>[]</span> args<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        WaitNotifyDemo demo <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>new</span> WaitNotifyDemo<span style=color:#666>();</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>new</span> Thread<span style=color:#666>(</span>demo<span style=color:#666>::</span>method1<span style=color:#666>).</span><span style=color:#4070a0>start</span><span style=color:#666>();</span>
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>new</span> Thread<span style=color:#666>(</span>demo<span style=color:#666>::</span>method2<span style=color:#666>).</span><span style=color:#4070a0>start</span><span style=color:#666>();</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span><span style=color:#666>}</span>
+</span></span></code></pre></td></tr></table></div></div></li></ul><p>Sure, here are more questions and their explanations:</p><ol start=38><li><strong>How does the <code>volatile</code> keyword ensure visibility in Java?</strong></li></ol><ul><li>Answer: When a field is declared <code>volatile</code>, the Java Memory Model ensures that all reads of that field are read directly from the main memory, and all writes to that field are written directly to the main memory. This guarantees that changes made by one thread are visible to other threads immediately.</li><li>Code:<div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>class</span> <span style=color:#0e84b5;font-weight:700>SharedResource</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>private</span> <span style=color:#007020;font-weight:700>volatile</span> <span style=color:#902000>boolean</span> flag <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>false</span><span style=color:#666>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#902000>boolean</span> <span style=color:#06287e>isFlag</span><span style=color:#666>()</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>return</span> flag<span style=color:#666>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#902000>void</span> <span style=color:#06287e>setFlag</span><span style=color:#666>(</span><span style=color:#902000>boolean</span> flag<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>this</span><span style=color:#666>.</span><span style=color:#4070a0>flag</span> <span style=color:#666>=</span> flag<span style=color:#666>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span><span style=color:#666>}</span>
+</span></span></code></pre></td></tr></table></div></div></li></ul><ol start=39><li><strong>Describe how Java handles exception handling.</strong></li></ol><ul><li>Answer: Java uses a try-catch-finally construct for exception handling. Code that might throw exceptions is placed inside a <code>try</code> block. If an exception occurs, it&rsquo;s caught in a corresponding <code>catch</code> block. The <code>finally</code> block, if present, always executes whether an exception occurred or not.</li><li>Code:<div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>class</span> <span style=color:#0e84b5;font-weight:700>ExceptionHandlingDemo</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>static</span> <span style=color:#902000>void</span> <span style=color:#06287e>main</span><span style=color:#666>(</span>String<span style=color:#666>[]</span> args<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>try</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#902000>int</span> result <span style=color:#666>=</span> <span style=color:#40a070>10</span> <span style=color:#666>/</span> <span style=color:#40a070>0</span><span style=color:#666>;</span>  <span style=color:#60a0b0;font-style:italic>// This will throw an ArithmeticException
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        <span style=color:#666>}</span> <span style=color:#007020;font-weight:700>catch</span> <span style=color:#666>(</span>ArithmeticException e<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>            System<span style=color:#666>.</span><span style=color:#4070a0>out</span><span style=color:#666>.</span><span style=color:#4070a0>println</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;Caught an exception: &#34;</span> <span style=color:#666>+</span> e<span style=color:#666>.</span><span style=color:#4070a0>getMessage</span><span style=color:#666>());</span>
+</span></span><span style=display:flex><span>        <span style=color:#666>}</span> <span style=color:#007020;font-weight:700>finally</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>            System<span style=color:#666>.</span><span style=color:#4070a0>out</span><span style=color:#666>.</span><span style=color:#4070a0>println</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;This will always run.&#34;</span><span style=color:#666>);</span>
+</span></span><span style=display:flex><span>        <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span><span style=color:#666>}</span>
+</span></span></code></pre></td></tr></table></div></div></li></ul><ol start=40><li><strong>How would you handle thread-safe lazy initialization in Java?</strong></li></ol><ul><li>Answer: The Double-Checked Locking idiom combined with the <code>volatile</code> keyword is a common approach to ensure thread-safe lazy initialization in Java.</li><li>Code:<div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">15
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">16
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>class</span> <span style=color:#0e84b5;font-weight:700>Singleton</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>private</span> <span style=color:#007020;font-weight:700>static</span> <span style=color:#007020;font-weight:700>volatile</span> Singleton instance<span style=color:#666>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>private</span> <span style=color:#06287e>Singleton</span><span style=color:#666>()</span> <span style=color:#666>{}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>static</span> Singleton <span style=color:#06287e>getInstance</span><span style=color:#666>()</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>if</span> <span style=color:#666>(</span>instance <span style=color:#666>==</span> <span style=color:#007020;font-weight:700>null</span><span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>            <span style=color:#007020;font-weight:700>synchronized</span> <span style=color:#666>(</span>Singleton<span style=color:#666>.</span><span style=color:#4070a0>class</span><span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>                <span style=color:#007020;font-weight:700>if</span> <span style=color:#666>(</span>instance <span style=color:#666>==</span> <span style=color:#007020;font-weight:700>null</span><span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>                    instance <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>new</span> Singleton<span style=color:#666>();</span>
+</span></span><span style=display:flex><span>                <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>            <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>        <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>        <span style=color:#007020;font-weight:700>return</span> instance<span style=color:#666>;</span>
+</span></span><span style=display:flex><span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span><span style=color:#666>}</span>
+</span></span></code></pre></td></tr></table></div></div></li></ul><ol start=41><li><strong>Explain the difference between <code>fail-fast</code> and <code>fail-safe</code> iterators in Java collections.</strong></li></ol><ul><li>Answer:<ul><li><code>fail-fast</code>: Iterators that throw a <code>ConcurrentModificationException</code> if the underlying collection is modified while an iteration is in progress.</li><li><code>fail-safe</code>: Iterators that work on a cloned copy of the underlying collection and thus do not throw any exception even if the underlying collection is modified.</li></ul></li><li>Code:<div class=highlight><div style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><table style=border-spacing:0;padding:0;margin:0;border:0><tr><td style=vertical-align:top;padding:0;margin:0;border:0><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">10
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">11
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">12
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">13
+</span><span style="white-space:pre;user-select:none;margin-right:.4em;padding:0 .4em;color:#7f7f7f">14
+</span></code></pre></td><td style=vertical-align:top;padding:0;margin:0;border:0;width:100%><pre tabindex=0 style=background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#007020;font-weight:700>import</span> <span style=color:#0e84b5;font-weight:700>java.util.*</span><span style=color:#666>;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>class</span> <span style=color:#0e84b5;font-weight:700>IteratorDemo</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#007020;font-weight:700>public</span> <span style=color:#007020;font-weight:700>static</span> <span style=color:#902000>void</span> <span style=color:#06287e>main</span><span style=color:#666>(</span>String<span style=color:#666>[]</span> args<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>        List<span style=color:#666>&lt;</span>String<span style=color:#666>&gt;</span> list <span style=color:#666>=</span> <span style=color:#007020;font-weight:700>new</span> ArrayList<span style=color:#666>&lt;&gt;(</span>Arrays<span style=color:#666>.</span><span style=color:#4070a0>asList</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;A&#34;</span><span style=color:#666>,</span> <span style=color:#4070a0>&#34;B&#34;</span><span style=color:#666>,</span> <span style=color:#4070a0>&#34;C&#34;</span><span style=color:#666>));</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#60a0b0;font-style:italic>// Using a fail-fast iterator (from ArrayList)
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        <span style=color:#007020;font-weight:700>for</span> <span style=color:#666>(</span>String item <span style=color:#666>:</span> list<span style=color:#666>)</span> <span style=color:#666>{</span>
+</span></span><span style=display:flex><span>            list<span style=color:#666>.</span><span style=color:#4070a0>add</span><span style=color:#666>(</span><span style=color:#4070a0>&#34;D&#34;</span><span style=color:#666>);</span>  <span style=color:#60a0b0;font-style:italic>// This will throw ConcurrentModificationException
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>        <span style=color:#666>}</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#60a0b0;font-style:italic>// For fail-safe, consider using classes from java.util.concurrent package
+</span></span></span><span style=display:flex><span><span style=color:#60a0b0;font-style:italic></span>    <span style=color:#666>}</span>
+</span></span><span style=display:flex><span><span style=color:#666>}</span>
+</span></span></code></pre></td></tr></table></div></div></li></ul><p>Let me know if you want to proceed with more questions, or if there&rsquo;s any specific area you&rsquo;d like to focus on!</p><p>Stay tuned for other answers. :)</p><p>If you found this article helpful share this articles with others on LinkedIn, it motivates me to write more such useful articles in the future.
 You can buy me a Coffee here ☕︎ <a href=https://www.buymeacoffee.com/acethecloud>https://www.buymeacoffee.com/acethecloud</a>
 Follow for regular awesome content and insights.</p><div class=container><div><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3068198368246884" crossorigin=anonymous></script>
 <ins class=adsbygoogle style=display:block data-ad-client=ca-pub-3068198368246884 data-ad-slot=9807437796 data-ad-format=auto data-full-width-responsive=true></ins>
