@@ -1,0 +1,290 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Llm</title><link>https://acethecloud.com/tags/llm/</link><description>Recent content in Llm on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 08 Dec 2025 11:00:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/llm/index.xml" rel="self" type="application/rss+xml"/><item><title>Why I'm Writing an Inference Gateway in Rust</title><link>https://acethecloud.com/blog/why-i-am-writing-an-inference-gateway-in-rust/</link><pubDate>Mon, 08 Dec 2025 11:00:00 +0530</pubDate><guid>https://acethecloud.com/blog/why-i-am-writing-an-inference-gateway-in-rust/</guid><description>
+&lt;p&gt;Every production LLM stack I have seen has the same hidden weak point: the API layer in front of the model. Teams ship it as a Python shim, an Envoy filter, an NGINX rewrite, or some unholy combination of the three. Most days it works. On the days it doesn&amp;rsquo;t, you discover at exactly the wrong moment that &lt;em&gt;the thing you thought was a load balancer is actually the most consequential piece of infrastructure in your stack&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;I am building an inference gateway in Rust. This post is why — the technical case, the engineering case, and the &lt;strong&gt;why now&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;If you serve LLMs at scale, you will reach the same conclusion eventually. I am writing this so you reach it before the 3 AM page rather than during.&lt;/p&gt;
+&lt;h2&gt;The Problem: Inference Is Not HTTP&lt;span class="hx:absolute hx:-mt-20" id="the-problem-inference-is-not-http"&gt;&lt;/span&gt;
+&lt;a href="#the-problem-inference-is-not-http" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Conventional API gateways were designed for stateless HTTP-RPC: small request in, fast response out, billions of times per second. Envoy, NGINX, HAProxy, Traefik — all exquisitely tuned for that workload.&lt;/p&gt;
+&lt;p&gt;LLM inference breaks every assumption in that pipeline:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Assumption&lt;/th&gt;
+&lt;th&gt;Reality of inference&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Requests are small&lt;/td&gt;
+&lt;td&gt;A chat completion with 8K input tokens is 30-100 KB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Responses are small&lt;/td&gt;
+&lt;td&gt;Streaming responses run into megabytes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Requests are fast&lt;/td&gt;
+&lt;td&gt;Latency ranges from 50 ms to 60+ seconds&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Requests are stateless&lt;/td&gt;
+&lt;td&gt;KV-cache reuse across turns is the difference between $0.01 and $0.10&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Requests are equal&lt;/td&gt;
+&lt;td&gt;A 100-token prompt and an 8000-token prompt cost wildly different GPU time&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Backends are interchangeable&lt;/td&gt;
+&lt;td&gt;An H100 with FP8 vLLM and an A100 with FP16 are not the same backend&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Failure is HTTP 5xx&lt;/td&gt;
+&lt;td&gt;Failure modes include OOM mid-stream, repeat-loop generation, malformed tokens, and silent truncation&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Treating inference traffic like HTTP traffic produces exactly what you would expect: ugly tail latencies, terrible GPU utilization, and outage modes that don&amp;rsquo;t appear in any traditional load-balancer dashboard.&lt;/p&gt;
+&lt;p&gt;The infrastructure category for this — call it the &lt;strong&gt;inference gateway&lt;/strong&gt; — does not exist as a mature product yet. Everyone is rolling their own. Most rolls are bad. We are early enough that getting this right will define the next decade of LLM-serving architecture.&lt;/p&gt;
+&lt;h2&gt;What an Inference Gateway Actually Has to Do&lt;span class="hx:absolute hx:-mt-20" id="what-an-inference-gateway-actually-has-to-do"&gt;&lt;/span&gt;
+&lt;a href="#what-an-inference-gateway-actually-has-to-do" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This is the list. It is longer than most people think.&lt;/p&gt;
+&lt;h3&gt;Token-aware routing&lt;span class="hx:absolute hx:-mt-20" id="token-aware-routing"&gt;&lt;/span&gt;
+&lt;a href="#token-aware-routing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Input/output token budgets per request, per tenant, per model&lt;/li&gt;
+&lt;li&gt;Estimated GPU-seconds per request before dispatch&lt;/li&gt;
+&lt;li&gt;Backend&amp;rsquo;s current token-per-second headroom&lt;/li&gt;
+&lt;li&gt;Prefill/decode disaggregation when the backend supports it&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;GPU-aware backend selection&lt;span class="hx:absolute hx:-mt-20" id="gpu-aware-backend-selection"&gt;&lt;/span&gt;
+&lt;a href="#gpu-aware-backend-selection" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Which SKU is healthy and how much spare capacity it has&lt;/li&gt;
+&lt;li&gt;Which has the requested model &lt;strong&gt;loaded&lt;/strong&gt; (cold-loading a 70B model takes minutes)&lt;/li&gt;
+&lt;li&gt;Which has the right quantization (FP16, FP8, INT4) for the latency target&lt;/li&gt;
+&lt;li&gt;Affinity for multi-turn sessions to maximize KV-cache reuse&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Streaming with surgical backpressure&lt;span class="hx:absolute hx:-mt-20" id="streaming-with-surgical-backpressure"&gt;&lt;/span&gt;
+&lt;a href="#streaming-with-surgical-backpressure" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Server-Sent Events, token streams, raw chunked transfer&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cancellation propagation&lt;/strong&gt; — when a client disconnects, the GPU slot must free &lt;em&gt;now&lt;/em&gt;, not at end-of-stream&lt;/li&gt;
+&lt;li&gt;Token-level metrics emitted as the stream flows&lt;/li&gt;
+&lt;li&gt;Speculative-decoding awareness (don&amp;rsquo;t double-count drafted tokens)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Cache-aware routing&lt;span class="hx:absolute hx:-mt-20" id="cache-aware-routing"&gt;&lt;/span&gt;
+&lt;a href="#cache-aware-routing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Prefix matching to land repeat prompts on warm KV caches&lt;/li&gt;
+&lt;li&gt;Sticky routing for chat sessions&lt;/li&gt;
+&lt;li&gt;Aware of disaggregated KV-cache transport when the backend supports it&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Protocol mediation&lt;span class="hx:absolute hx:-mt-20" id="protocol-mediation"&gt;&lt;/span&gt;
+&lt;a href="#protocol-mediation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;OpenAI-compatible API as the public contract&lt;/li&gt;
+&lt;li&gt;Translation to backend dialects (TensorRT-LLM, vLLM, SGLang, NIM, llama.cpp, raw HTTP)&lt;/li&gt;
+&lt;li&gt;Chat → completion → embedding → reranking shape conversion&lt;/li&gt;
+&lt;li&gt;Tool / function-calling schema normalization&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Cost and quota&lt;span class="hx:absolute hx:-mt-20" id="cost-and-quota"&gt;&lt;/span&gt;
+&lt;a href="#cost-and-quota" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Per-tenant input-token, output-token, and total-token budgets&lt;/li&gt;
+&lt;li&gt;Per-model rate limits&lt;/li&gt;
+&lt;li&gt;Real-time spend tracking, not nightly batch&lt;/li&gt;
+&lt;li&gt;Cost-aware fallback (route to cheaper backend if budget tight)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Resilience&lt;span class="hx:absolute hx:-mt-20" id="resilience"&gt;&lt;/span&gt;
+&lt;a href="#resilience" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Health based on &lt;strong&gt;token throughput&lt;/strong&gt;, not HTTP 200s — a backend that returns 200s but produces garbage tokens is unhealthy&lt;/li&gt;
+&lt;li&gt;Retries that respect cancellation and don&amp;rsquo;t double-charge tokens&lt;/li&gt;
+&lt;li&gt;Per-(model, GPU-SKU) circuit breakers&lt;/li&gt;
+&lt;li&gt;Graceful degradation, not binary up/down&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Observability&lt;span class="hx:absolute hx:-mt-20" id="observability"&gt;&lt;/span&gt;
+&lt;a href="#observability" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Per-request: input tokens, output tokens, prefill latency, time-to-first-token, inter-token latency&lt;/li&gt;
+&lt;li&gt;Per-backend: queue depth, batch fill rate, GPU utilization&lt;/li&gt;
+&lt;li&gt;Per-tenant: spend, P99, error rates segmented by reason&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This is not a load balancer. It is a &lt;strong&gt;domain-specific control plane&lt;/strong&gt; for LLM traffic. Trying to build it on top of NGINX or as an Envoy filter is the same kind of mistake as building a database on top of Memcached. The shape of the problem demands a purpose-built tool.&lt;/p&gt;
+&lt;h2&gt;Why Rust&lt;span class="hx:absolute hx:-mt-20" id="why-rust"&gt;&lt;/span&gt;
+&lt;a href="#why-rust" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;I evaluated four serious candidates:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Python (FastAPI)&lt;/th&gt;
+&lt;th&gt;Go&lt;/th&gt;
+&lt;th&gt;C++ (Envoy filter)&lt;/th&gt;
+&lt;th&gt;Rust&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Memory safety&lt;/td&gt;
+&lt;td&gt;OK (GC)&lt;/td&gt;
+&lt;td&gt;OK (GC)&lt;/td&gt;
+&lt;td&gt;Manual, error-prone&lt;/td&gt;
+&lt;td&gt;Compile-time enforced&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GC tail latency&lt;/td&gt;
+&lt;td&gt;Bad (GC + GIL)&lt;/td&gt;
+&lt;td&gt;Real (~1 ms pauses)&lt;/td&gt;
+&lt;td&gt;None&lt;/td&gt;
+&lt;td&gt;None&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Throughput ceiling&lt;/td&gt;
+&lt;td&gt;Low (GIL)&lt;/td&gt;
+&lt;td&gt;Good&lt;/td&gt;
+&lt;td&gt;Highest&lt;/td&gt;
+&lt;td&gt;Highest&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Async model&lt;/td&gt;
+&lt;td&gt;asyncio + GIL&lt;/td&gt;
+&lt;td&gt;Goroutines&lt;/td&gt;
+&lt;td&gt;Event loop / threads&lt;/td&gt;
+&lt;td&gt;Tokio (best-in-class)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Binary&lt;/td&gt;
+&lt;td&gt;Interpreter required&lt;/td&gt;
+&lt;td&gt;~15 MB&lt;/td&gt;
+&lt;td&gt;~50 MB + filter Lua&lt;/td&gt;
+&lt;td&gt;~10 MB single static&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;HTTP/gRPC stack&lt;/td&gt;
+&lt;td&gt;Starlette, FastAPI&lt;/td&gt;
+&lt;td&gt;net/http, gRPC-Go&lt;/td&gt;
+&lt;td&gt;Envoy/proxy-wasm&lt;/td&gt;
+&lt;td&gt;hyper, axum, tonic&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Iteration speed&lt;/td&gt;
+&lt;td&gt;Fastest&lt;/td&gt;
+&lt;td&gt;Fast&lt;/td&gt;
+&lt;td&gt;Painful&lt;/td&gt;
+&lt;td&gt;Moderate&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Long-tail predictability&lt;/td&gt;
+&lt;td&gt;Bad&lt;/td&gt;
+&lt;td&gt;OK&lt;/td&gt;
+&lt;td&gt;Good&lt;/td&gt;
+&lt;td&gt;Excellent&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The four properties that decided it for me:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1. Predictable tail latency.&lt;/strong&gt; Every GC pause is a token batch missed. Tokio&amp;rsquo;s no-GC, structured-concurrency model means a P99 that does not surprise you under load. For Go this is &amp;ldquo;usually fine, sometimes mysterious.&amp;rdquo; For Python this is &amp;ldquo;good luck.&amp;rdquo; For Rust this is structural.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2. Cost of bugs is enormous.&lt;/strong&gt; A memory leak in an inference gateway is millions of tokens lost. A use-after-free in the streaming path is a CVE. Rust&amp;rsquo;s compile-time guarantees are not a luxury — they are the only credible defense at this scale.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3. Async is the workload.&lt;/strong&gt; Inference is long-lived, streaming, cancellable. Tokio&amp;rsquo;s &lt;code&gt;select!&lt;/code&gt;, structured cancellation, and the maturing &lt;code&gt;async fn in traits&lt;/code&gt; story are the best ergonomics any systems language has for this shape of work.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;4. Single static binary.&lt;/strong&gt; Deploy one binary. No Python wheels, no JVM warmup, no 600 MB Docker image. Cold start matters when an inference gateway is the bottleneck on autoscale events.&lt;/p&gt;
+&lt;p&gt;Go was the close second. It lost on tail latency under sustained load. For 90% of services Go&amp;rsquo;s GC is irrelevant; for the gateway in front of an inference cluster running at 80% utilization, every millisecond is real.&lt;/p&gt;
+&lt;p&gt;C++ + Envoy works. The cost is joining the Envoy maintenance treadmill, writing non-trivial logic in C++ or Lua filters, and accepting the operational complexity of Envoy in your hot path. It is a defensible choice for organizations already deep in Envoy. For greenfield, no.&lt;/p&gt;
+&lt;h2&gt;Architecture, in One Diagram&lt;span class="hx:absolute hx:-mt-20" id="architecture-in-one-diagram"&gt;&lt;/span&gt;
+&lt;a href="#architecture-in-one-diagram" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt; OpenAI-compatible client
+(chat / completions / embeddings)
+│
+│ HTTPS · SSE · WebSocket
+▼
+┌────────────────────────────────────────────────────────┐
+│ INFERENCE GATEWAY (Rust) │
+│ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Protocol Adapters: OpenAI · vendor-X · raw │ │
+│ └────────────────────────┬──────────────────────────┘ │
+│ ▼ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Tokenizer &amp;#43; token-budget estimator (FFI) │ │
+│ └────────────────────────┬──────────────────────────┘ │
+│ ▼ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Auth · Quota · Rate Limit · Cost Pre-check │ │
+│ └────────────────────────┬──────────────────────────┘ │
+│ ▼ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Router: model · GPU · region · cache-affinity │ │
+│ └────────────────────────┬──────────────────────────┘ │
+│ ▼ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Backend Pool (NIM · TensorRT-LLM · vLLM · SGLang) │ │
+│ │ ↳ token-throughput health │ │
+│ │ ↳ cancellation propagation │ │
+│ │ ↳ streaming with surgical backpressure │ │
+│ └────────────────────────┬──────────────────────────┘ │
+│ ▼ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Observability: token metrics · traces · SLOs │ │
+│ └───────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────┘
+│
+▼
+Heterogeneous GPU backends&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Each block in that diagram is a Rust module with a single, well-defined responsibility. The data flow is one-way except for the streaming path, which is bidirectional with explicit cancellation. The state is mostly in-memory, lock-free where possible, with a small persistent layer for budgets and audit.&lt;/p&gt;
+&lt;h2&gt;Why Now&lt;span class="hx:absolute hx:-mt-20" id="why-now"&gt;&lt;/span&gt;
+&lt;a href="#why-now" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Three things converged in the last 18 months that make this the right moment to build:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1. The OpenAI API shape has won.&lt;/strong&gt; Every model — open and closed, hosted and self-served — ships an OpenAI-compatible endpoint. The gateway only needs to speak one shape on the front, with adapters in the back. That standardization was not real two years ago. Now it is.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2. Rust async has matured.&lt;/strong&gt; &lt;code&gt;async fn&lt;/code&gt; in traits is stable. &lt;code&gt;tokio::select!&lt;/code&gt; is rock solid. axum 0.7+ has the ergonomics of FastAPI. tonic gives us first-class gRPC. The pieces that were missing in 2022 are present and working in production at multiple companies.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3. Inference is now infrastructure, not a science project.&lt;/strong&gt; Three years ago you served one model on a few GPUs. In 2025 you serve fifty models across heterogeneous H100 / H200 / B200 / A100 fleets, with multiple quantizations, multiple runtimes, and cost budgets denominated in hundreds of millions of tokens per day. The control plane around that has to be a real product, not a Python sidecar.&lt;/p&gt;
+&lt;p&gt;The teams that own the control-plane layer for inference will own a meaningful piece of the AI infrastructure stack for the next decade. It is the same pattern as Envoy/Cloudflare for HTTP, Kafka for streaming, Kubernetes for compute. Inference is next.&lt;/p&gt;
+&lt;h2&gt;What&amp;rsquo;s Different From What Exists&lt;span class="hx:absolute hx:-mt-20" id="whats-different-from-what-exists"&gt;&lt;/span&gt;
+&lt;a href="#whats-different-from-what-exists" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;vs litellm&lt;/strong&gt; — litellm is a Python library, single-tenant, no streaming-with-cancel semantics, no GPU awareness, no first-class observability.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;vs LangChain / LlamaIndex&lt;/strong&gt; — those are SDKs and orchestration frameworks, not gateways.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;vs Envoy + ext_authz / Lua filter&lt;/strong&gt; — protocol-blind. You can teach Envoy a lot, but token-awareness, cache-affinity routing, and cancellation-safe streaming are very expensive to bolt on.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;vs NGINX + OpenResty&lt;/strong&gt; — same problem as Envoy with worse ergonomics.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;vs vendor-specific gateways&lt;/strong&gt; — coupled to one model vendor. The whole point of a gateway is heterogeneity.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;vs raw FastAPI in front of vLLM&lt;/strong&gt; — fine for a single model on a single cluster. Falls over the moment you add a second.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The right comparison is: &lt;em&gt;imagine if Cloudflare Workers were redesigned from scratch for LLM traffic, in Rust, as a single binary you can drop into your cluster.&lt;/em&gt; That is the target shape.&lt;/p&gt;
+&lt;h2&gt;What I Am Optimizing For&lt;span class="hx:absolute hx:-mt-20" id="what-i-am-optimizing-for"&gt;&lt;/span&gt;
+&lt;a href="#what-i-am-optimizing-for" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;When I sit down to work on this, the priority order is fixed:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Correctness.&lt;/strong&gt; A misrouted token stream is a multi-cluster debug session. Make routing decisions provably correct or don&amp;rsquo;t make them.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Tail latency.&lt;/strong&gt; P99 must not move when load doubles. P99.9 must not move when one backend dies.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Operational simplicity.&lt;/strong&gt; One binary. One config file. Reload without dropping connections. Health endpoints that mean what they say.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Throughput.&lt;/strong&gt; Once 1-3 are nailed, throughput follows. Optimizing for throughput first usually breaks 1-3.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Notice what is &lt;em&gt;not&lt;/em&gt; on the list: feature breadth. The MVP must do five things flawlessly, not fifty things badly. The temptation in any greenfield project is to absorb every adjacent concern. Resist.&lt;/p&gt;
+&lt;h2&gt;Honest Trade-offs&lt;span class="hx:absolute hx:-mt-20" id="honest-trade-offs"&gt;&lt;/span&gt;
+&lt;a href="#honest-trade-offs" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Rust is not free. The trade I am paying:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Slower iteration than Python.&lt;/strong&gt; A new endpoint takes a day, not an hour. Borrow checker fights early; they shrink with experience but never go to zero.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Smaller pool of contributors.&lt;/strong&gt; Hiring or borrowing engineers comfortable in async Rust is harder than hiring Python engineers.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Debugging is harder.&lt;/strong&gt; A panic in tokio&amp;rsquo;s runtime gives you a stack trace that is initially incomprehensible. Reading async stack traces is a skill.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I am paying these costs deliberately. The properties they buy — predictable tail latency, no GC pauses, structurally enforced memory safety, single-binary deploy — are non-negotiable for the workload.&lt;/p&gt;
+&lt;p&gt;If you don&amp;rsquo;t need those properties, don&amp;rsquo;t pay these costs. Python in front of vLLM is genuinely fine for a single model with moderate scale. Pick deliberately.&lt;/p&gt;
+&lt;h2&gt;Build vs Buy&lt;span class="hx:absolute hx:-mt-20" id="build-vs-buy"&gt;&lt;/span&gt;
+&lt;a href="#build-vs-buy" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The honest call:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&amp;lt;100M tokens/day on one model&lt;/strong&gt;: don&amp;rsquo;t build. FastAPI in front of vLLM, or one of the open gateways (OpenRouter, litellm) is sufficient.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&amp;gt;500M tokens/day on multiple models, multiple GPU SKUs&lt;/strong&gt;: you will build, or you will adopt something close. The off-the-shelf options have not caught up to the requirements yet.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Between&lt;/strong&gt;: start with an OSS gateway, instrument the hell out of it, and rebuild the parts that hurt. Most of those parts are routing, observability, and cancellation safety. Coincidentally, those are the parts where Rust pays off.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Whether you build or adopt, the design principles are the same. Token-aware routing. Cancellation safety. GPU-aware health. Single binary. Observability designed for tokens, not for HTTP.&lt;/p&gt;
+&lt;h2&gt;What I Will Be Posting About Next&lt;span class="hx:absolute hx:-mt-20" id="what-i-will-be-posting-about-next"&gt;&lt;/span&gt;
+&lt;a href="#what-i-will-be-posting-about-next" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This is the foundational post. The follow-ups I have queued:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The cancellation-safety problem in streaming inference, and how Tokio makes it tractable&lt;/li&gt;
+&lt;li&gt;Token-aware load balancing: why round-robin is wrong and what to do instead&lt;/li&gt;
+&lt;li&gt;Prefix-cache-aware routing and the operational case for sticky sessions&lt;/li&gt;
+&lt;li&gt;Observability for inference: the metrics that actually predict outages&lt;/li&gt;
+&lt;li&gt;Why the gateway is the right place for cost governance, and what that looks like&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you are building in this space, I want to compare notes. The community of people doing this seriously is small, and the design choices we are all making in 2025 will be the defaults for years. We should get them right.&lt;/p&gt;
+&lt;h2&gt;Closing&lt;span class="hx:absolute hx:-mt-20" id="closing"&gt;&lt;/span&gt;
+&lt;a href="#closing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Inference is the dominant cloud workload now. The control plane around it — auth, routing, cost, reliability, streaming, observability — needs to be a first-class system, not a stack of duct-tape on infrastructure designed for 2010-era microservices.&lt;/p&gt;
+&lt;p&gt;Rust is the right substrate because the tail-latency requirements are real, the cost of bugs is enormous, and the async ecosystem has finally matured. Go is a strong second; everything else is a third place.&lt;/p&gt;
+&lt;p&gt;I am building it. I will share what I learn. If you are doing the same — write to me. Let&amp;rsquo;s compare notes.&lt;/p&gt;</description></item></channel></rss>

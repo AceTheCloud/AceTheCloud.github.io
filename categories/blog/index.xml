@@ -1,4 +1,642 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Blog</title><link>https://acethecloud.com/categories/blog/</link><description>Recent content in Blog on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 22 Jun 2024 11:15:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/categories/blog/index.xml" rel="self" type="application/rss+xml"/><item><title>Beyond Goroutines: Production Patterns for Go Concurrency</title><link>https://acethecloud.com/blog/beyond-goroutines-production-patterns-for-go-concurrency/</link><pubDate>Sat, 22 Jun 2024 11:15:00 +0530</pubDate><guid>https://acethecloud.com/blog/beyond-goroutines-production-patterns-for-go-concurrency/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Blog</title><link>https://acethecloud.com/categories/blog/</link><description>Recent content in Blog on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 08 Dec 2025 11:00:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/categories/blog/index.xml" rel="self" type="application/rss+xml"/><item><title>Why I'm Writing an Inference Gateway in Rust</title><link>https://acethecloud.com/blog/why-i-am-writing-an-inference-gateway-in-rust/</link><pubDate>Mon, 08 Dec 2025 11:00:00 +0530</pubDate><guid>https://acethecloud.com/blog/why-i-am-writing-an-inference-gateway-in-rust/</guid><description>
+&lt;p&gt;Every production LLM stack I have seen has the same hidden weak point: the API layer in front of the model. Teams ship it as a Python shim, an Envoy filter, an NGINX rewrite, or some unholy combination of the three. Most days it works. On the days it doesn&amp;rsquo;t, you discover at exactly the wrong moment that &lt;em&gt;the thing you thought was a load balancer is actually the most consequential piece of infrastructure in your stack&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;I am building an inference gateway in Rust. This post is why — the technical case, the engineering case, and the &lt;strong&gt;why now&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;If you serve LLMs at scale, you will reach the same conclusion eventually. I am writing this so you reach it before the 3 AM page rather than during.&lt;/p&gt;
+&lt;h2&gt;The Problem: Inference Is Not HTTP&lt;span class="hx:absolute hx:-mt-20" id="the-problem-inference-is-not-http"&gt;&lt;/span&gt;
+&lt;a href="#the-problem-inference-is-not-http" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Conventional API gateways were designed for stateless HTTP-RPC: small request in, fast response out, billions of times per second. Envoy, NGINX, HAProxy, Traefik — all exquisitely tuned for that workload.&lt;/p&gt;
+&lt;p&gt;LLM inference breaks every assumption in that pipeline:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Assumption&lt;/th&gt;
+&lt;th&gt;Reality of inference&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Requests are small&lt;/td&gt;
+&lt;td&gt;A chat completion with 8K input tokens is 30-100 KB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Responses are small&lt;/td&gt;
+&lt;td&gt;Streaming responses run into megabytes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Requests are fast&lt;/td&gt;
+&lt;td&gt;Latency ranges from 50 ms to 60+ seconds&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Requests are stateless&lt;/td&gt;
+&lt;td&gt;KV-cache reuse across turns is the difference between $0.01 and $0.10&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Requests are equal&lt;/td&gt;
+&lt;td&gt;A 100-token prompt and an 8000-token prompt cost wildly different GPU time&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Backends are interchangeable&lt;/td&gt;
+&lt;td&gt;An H100 with FP8 vLLM and an A100 with FP16 are not the same backend&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Failure is HTTP 5xx&lt;/td&gt;
+&lt;td&gt;Failure modes include OOM mid-stream, repeat-loop generation, malformed tokens, and silent truncation&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Treating inference traffic like HTTP traffic produces exactly what you would expect: ugly tail latencies, terrible GPU utilization, and outage modes that don&amp;rsquo;t appear in any traditional load-balancer dashboard.&lt;/p&gt;
+&lt;p&gt;The infrastructure category for this — call it the &lt;strong&gt;inference gateway&lt;/strong&gt; — does not exist as a mature product yet. Everyone is rolling their own. Most rolls are bad. We are early enough that getting this right will define the next decade of LLM-serving architecture.&lt;/p&gt;
+&lt;h2&gt;What an Inference Gateway Actually Has to Do&lt;span class="hx:absolute hx:-mt-20" id="what-an-inference-gateway-actually-has-to-do"&gt;&lt;/span&gt;
+&lt;a href="#what-an-inference-gateway-actually-has-to-do" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This is the list. It is longer than most people think.&lt;/p&gt;
+&lt;h3&gt;Token-aware routing&lt;span class="hx:absolute hx:-mt-20" id="token-aware-routing"&gt;&lt;/span&gt;
+&lt;a href="#token-aware-routing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Input/output token budgets per request, per tenant, per model&lt;/li&gt;
+&lt;li&gt;Estimated GPU-seconds per request before dispatch&lt;/li&gt;
+&lt;li&gt;Backend&amp;rsquo;s current token-per-second headroom&lt;/li&gt;
+&lt;li&gt;Prefill/decode disaggregation when the backend supports it&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;GPU-aware backend selection&lt;span class="hx:absolute hx:-mt-20" id="gpu-aware-backend-selection"&gt;&lt;/span&gt;
+&lt;a href="#gpu-aware-backend-selection" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Which SKU is healthy and how much spare capacity it has&lt;/li&gt;
+&lt;li&gt;Which has the requested model &lt;strong&gt;loaded&lt;/strong&gt; (cold-loading a 70B model takes minutes)&lt;/li&gt;
+&lt;li&gt;Which has the right quantization (FP16, FP8, INT4) for the latency target&lt;/li&gt;
+&lt;li&gt;Affinity for multi-turn sessions to maximize KV-cache reuse&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Streaming with surgical backpressure&lt;span class="hx:absolute hx:-mt-20" id="streaming-with-surgical-backpressure"&gt;&lt;/span&gt;
+&lt;a href="#streaming-with-surgical-backpressure" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Server-Sent Events, token streams, raw chunked transfer&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cancellation propagation&lt;/strong&gt; — when a client disconnects, the GPU slot must free &lt;em&gt;now&lt;/em&gt;, not at end-of-stream&lt;/li&gt;
+&lt;li&gt;Token-level metrics emitted as the stream flows&lt;/li&gt;
+&lt;li&gt;Speculative-decoding awareness (don&amp;rsquo;t double-count drafted tokens)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Cache-aware routing&lt;span class="hx:absolute hx:-mt-20" id="cache-aware-routing"&gt;&lt;/span&gt;
+&lt;a href="#cache-aware-routing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Prefix matching to land repeat prompts on warm KV caches&lt;/li&gt;
+&lt;li&gt;Sticky routing for chat sessions&lt;/li&gt;
+&lt;li&gt;Aware of disaggregated KV-cache transport when the backend supports it&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Protocol mediation&lt;span class="hx:absolute hx:-mt-20" id="protocol-mediation"&gt;&lt;/span&gt;
+&lt;a href="#protocol-mediation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;OpenAI-compatible API as the public contract&lt;/li&gt;
+&lt;li&gt;Translation to backend dialects (TensorRT-LLM, vLLM, SGLang, NIM, llama.cpp, raw HTTP)&lt;/li&gt;
+&lt;li&gt;Chat → completion → embedding → reranking shape conversion&lt;/li&gt;
+&lt;li&gt;Tool / function-calling schema normalization&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Cost and quota&lt;span class="hx:absolute hx:-mt-20" id="cost-and-quota"&gt;&lt;/span&gt;
+&lt;a href="#cost-and-quota" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Per-tenant input-token, output-token, and total-token budgets&lt;/li&gt;
+&lt;li&gt;Per-model rate limits&lt;/li&gt;
+&lt;li&gt;Real-time spend tracking, not nightly batch&lt;/li&gt;
+&lt;li&gt;Cost-aware fallback (route to cheaper backend if budget tight)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Resilience&lt;span class="hx:absolute hx:-mt-20" id="resilience"&gt;&lt;/span&gt;
+&lt;a href="#resilience" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Health based on &lt;strong&gt;token throughput&lt;/strong&gt;, not HTTP 200s — a backend that returns 200s but produces garbage tokens is unhealthy&lt;/li&gt;
+&lt;li&gt;Retries that respect cancellation and don&amp;rsquo;t double-charge tokens&lt;/li&gt;
+&lt;li&gt;Per-(model, GPU-SKU) circuit breakers&lt;/li&gt;
+&lt;li&gt;Graceful degradation, not binary up/down&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Observability&lt;span class="hx:absolute hx:-mt-20" id="observability"&gt;&lt;/span&gt;
+&lt;a href="#observability" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Per-request: input tokens, output tokens, prefill latency, time-to-first-token, inter-token latency&lt;/li&gt;
+&lt;li&gt;Per-backend: queue depth, batch fill rate, GPU utilization&lt;/li&gt;
+&lt;li&gt;Per-tenant: spend, P99, error rates segmented by reason&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This is not a load balancer. It is a &lt;strong&gt;domain-specific control plane&lt;/strong&gt; for LLM traffic. Trying to build it on top of NGINX or as an Envoy filter is the same kind of mistake as building a database on top of Memcached. The shape of the problem demands a purpose-built tool.&lt;/p&gt;
+&lt;h2&gt;Why Rust&lt;span class="hx:absolute hx:-mt-20" id="why-rust"&gt;&lt;/span&gt;
+&lt;a href="#why-rust" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;I evaluated four serious candidates:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Python (FastAPI)&lt;/th&gt;
+&lt;th&gt;Go&lt;/th&gt;
+&lt;th&gt;C++ (Envoy filter)&lt;/th&gt;
+&lt;th&gt;Rust&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Memory safety&lt;/td&gt;
+&lt;td&gt;OK (GC)&lt;/td&gt;
+&lt;td&gt;OK (GC)&lt;/td&gt;
+&lt;td&gt;Manual, error-prone&lt;/td&gt;
+&lt;td&gt;Compile-time enforced&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GC tail latency&lt;/td&gt;
+&lt;td&gt;Bad (GC + GIL)&lt;/td&gt;
+&lt;td&gt;Real (~1 ms pauses)&lt;/td&gt;
+&lt;td&gt;None&lt;/td&gt;
+&lt;td&gt;None&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Throughput ceiling&lt;/td&gt;
+&lt;td&gt;Low (GIL)&lt;/td&gt;
+&lt;td&gt;Good&lt;/td&gt;
+&lt;td&gt;Highest&lt;/td&gt;
+&lt;td&gt;Highest&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Async model&lt;/td&gt;
+&lt;td&gt;asyncio + GIL&lt;/td&gt;
+&lt;td&gt;Goroutines&lt;/td&gt;
+&lt;td&gt;Event loop / threads&lt;/td&gt;
+&lt;td&gt;Tokio (best-in-class)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Binary&lt;/td&gt;
+&lt;td&gt;Interpreter required&lt;/td&gt;
+&lt;td&gt;~15 MB&lt;/td&gt;
+&lt;td&gt;~50 MB + filter Lua&lt;/td&gt;
+&lt;td&gt;~10 MB single static&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;HTTP/gRPC stack&lt;/td&gt;
+&lt;td&gt;Starlette, FastAPI&lt;/td&gt;
+&lt;td&gt;net/http, gRPC-Go&lt;/td&gt;
+&lt;td&gt;Envoy/proxy-wasm&lt;/td&gt;
+&lt;td&gt;hyper, axum, tonic&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Iteration speed&lt;/td&gt;
+&lt;td&gt;Fastest&lt;/td&gt;
+&lt;td&gt;Fast&lt;/td&gt;
+&lt;td&gt;Painful&lt;/td&gt;
+&lt;td&gt;Moderate&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Long-tail predictability&lt;/td&gt;
+&lt;td&gt;Bad&lt;/td&gt;
+&lt;td&gt;OK&lt;/td&gt;
+&lt;td&gt;Good&lt;/td&gt;
+&lt;td&gt;Excellent&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The four properties that decided it for me:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1. Predictable tail latency.&lt;/strong&gt; Every GC pause is a token batch missed. Tokio&amp;rsquo;s no-GC, structured-concurrency model means a P99 that does not surprise you under load. For Go this is &amp;ldquo;usually fine, sometimes mysterious.&amp;rdquo; For Python this is &amp;ldquo;good luck.&amp;rdquo; For Rust this is structural.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2. Cost of bugs is enormous.&lt;/strong&gt; A memory leak in an inference gateway is millions of tokens lost. A use-after-free in the streaming path is a CVE. Rust&amp;rsquo;s compile-time guarantees are not a luxury — they are the only credible defense at this scale.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3. Async is the workload.&lt;/strong&gt; Inference is long-lived, streaming, cancellable. Tokio&amp;rsquo;s &lt;code&gt;select!&lt;/code&gt;, structured cancellation, and the maturing &lt;code&gt;async fn in traits&lt;/code&gt; story are the best ergonomics any systems language has for this shape of work.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;4. Single static binary.&lt;/strong&gt; Deploy one binary. No Python wheels, no JVM warmup, no 600 MB Docker image. Cold start matters when an inference gateway is the bottleneck on autoscale events.&lt;/p&gt;
+&lt;p&gt;Go was the close second. It lost on tail latency under sustained load. For 90% of services Go&amp;rsquo;s GC is irrelevant; for the gateway in front of an inference cluster running at 80% utilization, every millisecond is real.&lt;/p&gt;
+&lt;p&gt;C++ + Envoy works. The cost is joining the Envoy maintenance treadmill, writing non-trivial logic in C++ or Lua filters, and accepting the operational complexity of Envoy in your hot path. It is a defensible choice for organizations already deep in Envoy. For greenfield, no.&lt;/p&gt;
+&lt;h2&gt;Architecture, in One Diagram&lt;span class="hx:absolute hx:-mt-20" id="architecture-in-one-diagram"&gt;&lt;/span&gt;
+&lt;a href="#architecture-in-one-diagram" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt; OpenAI-compatible client
+(chat / completions / embeddings)
+│
+│ HTTPS · SSE · WebSocket
+▼
+┌────────────────────────────────────────────────────────┐
+│ INFERENCE GATEWAY (Rust) │
+│ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Protocol Adapters: OpenAI · vendor-X · raw │ │
+│ └────────────────────────┬──────────────────────────┘ │
+│ ▼ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Tokenizer &amp;#43; token-budget estimator (FFI) │ │
+│ └────────────────────────┬──────────────────────────┘ │
+│ ▼ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Auth · Quota · Rate Limit · Cost Pre-check │ │
+│ └────────────────────────┬──────────────────────────┘ │
+│ ▼ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Router: model · GPU · region · cache-affinity │ │
+│ └────────────────────────┬──────────────────────────┘ │
+│ ▼ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Backend Pool (NIM · TensorRT-LLM · vLLM · SGLang) │ │
+│ │ ↳ token-throughput health │ │
+│ │ ↳ cancellation propagation │ │
+│ │ ↳ streaming with surgical backpressure │ │
+│ └────────────────────────┬──────────────────────────┘ │
+│ ▼ │
+│ ┌───────────────────────────────────────────────────┐ │
+│ │ Observability: token metrics · traces · SLOs │ │
+│ └───────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────┘
+│
+▼
+Heterogeneous GPU backends&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Each block in that diagram is a Rust module with a single, well-defined responsibility. The data flow is one-way except for the streaming path, which is bidirectional with explicit cancellation. The state is mostly in-memory, lock-free where possible, with a small persistent layer for budgets and audit.&lt;/p&gt;
+&lt;h2&gt;Why Now&lt;span class="hx:absolute hx:-mt-20" id="why-now"&gt;&lt;/span&gt;
+&lt;a href="#why-now" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Three things converged in the last 18 months that make this the right moment to build:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1. The OpenAI API shape has won.&lt;/strong&gt; Every model — open and closed, hosted and self-served — ships an OpenAI-compatible endpoint. The gateway only needs to speak one shape on the front, with adapters in the back. That standardization was not real two years ago. Now it is.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2. Rust async has matured.&lt;/strong&gt; &lt;code&gt;async fn&lt;/code&gt; in traits is stable. &lt;code&gt;tokio::select!&lt;/code&gt; is rock solid. axum 0.7+ has the ergonomics of FastAPI. tonic gives us first-class gRPC. The pieces that were missing in 2022 are present and working in production at multiple companies.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3. Inference is now infrastructure, not a science project.&lt;/strong&gt; Three years ago you served one model on a few GPUs. In 2025 you serve fifty models across heterogeneous H100 / H200 / B200 / A100 fleets, with multiple quantizations, multiple runtimes, and cost budgets denominated in hundreds of millions of tokens per day. The control plane around that has to be a real product, not a Python sidecar.&lt;/p&gt;
+&lt;p&gt;The teams that own the control-plane layer for inference will own a meaningful piece of the AI infrastructure stack for the next decade. It is the same pattern as Envoy/Cloudflare for HTTP, Kafka for streaming, Kubernetes for compute. Inference is next.&lt;/p&gt;
+&lt;h2&gt;What&amp;rsquo;s Different From What Exists&lt;span class="hx:absolute hx:-mt-20" id="whats-different-from-what-exists"&gt;&lt;/span&gt;
+&lt;a href="#whats-different-from-what-exists" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;vs litellm&lt;/strong&gt; — litellm is a Python library, single-tenant, no streaming-with-cancel semantics, no GPU awareness, no first-class observability.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;vs LangChain / LlamaIndex&lt;/strong&gt; — those are SDKs and orchestration frameworks, not gateways.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;vs Envoy + ext_authz / Lua filter&lt;/strong&gt; — protocol-blind. You can teach Envoy a lot, but token-awareness, cache-affinity routing, and cancellation-safe streaming are very expensive to bolt on.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;vs NGINX + OpenResty&lt;/strong&gt; — same problem as Envoy with worse ergonomics.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;vs vendor-specific gateways&lt;/strong&gt; — coupled to one model vendor. The whole point of a gateway is heterogeneity.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;vs raw FastAPI in front of vLLM&lt;/strong&gt; — fine for a single model on a single cluster. Falls over the moment you add a second.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The right comparison is: &lt;em&gt;imagine if Cloudflare Workers were redesigned from scratch for LLM traffic, in Rust, as a single binary you can drop into your cluster.&lt;/em&gt; That is the target shape.&lt;/p&gt;
+&lt;h2&gt;What I Am Optimizing For&lt;span class="hx:absolute hx:-mt-20" id="what-i-am-optimizing-for"&gt;&lt;/span&gt;
+&lt;a href="#what-i-am-optimizing-for" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;When I sit down to work on this, the priority order is fixed:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Correctness.&lt;/strong&gt; A misrouted token stream is a multi-cluster debug session. Make routing decisions provably correct or don&amp;rsquo;t make them.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Tail latency.&lt;/strong&gt; P99 must not move when load doubles. P99.9 must not move when one backend dies.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Operational simplicity.&lt;/strong&gt; One binary. One config file. Reload without dropping connections. Health endpoints that mean what they say.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Throughput.&lt;/strong&gt; Once 1-3 are nailed, throughput follows. Optimizing for throughput first usually breaks 1-3.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Notice what is &lt;em&gt;not&lt;/em&gt; on the list: feature breadth. The MVP must do five things flawlessly, not fifty things badly. The temptation in any greenfield project is to absorb every adjacent concern. Resist.&lt;/p&gt;
+&lt;h2&gt;Honest Trade-offs&lt;span class="hx:absolute hx:-mt-20" id="honest-trade-offs"&gt;&lt;/span&gt;
+&lt;a href="#honest-trade-offs" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Rust is not free. The trade I am paying:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Slower iteration than Python.&lt;/strong&gt; A new endpoint takes a day, not an hour. Borrow checker fights early; they shrink with experience but never go to zero.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Smaller pool of contributors.&lt;/strong&gt; Hiring or borrowing engineers comfortable in async Rust is harder than hiring Python engineers.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Debugging is harder.&lt;/strong&gt; A panic in tokio&amp;rsquo;s runtime gives you a stack trace that is initially incomprehensible. Reading async stack traces is a skill.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I am paying these costs deliberately. The properties they buy — predictable tail latency, no GC pauses, structurally enforced memory safety, single-binary deploy — are non-negotiable for the workload.&lt;/p&gt;
+&lt;p&gt;If you don&amp;rsquo;t need those properties, don&amp;rsquo;t pay these costs. Python in front of vLLM is genuinely fine for a single model with moderate scale. Pick deliberately.&lt;/p&gt;
+&lt;h2&gt;Build vs Buy&lt;span class="hx:absolute hx:-mt-20" id="build-vs-buy"&gt;&lt;/span&gt;
+&lt;a href="#build-vs-buy" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The honest call:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&amp;lt;100M tokens/day on one model&lt;/strong&gt;: don&amp;rsquo;t build. FastAPI in front of vLLM, or one of the open gateways (OpenRouter, litellm) is sufficient.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&amp;gt;500M tokens/day on multiple models, multiple GPU SKUs&lt;/strong&gt;: you will build, or you will adopt something close. The off-the-shelf options have not caught up to the requirements yet.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Between&lt;/strong&gt;: start with an OSS gateway, instrument the hell out of it, and rebuild the parts that hurt. Most of those parts are routing, observability, and cancellation safety. Coincidentally, those are the parts where Rust pays off.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Whether you build or adopt, the design principles are the same. Token-aware routing. Cancellation safety. GPU-aware health. Single binary. Observability designed for tokens, not for HTTP.&lt;/p&gt;
+&lt;h2&gt;What I Will Be Posting About Next&lt;span class="hx:absolute hx:-mt-20" id="what-i-will-be-posting-about-next"&gt;&lt;/span&gt;
+&lt;a href="#what-i-will-be-posting-about-next" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This is the foundational post. The follow-ups I have queued:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The cancellation-safety problem in streaming inference, and how Tokio makes it tractable&lt;/li&gt;
+&lt;li&gt;Token-aware load balancing: why round-robin is wrong and what to do instead&lt;/li&gt;
+&lt;li&gt;Prefix-cache-aware routing and the operational case for sticky sessions&lt;/li&gt;
+&lt;li&gt;Observability for inference: the metrics that actually predict outages&lt;/li&gt;
+&lt;li&gt;Why the gateway is the right place for cost governance, and what that looks like&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you are building in this space, I want to compare notes. The community of people doing this seriously is small, and the design choices we are all making in 2025 will be the defaults for years. We should get them right.&lt;/p&gt;
+&lt;h2&gt;Closing&lt;span class="hx:absolute hx:-mt-20" id="closing"&gt;&lt;/span&gt;
+&lt;a href="#closing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Inference is the dominant cloud workload now. The control plane around it — auth, routing, cost, reliability, streaming, observability — needs to be a first-class system, not a stack of duct-tape on infrastructure designed for 2010-era microservices.&lt;/p&gt;
+&lt;p&gt;Rust is the right substrate because the tail-latency requirements are real, the cost of bugs is enormous, and the async ecosystem has finally matured. Go is a strong second; everything else is a third place.&lt;/p&gt;
+&lt;p&gt;I am building it. I will share what I learn. If you are doing the same — write to me. Let&amp;rsquo;s compare notes.&lt;/p&gt;</description></item><item><title>Rust for Systems Programming: When the Borrow Checker Earns Its Keep</title><link>https://acethecloud.com/blog/rust-for-systems-programming-when-the-borrow-checker-earns-its-keep/</link><pubDate>Mon, 15 Sep 2025 16:00:00 +0530</pubDate><guid>https://acethecloud.com/blog/rust-for-systems-programming-when-the-borrow-checker-earns-its-keep/</guid><description>
+&lt;p&gt;Rust gets discussed like a competitor to Go or to C++. That framing misses the point. Rust is a deliberate trade: more friction up front, in exchange for compiler-enforced guarantees that make whole categories of bugs structurally impossible. Whether that trade is worth it depends entirely on what you are building.&lt;/p&gt;
+&lt;p&gt;This is a practitioner&amp;rsquo;s view of when Rust pays its keep, when it does not, and what to expect when you commit to it.&lt;/p&gt;
+&lt;h2&gt;The one-paragraph summary of what makes Rust different&lt;span class="hx:absolute hx:-mt-20" id="the-one-paragraph-summary-of-what-makes-rust-different"&gt;&lt;/span&gt;
+&lt;a href="#the-one-paragraph-summary-of-what-makes-rust-different" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Rust enforces three rules at compile time:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Every value has exactly one owner.&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;You can have many immutable borrows OR one mutable borrow, never both.&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;References must always point to live data.&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Together, these eliminate use-after-free, double-free, data races, and entire classes of memory unsafety — without a garbage collector and without runtime overhead. Everything else about Rust — the trait system, async/await, the macro hygiene — is downstream of getting these three rules right.&lt;/p&gt;
+&lt;p&gt;The cost: the compiler will reject programs that &lt;em&gt;would&lt;/em&gt; work, because it cannot prove they will. You will fight the borrow checker. The fights get shorter with experience, never zero.&lt;/p&gt;
+&lt;h2&gt;Where Rust earns its place&lt;span class="hx:absolute hx:-mt-20" id="where-rust-earns-its-place"&gt;&lt;/span&gt;
+&lt;a href="#where-rust-earns-its-place" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3&gt;1. Long-running services where memory safety is non-negotiable&lt;span class="hx:absolute hx:-mt-20" id="1-long-running-services-where-memory-safety-is-non-negotiable"&gt;&lt;/span&gt;
+&lt;a href="#1-long-running-services-where-memory-safety-is-non-negotiable" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Web servers, databases, kernels, browser engines, language runtimes, blockchain nodes. Anywhere a memory bug is a security incident, not a stack trace. The cost of a memory-corruption CVE in a network-facing service is enormous; Rust eliminates the category. This is why AWS, Microsoft, and Google have all publicly committed to Rust for new infrastructure code.&lt;/p&gt;
+&lt;h3&gt;2. High-throughput data plane code&lt;span class="hx:absolute hx:-mt-20" id="2-high-throughput-data-plane-code"&gt;&lt;/span&gt;
+&lt;a href="#2-high-throughput-data-plane-code" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Protocol parsers, packet processing, codecs, compression, hash tables on the hot path. Rust is competitive with C++ on raw performance and &lt;em&gt;significantly&lt;/em&gt; easier to make correct under concurrency. Discord&amp;rsquo;s switch from Go to Rust for one of their state services is the canonical case study — they specifically cited GC pause latency.&lt;/p&gt;
+&lt;h3&gt;3. Systems where concurrency is fundamental&lt;span class="hx:absolute hx:-mt-20" id="3-systems-where-concurrency-is-fundamental"&gt;&lt;/span&gt;
+&lt;a href="#3-systems-where-concurrency-is-fundamental" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Rust&amp;rsquo;s &lt;code&gt;Send&lt;/code&gt; and &lt;code&gt;Sync&lt;/code&gt; traits make data-race-freedom a property the compiler enforces. You cannot share a non-thread-safe type across threads — the compiler refuses to compile. For systems with complex internal concurrency (databases, schedulers, async runtimes), this turns &amp;ldquo;test extensively and hope&amp;rdquo; into &amp;ldquo;compiles, therefore correct.&amp;rdquo; Not a small upgrade.&lt;/p&gt;
+&lt;h3&gt;4. Embedded and resource-constrained environments&lt;span class="hx:absolute hx:-mt-20" id="4-embedded-and-resource-constrained-environments"&gt;&lt;/span&gt;
+&lt;a href="#4-embedded-and-resource-constrained-environments" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;code&gt;no_std&lt;/code&gt; Rust runs on bare metal, in microcontrollers, in WASM with kilobytes of memory. The same language, ownership rules, and tooling that you use for a server backend works on a 32 KB MCU. C and C++ are still the incumbents, but Rust is the most credible challenger they have ever had.&lt;/p&gt;
+&lt;h3&gt;5. WebAssembly&lt;span class="hx:absolute hx:-mt-20" id="5-webassembly"&gt;&lt;/span&gt;
+&lt;a href="#5-webassembly" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;If you are compiling to WASM, Rust is the most mature toolchain. The output is small, the bindings are clean, and the tooling (&lt;code&gt;wasm-pack&lt;/code&gt;, &lt;code&gt;wasm-bindgen&lt;/code&gt;) is excellent. For client-side compute (image processing, crypto, parsing) that wants to run in a browser, Rust + WASM is the path.&lt;/p&gt;
+&lt;h2&gt;Where Rust is the wrong tool&lt;span class="hx:absolute hx:-mt-20" id="where-rust-is-the-wrong-tool"&gt;&lt;/span&gt;
+&lt;a href="#where-rust-is-the-wrong-tool" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3&gt;1. Most CRUD web applications&lt;span class="hx:absolute hx:-mt-20" id="1-most-crud-web-applications"&gt;&lt;/span&gt;
+&lt;a href="#1-most-crud-web-applications" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;If your service is mostly &amp;ldquo;accept HTTP request, talk to a database, return JSON&amp;rdquo; with moderate throughput, you are paying Rust&amp;rsquo;s cost for none of its benefits. Go, TypeScript, or Python will get you there in half the time and the runtime difference is not what is bottlenecking your business. Use Rust for the 5% of services where it matters; use the productivity language for the other 95%.&lt;/p&gt;
+&lt;h3&gt;2. Quick prototypes and exploratory work&lt;span class="hx:absolute hx:-mt-20" id="2-quick-prototypes-and-exploratory-work"&gt;&lt;/span&gt;
+&lt;a href="#2-quick-prototypes-and-exploratory-work" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The borrow checker punishes shape changes. Refactoring a Rust prototype is more expensive than refactoring a TypeScript or Python one, because every reshape revisits ownership. Prototype in something flexible; rewrite the parts that matter in Rust.&lt;/p&gt;
+&lt;h3&gt;3. Heavy use of self-referential data structures&lt;span class="hx:absolute hx:-mt-20" id="3-heavy-use-of-self-referential-data-structures"&gt;&lt;/span&gt;
+&lt;a href="#3-heavy-use-of-self-referential-data-structures" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Doubly-linked lists, graph nodes that point at each other, observer patterns where every node holds references to its siblings — all of these fight the borrow checker hard. They can be done (with &lt;code&gt;Rc&amp;lt;RefCell&amp;lt;T&amp;gt;&amp;gt;&lt;/code&gt;, &lt;code&gt;Pin&lt;/code&gt;, raw pointers, or &lt;code&gt;Arena&lt;/code&gt; allocators), but it is unergonomic. If your domain is graph-shaped and nodes need to mutate each other freely, you will spend a lot of time on architecture you could skip in another language.&lt;/p&gt;
+&lt;h3&gt;4. ML/numerical research&lt;span class="hx:absolute hx:-mt-20" id="4-mlnumerical-research"&gt;&lt;/span&gt;
+&lt;a href="#4-mlnumerical-research" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Python&amp;rsquo;s ML ecosystem is a moat. PyTorch, JAX, NumPy, Transformers, the entire CUDA stack — none of these have full Rust equivalents. Rust has Polars, candle, and a growing ecosystem, but for &lt;em&gt;research-velocity&lt;/em&gt; ML work, Python is still the right answer. Rust comes in when you operationalize: serving, preprocessing pipelines, custom CUDA kernels via crates like &lt;code&gt;cudarc&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;Async Rust: the elephant in the room&lt;span class="hx:absolute hx:-mt-20" id="async-rust-the-elephant-in-the-room"&gt;&lt;/span&gt;
+&lt;a href="#async-rust-the-elephant-in-the-room" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Asynchronous Rust is the most controversial part of the language. It is also where most production server work happens. A few honest observations:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Tokio is the default runtime.&lt;/strong&gt; Pick it. The other runtimes (async-std, smol) exist for specific cases, but tokio has the ecosystem.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;async fn&lt;/code&gt; in traits is finally stable&lt;/strong&gt; (Rust 1.75+). The era of returning boxed futures from trait methods is over.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;Pin&lt;/code&gt; is the price.&lt;/strong&gt; You will encounter it. Understanding &lt;code&gt;Pin&lt;/code&gt; is the difference between &amp;ldquo;I write async Rust&amp;rdquo; and &amp;ldquo;I copy-paste async Rust.&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Function coloring is real.&lt;/strong&gt; Async functions can only be called from async contexts. This propagates through your codebase. Plan accordingly: most of your service is probably async; the parts that are not should stay small.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cancellation is cooperative.&lt;/strong&gt; Dropping an async future cancels it at the next &lt;code&gt;.await&lt;/code&gt;. This is powerful but requires care: any state that must be cleaned up on cancellation needs &lt;code&gt;Drop&lt;/code&gt; impls or scope guards.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you are building a network service in Rust, you will write tokio-based async code. Embrace the ecosystem; don&amp;rsquo;t fight it.&lt;/p&gt;
+&lt;h2&gt;Compared to C++&lt;span class="hx:absolute hx:-mt-20" id="compared-to-c"&gt;&lt;/span&gt;
+&lt;a href="#compared-to-c" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Rust is what a modern C++ replacement looks like:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;C++&lt;/th&gt;
+&lt;th&gt;Rust&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Memory safety&lt;/td&gt;
+&lt;td&gt;Manual, error-prone&lt;/td&gt;
+&lt;td&gt;Compile-time enforced&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Build system&lt;/td&gt;
+&lt;td&gt;CMake/Bazel/etc&lt;/td&gt;
+&lt;td&gt;Cargo, single tool, works&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Package management&lt;/td&gt;
+&lt;td&gt;vcpkg/Conan/system&lt;/td&gt;
+&lt;td&gt;Cargo + crates.io&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Compile errors&lt;/td&gt;
+&lt;td&gt;Famous for being incomprehensible&lt;/td&gt;
+&lt;td&gt;Famously good error messages&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Mature ecosystem&lt;/td&gt;
+&lt;td&gt;40+ years&lt;/td&gt;
+&lt;td&gt;10 years, growing fast&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Ergonomics for big projects&lt;/td&gt;
+&lt;td&gt;Require strong conventions&lt;/td&gt;
+&lt;td&gt;Enforced by the language&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Where C++ still wins: existing legacy codebases, niche embedded toolchains, raw performance for very specific kernels with hand-tuned SIMD, AAA game engines (Unreal, etc.). For new systems work in 2024-2025, Rust is the more defensible choice.&lt;/p&gt;
+&lt;h2&gt;Compared to Go&lt;span class="hx:absolute hx:-mt-20" id="compared-to-go"&gt;&lt;/span&gt;
+&lt;a href="#compared-to-go" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A common framing: &amp;ldquo;is Rust replacing Go?&amp;rdquo; Mostly no. The languages target different points:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Go:&lt;/strong&gt; simple, fast to learn, GC, focused on services. Best for: business-logic services, CLIs, build tooling. The win is engineering velocity at acceptable performance.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Rust:&lt;/strong&gt; complex, slow to learn, no GC, focused on correctness and performance. Best for: data-plane code, systems infrastructure, libraries that other services depend on. The win is correctness and performance with no GC overhead.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Go and Rust co-exist well in a polyglot architecture. The control plane in Go, the data plane in Rust, both speaking gRPC or whatever, is a perfectly reasonable shape.&lt;/p&gt;
+&lt;h2&gt;What to expect when you commit to Rust&lt;span class="hx:absolute hx:-mt-20" id="what-to-expect-when-you-commit-to-rust"&gt;&lt;/span&gt;
+&lt;a href="#what-to-expect-when-you-commit-to-rust" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;The first six weeks are hard.&lt;/strong&gt; The borrow checker will reject programs you are sure are correct. Embrace it. The mental model is real and you will internalize it.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Compile times will frustrate you.&lt;/strong&gt; Cold Rust builds are slow. Incremental builds are fine. Use &lt;code&gt;sccache&lt;/code&gt;, &lt;code&gt;cargo-watch&lt;/code&gt;, and the new parallel front-end (Rust 1.75+) to make iteration tolerable.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;unsafe&lt;/code&gt; is fine, in moderation.&lt;/strong&gt; It is not failure to use it. It is failure to use it without isolating it behind a safe API and writing the proof of why it is sound.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Read other people&amp;rsquo;s Rust.&lt;/strong&gt; Reading idiomatic Rust is the fastest way to absorb the patterns. The standard library source, tokio internals, ripgrep, and the Rust compiler itself are all worth time.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Use clippy religiously.&lt;/strong&gt; Most of the lints catch real bugs or anti-patterns. Treat clippy warnings as errors in CI.&lt;/p&gt;
+&lt;h2&gt;A realistic adoption path&lt;span class="hx:absolute hx:-mt-20" id="a-realistic-adoption-path"&gt;&lt;/span&gt;
+&lt;a href="#a-realistic-adoption-path" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If your team is Rust-curious, here is a path that has worked for teams I know:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Tooling first.&lt;/strong&gt; Write a CLI tool, a build script, or an internal utility in Rust. Low stakes, real production use, learn &lt;code&gt;cargo&lt;/code&gt; and the standard library.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;A library second.&lt;/strong&gt; Pull a hot path out of an existing service, rewrite it in Rust, expose it via FFI (or rewrite as a sidecar). You learn ownership without the async-runtime complexity yet.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;A service third.&lt;/strong&gt; When you have a use case where Rust&amp;rsquo;s strengths matter — a high-throughput parser, a cache, a network proxy — write a real service. By now you have absorbed the language.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Skipping straight to &amp;ldquo;rewrite our entire backend in Rust&amp;rdquo; is the path that produces six-month projects with no shipped value. Don&amp;rsquo;t do that.&lt;/p&gt;
+&lt;h2&gt;The honest verdict&lt;span class="hx:absolute hx:-mt-20" id="the-honest-verdict"&gt;&lt;/span&gt;
+&lt;a href="#the-honest-verdict" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Rust is the right answer for a real but bounded set of problems. When it is the right answer, it is decisively the right answer — the alternative is C++ and a thousand-page memory-safety rulebook nobody actually follows. When it is not the right answer, using it anyway is a tax on your velocity that you pay forever.&lt;/p&gt;
+&lt;p&gt;Pick deliberately. The borrow checker is a tool, not a religion.&lt;/p&gt;</description></item><item><title>Apache Kafka in Production: Beyond the Quickstart</title><link>https://acethecloud.com/blog/apache-kafka-in-production-beyond-the-quickstart/</link><pubDate>Thu, 12 Sep 2024 10:45:00 +0530</pubDate><guid>https://acethecloud.com/blog/apache-kafka-in-production-beyond-the-quickstart/</guid><description>
+&lt;p&gt;Getting Kafka running is a one-page tutorial. &lt;em&gt;Running&lt;/em&gt; Kafka — at production scale, where a partition rebalance at 3 AM is not allowed to take you down — is a multi-year discipline.&lt;/p&gt;
+&lt;p&gt;This is the cheat sheet I wish someone had handed me before my first real Kafka deployment. None of it is exotic; all of it is the difference between a system that survives and one that doesn&amp;rsquo;t.&lt;/p&gt;
+&lt;h2&gt;Topic design is the foundation, and it is permanent&lt;span class="hx:absolute hx:-mt-20" id="topic-design-is-the-foundation-and-it-is-permanent"&gt;&lt;/span&gt;
+&lt;a href="#topic-design-is-the-foundation-and-it-is-permanent" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Once a topic has data, you do not get to redesign it. Plan accordingly.&lt;/p&gt;
+&lt;h3&gt;Partition count&lt;span class="hx:absolute hx:-mt-20" id="partition-count"&gt;&lt;/span&gt;
+&lt;a href="#partition-count" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The single most under-thought decision. Partitions determine:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Maximum consumer parallelism.&lt;/strong&gt; A consumer group can have at most as many active consumers as partitions. Want 64 parallel workers? You need ≥64 partitions.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Per-partition ordering.&lt;/strong&gt; Order is guaranteed within a partition, never across them. If you need ordering for a key, all events for that key must hash to the same partition.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Per-broker load.&lt;/strong&gt; Each partition lives on a leader broker. Too many partitions per broker hurts throughput and recovery time.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Sensible starting points:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;6 to 12 partitions for low-volume topics.&lt;/li&gt;
+&lt;li&gt;30 to 60 for medium-volume.&lt;/li&gt;
+&lt;li&gt;100+ for high-volume.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Never&lt;/strong&gt; start with &lt;code&gt;num.partitions=1&lt;/code&gt;. You can increase later, but it changes the partition-key-to-partition mapping, breaking ordering for old keys.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Replication and ISR&lt;span class="hx:absolute hx:-mt-20" id="replication-and-isr"&gt;&lt;/span&gt;
+&lt;a href="#replication-and-isr" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;code&gt;replication.factor=3&lt;/code&gt; is non-negotiable for production. Three brokers means you survive one failing during maintenance on another.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;min.insync.replicas=2&lt;/code&gt; plus &lt;code&gt;acks=all&lt;/code&gt; on producers gives you durability against any single broker failure with bounded latency. The combination is what you actually want; either alone is partial.&lt;/p&gt;
+&lt;p&gt;If &lt;code&gt;min.insync.replicas=replication.factor&lt;/code&gt;, a single slow broker stalls the entire topic. If &lt;code&gt;min.insync.replicas=1&lt;/code&gt;, you have effectively no durability guarantee.&lt;/p&gt;
+&lt;h3&gt;Retention&lt;span class="hx:absolute hx:-mt-20" id="retention"&gt;&lt;/span&gt;
+&lt;a href="#retention" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Two axes: time (&lt;code&gt;retention.ms&lt;/code&gt;) and size (&lt;code&gt;retention.bytes&lt;/code&gt;). The first one to hit triggers deletion. Pick deliberately.&lt;/p&gt;
+&lt;p&gt;For event-sourcing topics, retention is &lt;em&gt;forever&lt;/em&gt;; use a compacted topic if you also need point-in-time reads of latest-by-key. For log/metric ingestion, days-to-weeks is standard. For commit-log-as-source-of-truth, longer.&lt;/p&gt;
+&lt;p&gt;Compaction (&lt;code&gt;cleanup.policy=compact&lt;/code&gt;) is its own world. It is what makes Kafka useful as a key-value log — Kafka Streams&amp;rsquo; state stores depend on it. Mix &lt;code&gt;compact,delete&lt;/code&gt; carefully; the interaction is subtle.&lt;/p&gt;
+&lt;h2&gt;Consumer groups: the rebalance problem&lt;span class="hx:absolute hx:-mt-20" id="consumer-groups-the-rebalance-problem"&gt;&lt;/span&gt;
+&lt;a href="#consumer-groups-the-rebalance-problem" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Every introduction to Kafka explains consumer groups. Almost none explain that the rebalance protocol is the single biggest source of production pain.&lt;/p&gt;
+&lt;h3&gt;What happens during a rebalance&lt;span class="hx:absolute hx:-mt-20" id="what-happens-during-a-rebalance"&gt;&lt;/span&gt;
+&lt;a href="#what-happens-during-a-rebalance" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;When a consumer joins or leaves a group, &lt;em&gt;all&lt;/em&gt; consumers in the group stop processing, sync state with the coordinator, get reassigned partitions, and resume. This is &amp;ldquo;stop-the-world&amp;rdquo; by default.&lt;/p&gt;
+&lt;p&gt;In a high-throughput pipeline, a rebalance during a deployment can mean 30+ seconds of zero throughput, plus a backlog spike, plus duplicate processing of in-flight records.&lt;/p&gt;
+&lt;h3&gt;The mitigations&lt;span class="hx:absolute hx:-mt-20" id="the-mitigations"&gt;&lt;/span&gt;
+&lt;a href="#the-mitigations" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Static membership&lt;/strong&gt; (&lt;code&gt;group.instance.id&lt;/code&gt;) — a consumer with a stable ID does not trigger rebalances on graceful restart. Use this for any long-lived consumer.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Cooperative incremental rebalancing&lt;/strong&gt; (&lt;code&gt;partition.assignment.strategy=org.apache.kafka.clients.consumer.CooperativeStickyAssignor&lt;/code&gt;) — only the partitions that need to move actually move. The rest keep processing. This is the protocol since Kafka 2.4 and is what you should be using by default.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Tune &lt;code&gt;session.timeout.ms&lt;/code&gt; and &lt;code&gt;heartbeat.interval.ms&lt;/code&gt; deliberately.&lt;/strong&gt; Defaults are fine for most workloads. If your consumers do GC pauses or long polls, raise the session timeout to avoid spurious rebalances.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Use &lt;code&gt;max.poll.interval.ms&lt;/code&gt; for long-processing consumers.&lt;/strong&gt; If a single poll takes longer than this, the consumer is considered dead. Long-running message processing needs a high value (5-10 minutes) or a thread pool that returns control to the poll loop quickly.&lt;/p&gt;
+&lt;h2&gt;Exactly-once semantics: read the fine print&lt;span class="hx:absolute hx:-mt-20" id="exactly-once-semantics-read-the-fine-print"&gt;&lt;/span&gt;
+&lt;a href="#exactly-once-semantics-read-the-fine-print" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Kafka&amp;rsquo;s &amp;ldquo;exactly-once semantics&amp;rdquo; (EOS) is real but narrower than the marketing.&lt;/p&gt;
+&lt;p&gt;EOS guarantees: a message produced by transactional producer P, consumed by transactional consumer C in the same transaction, will be processed exactly once &lt;em&gt;if all systems involved cooperate.&lt;/em&gt; Specifically:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Producer must use &lt;code&gt;enable.idempotence=true&lt;/code&gt; and &lt;code&gt;transactional.id&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Consumer must commit offsets within the same transaction as its produces (read-process-write pattern).&lt;/li&gt;
+&lt;li&gt;Reads must use &lt;code&gt;isolation.level=read_committed&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Both ends must be Kafka. Sinks to external systems (Postgres, S3, Elasticsearch) are &lt;em&gt;not&lt;/em&gt; exactly-once unless those sinks support idempotent or transactional writes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In practice, &amp;ldquo;effectively exactly once&amp;rdquo; — at-least-once delivery + idempotent processing — is what most production systems use. It is simpler and works across any sink. EOS is for cases where the entire pipeline is Kafka-native.&lt;/p&gt;
+&lt;h2&gt;KRaft: ZooKeeper is finally optional&lt;span class="hx:absolute hx:-mt-20" id="kraft-zookeeper-is-finally-optional"&gt;&lt;/span&gt;
+&lt;a href="#kraft-zookeeper-is-finally-optional" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;As of Kafka 3.3 (2022), KRaft (Kafka Raft) is production-ready. As of 3.5+, it is the recommended deployment mode. New clusters should not use ZooKeeper.&lt;/p&gt;
+&lt;p&gt;What you get:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Fewer moving parts. One distributed system instead of two.&lt;/li&gt;
+&lt;li&gt;Faster controller failover (seconds vs. tens of seconds).&lt;/li&gt;
+&lt;li&gt;Simpler cluster operations.&lt;/li&gt;
+&lt;li&gt;Higher metadata scalability — millions of partitions become tractable.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you have a ZooKeeper-based cluster, KIP-866 documents the migration path. It is a real project, but the destination is worth it.&lt;/p&gt;
+&lt;h2&gt;Tiered storage (KIP-405): the operational unlock&lt;span class="hx:absolute hx:-mt-20" id="tiered-storage-kip-405-the-operational-unlock"&gt;&lt;/span&gt;
+&lt;a href="#tiered-storage-kip-405-the-operational-unlock" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Kafka 3.6+ supports tiered storage — partitions can have hot data on local disks and cold data in object storage (S3, GCS, Azure Blob). This is the most important Kafka feature in years.&lt;/p&gt;
+&lt;p&gt;Why it matters operationally:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Retention is no longer a disk-cost problem.&lt;/strong&gt; You can retain months of data at S3 prices.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Broker rebalances move less data.&lt;/strong&gt; Cold segments stay in object storage; only hot data moves with brokers.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Storage and compute scale independently.&lt;/strong&gt; A small cluster with deep retention is suddenly viable.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Set &lt;code&gt;local.retention.ms&lt;/code&gt; to keep recent data (hours-to-days) on local disk for low-latency consumption, and &lt;code&gt;retention.ms&lt;/code&gt; to your real retention requirement. The broker handles the tiering.&lt;/p&gt;
+&lt;p&gt;Watch for: object-storage egress costs if consumers frequently fetch cold data. Tiered storage assumes hot reads dominate.&lt;/p&gt;
+&lt;h2&gt;The metrics that actually matter&lt;span class="hx:absolute hx:-mt-20" id="the-metrics-that-actually-matter"&gt;&lt;/span&gt;
+&lt;a href="#the-metrics-that-actually-matter" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If you are setting up Kafka monitoring, these are the dashboards that pay rent:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Broker side:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;UnderReplicatedPartitions&lt;/code&gt; — should be zero. Non-zero for more than a few minutes is a problem.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ActiveControllerCount&lt;/code&gt; — should be exactly 1 across the cluster.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;OfflinePartitionsCount&lt;/code&gt; — should be zero. Anything else is unavailability.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RequestHandlerAvgIdlePercent&lt;/code&gt; — below 30% means brokers are CPU-saturated.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;LogFlushTimeMs&lt;/code&gt; — disk-write pressure.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Producer side:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;record-error-rate&lt;/code&gt; and &lt;code&gt;record-retry-rate&lt;/code&gt; — non-zero is fine, growing is not.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;request-latency-avg&lt;/code&gt; — production latency, not just consumer lag.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;buffer-available-bytes&lt;/code&gt; — if hitting zero, your producer is back-pressured.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Consumer side:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;records-lag-max&lt;/code&gt; — partition with the worst lag. The single most important consumer metric.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;commit-latency-avg&lt;/code&gt; — slow commits indicate broker-side or coordinator stress.&lt;/li&gt;
+&lt;li&gt;Rebalance count per minute — should be near zero in steady state.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A useful rule: if you can&amp;rsquo;t answer &amp;ldquo;is consumer group X keeping up?&amp;rdquo; in five seconds, your monitoring is not good enough.&lt;/p&gt;
+&lt;h2&gt;Operational hygiene&lt;span class="hx:absolute hx:-mt-20" id="operational-hygiene"&gt;&lt;/span&gt;
+&lt;a href="#operational-hygiene" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Run a separate cluster per failure domain you care about.&lt;/strong&gt; Sharing a cluster between business-critical pipelines and dev experimentation is asking for outages.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Don&amp;rsquo;t share consumer groups across application versions.&lt;/strong&gt; When deploying, give the new version a new group ID and let the old one drain. Mixing versions in one group means rebalances during deploys.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Set quotas.&lt;/strong&gt; &lt;code&gt;producer_byte_rate&lt;/code&gt;, &lt;code&gt;consumer_byte_rate&lt;/code&gt;, and request rate quotas per client ID. Without them, one misbehaving client takes down everyone.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Backup the config, not just the data.&lt;/strong&gt; Topic configs, ACLs, consumer group offsets — these are the things you need to recreate the cluster.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Test broker failure regularly.&lt;/strong&gt; Either chaos engineer it or do rolling broker restarts every few weeks. Brokers that don&amp;rsquo;t get restarted accumulate weird state.&lt;/p&gt;
+&lt;h2&gt;When NOT to use Kafka&lt;span class="hx:absolute hx:-mt-20" id="when-not-to-use-kafka"&gt;&lt;/span&gt;
+&lt;a href="#when-not-to-use-kafka" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Kafka is fantastic at what it is good at. It is wrong for some things people use it for anyway:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;As a database.&lt;/strong&gt; Compacted topics give you key-value semantics, but no secondary indexes, no transactions across keys, no joins. If you find yourself building those on top of Kafka, use a real database.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;As a generic message queue with low throughput, low partition count, complex routing.&lt;/strong&gt; Pulsar, RabbitMQ, NATS, or even AWS SQS are often a better fit.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;For sub-millisecond pub/sub.&lt;/strong&gt; Kafka&amp;rsquo;s per-record latency is great by streaming-system standards (~5-10 ms typical). For HFT-grade latency, look elsewhere.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;For ad-hoc point-to-point messaging.&lt;/strong&gt; Kafka&amp;rsquo;s strength is durable, replayable, ordered logs. If you are using it as a temporary courier between two services, you have over-engineered.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;The closing thought&lt;span class="hx:absolute hx:-mt-20" id="the-closing-thought"&gt;&lt;/span&gt;
+&lt;a href="#the-closing-thought" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Kafka rewards investment. The teams that go past &amp;ldquo;it works&amp;rdquo; and into &amp;ldquo;it works in the worst case we can construct&amp;rdquo; build platforms that other teams can rely on without thinking about Kafka. That is the goal: making the substrate so reliable that the people building on top of it never have to learn its quirks.&lt;/p&gt;
+&lt;p&gt;Get there with deliberate topic design, modern protocols (KRaft, cooperative rebalancing, tiered storage), boring observability, and the discipline to say no to the use cases Kafka is wrong for.&lt;/p&gt;</description></item><item><title>Control Planes for Distributed Systems: A Practitioner's Guide</title><link>https://acethecloud.com/blog/control-planes-for-distributed-systems-a-practitioners-guide/</link><pubDate>Tue, 30 Jul 2024 14:20:00 +0530</pubDate><guid>https://acethecloud.com/blog/control-planes-for-distributed-systems-a-practitioners-guide/</guid><description>
+&lt;p&gt;Every non-trivial distributed system has a control plane. The only question is whether you designed one, or one emerged by accident through scripts, cron jobs, and Slack incidents.&lt;/p&gt;
+&lt;p&gt;A good control plane is the difference between &lt;em&gt;running&lt;/em&gt; a platform and &lt;em&gt;operating&lt;/em&gt; one. It is what lets a team go from &amp;ldquo;babysitting deployments&amp;rdquo; to &amp;ldquo;shipping infrastructure as a product.&amp;rdquo; This is the architecture I have lived with — at Omnistrate, on Kubernetes-native platforms, and now on AI inference systems serving production traffic — distilled into the patterns that actually hold up.&lt;/p&gt;
+&lt;h2&gt;What a control plane actually does&lt;span class="hx:absolute hx:-mt-20" id="what-a-control-plane-actually-does"&gt;&lt;/span&gt;
+&lt;a href="#what-a-control-plane-actually-does" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Control plane vs data plane is a useful split. The &lt;strong&gt;data plane&lt;/strong&gt; is where the work happens — packets are routed, requests are served, queries are executed. The &lt;strong&gt;control plane&lt;/strong&gt; is what &lt;em&gt;decides&lt;/em&gt; what the data plane should be doing — placement, configuration, lifecycle, policy, observability.&lt;/p&gt;
+&lt;p&gt;Concretely, a real control plane is responsible for four things:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Declare&lt;/strong&gt; — accept the user&amp;rsquo;s intent (&amp;ldquo;I want 5 replicas of this model in us-west-2 with autoscaling between 2 and 20&amp;rdquo;).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Reconcile&lt;/strong&gt; — drive observed state toward desired state, continuously, in the face of failures and concurrent changes.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Observe&lt;/strong&gt; — emit truth about what is actually happening, not just what was intended.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Govern&lt;/strong&gt; — enforce policy, quotas, RBAC, audit, and cost controls before any of the above happens.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Miss any one of these and you do not have a control plane — you have a deployment script with extra steps.&lt;/p&gt;
+&lt;h2&gt;The reconciliation loop is the heart of it&lt;span class="hx:absolute hx:-mt-20" id="the-reconciliation-loop-is-the-heart-of-it"&gt;&lt;/span&gt;
+&lt;a href="#the-reconciliation-loop-is-the-heart-of-it" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If you read one Kubernetes design doc in your life, read the one on the controller pattern. The reconciliation loop is the most important idea in modern infrastructure software:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;loop:
+desired = read_spec()
+observed = read_status()
+if desired == observed:
+sleep(jitter)
+continue
+actions = diff(desired, observed)
+for action in actions:
+apply(action)
+emit_events()&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;What makes this powerful, and what makes it hard:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Idempotent.&lt;/strong&gt; Running it twice should be safe. Apply must be a no-op if already applied.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Convergent.&lt;/strong&gt; It runs forever; eventually observed approaches desired regardless of the path taken.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Crash-safe.&lt;/strong&gt; If the controller dies mid-reconciliation, the next iteration must pick up cleanly. There is no &amp;ldquo;transaction in progress.&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Composable.&lt;/strong&gt; Multiple controllers can reconcile different aspects of the same resource without stepping on each other, if their concerns are well-separated.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The wrong shape — and I have seen this in too many internal platforms — is an imperative pipeline. &amp;ldquo;User submits a request → API queues a job → worker reads the job → worker mutates state → worker reports done.&amp;rdquo; That looks fine until the worker dies between two steps and you are now reasoning about partial state at 2 AM.&lt;/p&gt;
+&lt;h2&gt;The four primitives every control plane needs&lt;span class="hx:absolute hx:-mt-20" id="the-four-primitives-every-control-plane-needs"&gt;&lt;/span&gt;
+&lt;a href="#the-four-primitives-every-control-plane-needs" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If you are designing one from scratch, these are the components you will end up building or borrowing:&lt;/p&gt;
+&lt;h3&gt;1. A declarative API&lt;span class="hx:absolute hx:-mt-20" id="1-a-declarative-api"&gt;&lt;/span&gt;
+&lt;a href="#1-a-declarative-api" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The user expresses &lt;em&gt;what they want&lt;/em&gt;, not &lt;em&gt;how to get there&lt;/em&gt;. CRDs in Kubernetes, Pulumi/Terraform resources, and Crossplane Compositions all do this. The declarative shape forces you to think in terms of desired state, which forces you toward reconciliation, which is the right mental model.&lt;/p&gt;
+&lt;p&gt;Anti-pattern: an imperative API that takes commands (&amp;ldquo;create this&amp;rdquo;, &amp;ldquo;scale that&amp;rdquo;). Imperative APIs trap you in stateful workflows where the only correct answer to &amp;ldquo;what is going on?&amp;rdquo; is &amp;ldquo;wait.&amp;rdquo;&lt;/p&gt;
+&lt;h3&gt;2. A reconciliation engine&lt;span class="hx:absolute hx:-mt-20" id="2-a-reconciliation-engine"&gt;&lt;/span&gt;
+&lt;a href="#2-a-reconciliation-engine" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Whatever runs your loops. In the Kubernetes world, controller-runtime is the canonical implementation. Outside Kubernetes, you can build it on top of Temporal, AWS Step Functions, or your own state machine — but if you do, you will reinvent leader election, retry backoff, exponential jitter, and event de-duplication. Take the existing thing if you can.&lt;/p&gt;
+&lt;h3&gt;3. A persistent state store&lt;span class="hx:absolute hx:-mt-20" id="3-a-persistent-state-store"&gt;&lt;/span&gt;
+&lt;a href="#3-a-persistent-state-store" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Etcd in Kubernetes. Postgres for many SaaS control planes. The store needs to be:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Authoritative&lt;/strong&gt; — the source of truth for both desired and observed state.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Watchable&lt;/strong&gt; — controllers need to react to changes, not poll. Postgres LISTEN/NOTIFY, etcd watch, or change-data-capture all work.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Versioned&lt;/strong&gt; — optimistic concurrency control on resource versions prevents lost updates from concurrent reconcilers.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;4. An observability surface&lt;span class="hx:absolute hx:-mt-20" id="4-an-observability-surface"&gt;&lt;/span&gt;
+&lt;a href="#4-an-observability-surface" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Status fields on resources, structured events, metrics labeled with the resource identity, and traces that follow a request from API submission through reconciliation to actuation. Without this, you have a control plane you cannot debug — which is the same as not having a control plane.&lt;/p&gt;
+&lt;h2&gt;The architecture in one diagram&lt;span class="hx:absolute hx:-mt-20" id="the-architecture-in-one-diagram"&gt;&lt;/span&gt;
+&lt;a href="#the-architecture-in-one-diagram" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt; ┌───────────────────────────────────────────────────────┐
+│ USER / CLIENT / CI │
+└───────────────────┬───────────────────────────────────┘
+│ declarative request
+▼
+┌───────────────────────────────────────────────────────┐
+│ API LAYER │
+│ authn / authz / validation / quota / audit / RBAC │
+└───────────────────┬───────────────────────────────────┘
+│ validated spec
+▼
+┌───────────────────────────────────────────────────────┐
+│ STATE STORE │
+│ desired-state │ observed-state │ events │
+└─────┬───────────────┴────▲──────────────┴─────────────┘
+│ watch │ status updates
+▼ │
+┌───────────────────────────────────────────────────────┐
+│ RECONCILERS (N) │
+│ each reconciles one slice of the resource │
+└─────┬─────────────────────────────────────────────────┘
+│ actuate
+▼
+┌───────────────────────────────────────────────────────┐
+│ DATA PLANE │
+│ the actual workloads, models, queues, services │
+└───────────────────────────────────────────────────────┘&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The reconcilers never talk to the user. The user never talks to the data plane. The state store is the only crossing point. Keep that boundary sacred.&lt;/p&gt;
+&lt;h2&gt;Anti-patterns I see often&lt;span class="hx:absolute hx:-mt-20" id="anti-patterns-i-see-often"&gt;&lt;/span&gt;
+&lt;a href="#anti-patterns-i-see-often" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Tight coupling of API and reconciliation.&lt;/strong&gt; The API call does the work synchronously. Now your API is slow, can&amp;rsquo;t be retried safely, and can&amp;rsquo;t recover from a process restart mid-call.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Reconcilers that hold long-lived state.&lt;/strong&gt; They cache things from previous iterations and act on them. The first time the cache is wrong, you discover that the only person who understood the cache invalidation logic left two quarters ago.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;A &amp;ldquo;global&amp;rdquo; reconciler doing everything.&lt;/strong&gt; It tries to manage networking, storage, and compute from a single loop. Composability dies; one bug stalls all of it.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;No quotas before reconciliation.&lt;/strong&gt; A user submits a request for 10,000 replicas. Reconcilers happily start trying. By the time you notice, the data plane is paged.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Status fields written by reconcilers, read by users.&lt;/strong&gt; Looks fine until two reconcilers write conflicting status. Use server-side apply (Kubernetes) or per-controller status sub-resources to give each reconciler its own slice.&lt;/p&gt;
+&lt;h2&gt;The patterns that hold up&lt;span class="hx:absolute hx:-mt-20" id="the-patterns-that-hold-up"&gt;&lt;/span&gt;
+&lt;a href="#the-patterns-that-hold-up" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Single-resource, single-reconciler.&lt;/strong&gt; Each reconciler owns one resource type. It may &lt;em&gt;read&lt;/em&gt; others to gather context, but it only &lt;em&gt;writes&lt;/em&gt; its own.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Status sub-resources.&lt;/strong&gt; Spec is what the user wants. Status is what the controller has done. They live on the same object but are written by different parties.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Events for narrative, metrics for state.&lt;/strong&gt; Events tell the story (&amp;ldquo;scale-up started&amp;rdquo;, &amp;ldquo;scale-up completed&amp;rdquo;, &amp;ldquo;scale-up failed&amp;rdquo;). Metrics tell the gauge (&amp;ldquo;desired_replicas{name=X} = 10&amp;rdquo;). Both matter, for different audiences.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Finalizers for cleanup.&lt;/strong&gt; When a resource is deleted, controllers that have side effects elsewhere (a cloud LB, an external account) need a chance to clean up before the resource is gone. Finalizers in Kubernetes formalize this; outside Kubernetes you build the same with deletion intent + reconciler-acknowledged-removed semantics.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Drift detection on a slow loop.&lt;/strong&gt; Even after reconciliation declares &amp;ldquo;done&amp;rdquo;, run a slow background scan that re-checks desired vs observed. It will find the drift — manual edits, partial failures, external mutations — that fast loops miss.&lt;/p&gt;
+&lt;h2&gt;Build vs adopt&lt;span class="hx:absolute hx:-mt-20" id="build-vs-adopt"&gt;&lt;/span&gt;
+&lt;a href="#build-vs-adopt" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Honest take: do not build a control plane from scratch unless your domain genuinely cannot be expressed in an existing one.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;If you are managing Kubernetes-native resources&lt;/strong&gt;, build a CRD + controller using &lt;code&gt;controller-runtime&lt;/code&gt;. The boilerplate is solved.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;If you are managing cloud resources&lt;/strong&gt;, Crossplane or Pulumi Operator give you the declarative + reconciliation shape on top of Kubernetes.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;If you are managing SaaS instances of a complex distributed system&lt;/strong&gt;, Omnistrate-like platforms exist precisely for this and save 6-12 months of platform work.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;If your domain is genuinely outside these&lt;/strong&gt; — say, scheduling AI inference across heterogeneous GPU pools with custom placement constraints — then yes, build it. But borrow the patterns; do not reinvent the loop.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;What &amp;ldquo;good&amp;rdquo; looks like operationally&lt;span class="hx:absolute hx:-mt-20" id="what-good-looks-like-operationally"&gt;&lt;/span&gt;
+&lt;a href="#what-good-looks-like-operationally" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A mature control plane has these properties on a Tuesday at 3 PM:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A user can describe everything in their environment as a YAML or JSON spec, and the diff between two snapshots tells them what is changing.&lt;/li&gt;
+&lt;li&gt;An on-call engineer can find the reconciliation history of any resource without grepping logs across 14 services.&lt;/li&gt;
+&lt;li&gt;Adding a new feature means adding a new reconciler, not modifying an existing one.&lt;/li&gt;
+&lt;li&gt;Failure of one reconciler does not affect any other.&lt;/li&gt;
+&lt;li&gt;Observability is so good that &amp;ldquo;what is going on with X&amp;rdquo; is a one-second answer.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If your platform doesn&amp;rsquo;t have these, you have an opportunity. Pick one, fix it, and move to the next.&lt;/p&gt;
+&lt;h2&gt;The lesson I keep relearning&lt;span class="hx:absolute hx:-mt-20" id="the-lesson-i-keep-relearning"&gt;&lt;/span&gt;
+&lt;a href="#the-lesson-i-keep-relearning" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Control planes are about &lt;em&gt;separation of concerns&lt;/em&gt; enforced by &lt;em&gt;architecture&lt;/em&gt;, not by discipline. The shape of the system has to make the wrong thing hard. If a junior engineer can accidentally take down half the platform by writing a perfectly reasonable function, the architecture is wrong, not the engineer.&lt;/p&gt;
+&lt;p&gt;Good control planes survive their authors. They survive reorgs, rewrites, and on-call rotations. The patterns are not new — Kubernetes did not invent them, it productized them — but they are still under-applied. The teams that learn them ship infrastructure as a product. The teams that don&amp;rsquo;t keep shipping deployment scripts.&lt;/p&gt;</description></item><item><title>Beyond Goroutines: Production Patterns for Go Concurrency</title><link>https://acethecloud.com/blog/beyond-goroutines-production-patterns-for-go-concurrency/</link><pubDate>Sat, 22 Jun 2024 11:15:00 +0530</pubDate><guid>https://acethecloud.com/blog/beyond-goroutines-production-patterns-for-go-concurrency/</guid><description>
 &lt;p&gt;&lt;code&gt;go&lt;/code&gt; keyword: easy. Coordinating ten thousand of them without leaks, deadlocks, or unbounded memory: an entire engineering discipline.&lt;/p&gt;
 &lt;p&gt;This post is the set of patterns I reach for in production Go services — the ones that show up everywhere from inference gateways to event processors. None of these are clever tricks. They are the boring, correct primitives that turn concurrent Go from &amp;ldquo;a goroutine spray-and-pray&amp;rdquo; into something you can actually operate.&lt;/p&gt;
 &lt;h2&gt;The mental model&lt;span class="hx:absolute hx:-mt-20" id="the-mental-model"&gt;&lt;/span&gt;
