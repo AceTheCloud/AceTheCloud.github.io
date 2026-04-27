@@ -1,2 +1,167 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>arm_template on Ace The Cloud Skills</title><link>https://acethecloud.com/tags/arm_template/</link><description>Recent content in arm_template on Ace The Cloud Skills</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 05 Dec 2021 22:18:07 +0600</lastBuildDate><atom:link href="https://acethecloud.com/tags/arm_template/index.xml" rel="self" type="application/rss+xml"/><item><title>Which is better Azure App Gateway or Nginx configured on Azure VMs 🤜 🤛</title><link>https://acethecloud.com/blog/azure-application-gateway-and-nginx-on-vm/</link><pubDate>Sun, 05 Dec 2021 22:18:07 +0600</pubDate><guid>https://acethecloud.com/blog/azure-application-gateway-and-nginx-on-vm/</guid><description>Azure Application Gateway is a web traffic load balancer that enables you to manage traffic to your web applications. It includes features such as SSL/TLS offload, HTTP/HTTPS redirection, and cookie-based affinity.
-Nginx is an open-source web server that can also be used as a reverse proxy, load balancer, and HTTP cache. When running Nginx on an Azure Virtual Machine (VM), you have the ability to customize the configuration and install additional modules to suit your needs.</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Arm_template</title><link>https://acethecloud.com/tags/arm_template/</link><description>Recent content in Arm_template on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 05 Dec 2021 22:18:07 +0600</lastBuildDate><atom:link href="https://acethecloud.com/tags/arm_template/index.xml" rel="self" type="application/rss+xml"/><item><title>Which is better Azure App Gateway or Nginx configured on Azure VMs 🤜 🤛</title><link>https://acethecloud.com/blog/azure-application-gateway-and-nginx-on-vm/</link><pubDate>Sun, 05 Dec 2021 22:18:07 +0600</pubDate><guid>https://acethecloud.com/blog/azure-application-gateway-and-nginx-on-vm/</guid><description>
+&lt;p&gt;Azure Application Gateway is a web traffic load balancer that enables you to manage traffic to your web applications. It includes features such as SSL/TLS offload, HTTP/HTTPS redirection, and cookie-based affinity.&lt;/p&gt;
+&lt;p&gt;Nginx is an open-source web server that can also be used as a reverse proxy, load balancer, and HTTP cache. When running Nginx on an Azure Virtual Machine (VM), you have the ability to customize the configuration and install additional modules to suit your needs.&lt;/p&gt;
+&lt;p&gt;Here are some key differences between Azure Application Gateway and Nginx running on an Azure VM:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Managed service vs. self-managed:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Azure Application Gateway is a fully managed service, while Nginx running on an Azure VM requires you to set up and manage the VM and web server software yourself. This means that with Azure Application Gateway, you don&amp;rsquo;t have to worry about patching, updating, or maintaining the underlying infrastructure.&lt;/p&gt;
+&lt;ol start="2"&gt;
+&lt;li&gt;Scaling:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Both Azure Application Gateway and Nginx running on an Azure VM can scale to meet the needs of your application. However, with Azure Application Gateway, you can enable auto-scaling based on metrics such as CPU utilization, while with Nginx on an Azure VM, you would have to manually scale the VM or set up auto-scaling using a solution such as Azure Monitor.&lt;/p&gt;
+&lt;ol start="3"&gt;
+&lt;li&gt;Performance:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Azure Application Gateway is optimized for high performance, with features such as multiplexing and HTTP/2 support to improve the speed of web traffic. Nginx can also be configured for high performance, but you will need to tune the configuration and possibly use additional tools such as a cache to achieve optimal performance.&lt;/p&gt;
+&lt;ol start="4"&gt;
+&lt;li&gt;Features:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Azure Application Gateway includes a range of features beyond load balancing, such as SSL/TLS offload, which allows you to offload encryption and decryption tasks to the gateway, improving the performance of your backend servers. Nginx can also be configured to provide these features, but you will need to set them up yourself.&lt;/p&gt;
+&lt;p&gt;Here is an example of configuring Azure Application Gateway to load balance traffic to two backend servers using the Azure Portal:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;In the Azure Portal, navigate to your Application Gateway resource.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click on &amp;ldquo;Backend pools&amp;rdquo; in the left-hand menu.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click the &amp;ldquo;+ Add&amp;rdquo; button to create a new backend pool.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Give the backend pool a name, such as &amp;ldquo;MyBackendPool&amp;rdquo;, and select the type of backend servers you want to use (e.g., Azure VMs).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click the &amp;ldquo;+ Add&amp;rdquo; button to add the backend servers to the pool. You can add multiple servers by repeating this step.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click &amp;ldquo;Save&amp;rdquo; to create the backend pool.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click on &amp;ldquo;Listeners&amp;rdquo; in the left-hand menu.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click the &amp;ldquo;+ Add&amp;rdquo; button to create a new listener.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Give the listener a name, such as &amp;ldquo;MyListener&amp;rdquo;, and select the protocol and port you want to use (e.g., HTTP on port 80).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Select the backend pool you created in step 3 as the target for the listener.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click &amp;ldquo;Save&amp;rdquo; to create the listener.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;This is a basic example of how to set up load balancing with Azure Application Gateway. You can configure additional options, such as SSL/TLS offload, by clicking on the corresponding settings in the left-hand menu.&lt;/p&gt;
+&lt;p&gt;To deploy an Azure Application Gateway using the Azure CLI, you can use the az network application-gateway create command. This command requires the following arguments:&lt;/p&gt;
+&lt;p&gt;&amp;ndash;name: The name of the Application Gateway.
+&amp;ndash;resource-group: The name of the resource group to create the Application Gateway in.
+&amp;ndash;location: The location to create the Application Gateway in.
+&amp;ndash;sku: The SKU of the Application Gateway.
+Here is an example of how to use the az network application-gateway create command to create a basic Application Gateway:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;az network application-gateway create &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --name myAppGateway &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --resource-group myResourceGroup &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --location eastus &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --sku Standard_v2 &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --instance-count &lt;span class="m"&gt;2&lt;/span&gt; &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --backend-address-pools &lt;span class="s2"&gt;&amp;#34;name=myBackendPool addresses=10.0.0.1 10.0.0.2&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This command creates an Application Gateway with two instances and a backend pool with two addresses.&lt;/p&gt;
+&lt;p&gt;You can find more information about the az network application-gateway create command and the available options in the Azure CLI documentation &lt;a href="https://docs.microsoft.com/en-us/cli/azure/network/application-gateway/create?view=azure-cli-latest"target="_blank" rel="noopener"&gt;https://docs.microsoft.com/en-us/cli/azure/network/application-gateway/create?view=azure-cli-latest&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Here is an example of configuring Nginx as a load balancer on an Azure VM using the command line:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Install Nginx on your Azure VM. This can be done using the package manager for your operating system (e.g., apt-get on Ubuntu).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Create a configuration file for Nginx, typically located at /etc/nginx/nginx.conf.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;In the configuration file, define the upstream servers that Nginx should load balance traffic to. For example:&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;upstream&lt;/span&gt; &lt;span class="err"&gt;my_upstream&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;server&lt;/span&gt; &lt;span class="err"&gt;backend1.example.com;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;server&lt;/span&gt; &lt;span class="err"&gt;backend2.example.com;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ol start="4"&gt;
+&lt;li&gt;Define a virtual server block in the configuration file to specify how Nginx should handle incoming traffic. For example:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;listen&lt;/span&gt; &lt;span class="err"&gt;80;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;server_name&lt;/span&gt; &lt;span class="err"&gt;example.com;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;location&lt;/span&gt; &lt;span class="err"&gt;/&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;proxy_pass&lt;/span&gt; &lt;span class="err"&gt;http:&lt;/span&gt;&lt;span class="c1"&gt;//my_upstream;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ol start="5"&gt;
+&lt;li&gt;Restart Nginx to apply the changes:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;sudo systemctl restart nginx&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This is a basic example of how to set up Nginx as a load balancer on an Azure VM. You can configure additional options, such as SSL/TLS offload, by adding additional directives to the configuration file.&lt;/p&gt;
+&lt;h2&gt;Cost Efficiency&lt;span class="hx:absolute hx:-mt-20" id="cost-efficiency"&gt;&lt;/span&gt;
+&lt;a href="#cost-efficiency" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There are a few different factors to consider when comparing the cost of using Azure Application Gateway versus using Nginx as a load balancer on an Azure virtual machine (VM). Some of these factors include the number of requests and data transfer that the load balancer will need to handle, the number of VMs or other resources that the load balancer will be distributing traffic to, and the specific pricing options and discounts that you are eligible for.&lt;/p&gt;
+&lt;p&gt;One way to compare the cost of these two options is to use the Azure pricing calculator. This tool allows you to input specific details about your workload, such as the number of requests and data transfer, and see an estimated cost for each option.&lt;/p&gt;
+&lt;p&gt;Generally, Azure Application Gateway is a fully managed service that is designed to handle a large volume of traffic and is well-suited for high-scale applications. As a result, it may be more expensive than using Nginx as a load balancer on an Azure VM, especially if you are only handling a small volume of traffic.&lt;/p&gt;
+&lt;p&gt;However, there are a few other factors to consider when comparing the cost of these two options. For example, using Azure Application Gateway may be more cost-effective in the long run because it is fully managed and requires minimal maintenance, whereas using Nginx as a load balancer on an Azure VM may require ongoing maintenance and management. Additionally, Azure Application Gateway includes features such as SSL offloading and web application firewall (WAF) capabilities, which may justify the additional cost for some users.&lt;/p&gt;
+&lt;p&gt;The cost of running an Nginx load balancer on an Azure virtual machine (VM) will depend on several factors, including the VM size, region, and configuration.&lt;/p&gt;
+&lt;p&gt;Here are some estimates based on Azure&amp;rsquo;s pricing calculator:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;For a Basic A1 VM (1 vCPU, 1 GB RAM) in the East US region, the cost would be approximately $32.63 per month.&lt;/li&gt;
+&lt;li&gt;For a Standard A2 VM (2 vCPUs, 3.5 GB RAM) in the East US region, the cost would be approximately $65.25 per month.&lt;/li&gt;
+&lt;li&gt;For a Standard D4s_v3 VM (4 vCPUs, 16 GB RAM) in the East US region, the cost would be approximately $130.50 per month.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Keep in mind that these estimates do not include any additional costs for data transfer, storage, or other resources that may be required for your load balancer setup. It&amp;rsquo;s always a good idea to carefully review your costs and adjust your configuration as needed to optimize your budget.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s also worth noting that Azure offers a variety of pricing options for both Azure Application Gateway and Azure VMs, including pay-as-you-go, consumption-based, and reserved pricing options. You can use the Azure pricing calculator to compare the cost of each option based on your specific workload and usage patterns.&lt;/p&gt;
+&lt;p&gt;In summary, Azure Application Gateway is a fully managed service that provides a range of features for load balancing and managing web traffic, while Nginx on an Azure VM gives you more control and customization options but requires more setup and management.
+Which option is best for you will depend on your specific requirements and preferences.&lt;/p&gt;</description></item></channel></rss>

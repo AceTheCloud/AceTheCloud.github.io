@@ -1,2 +1,907 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>waas on Ace The Cloud Skills</title><link>https://acethecloud.com/tags/waas/</link><description>Recent content in waas on Ace The Cloud Skills</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 09 Sep 2023 17:38:27 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/waas/index.xml" rel="self" type="application/rss+xml"/><item><title>A Comprehensive Guide to Workflow as a Service System Design</title><link>https://acethecloud.com/blog/a-comprehensive-guide-to-workflow-system-design/</link><pubDate>Sat, 09 Sep 2023 17:38:27 +0530</pubDate><guid>https://acethecloud.com/blog/a-comprehensive-guide-to-workflow-system-design/</guid><description>Alright, let&amp;rsquo;s design a Workflow as a Service (WaaS) system. Designing a system like this is a broad topic, and a detailed design could span many pages. Here&amp;rsquo;s a high-level overview to get you started.
-1. Overview: Workflow as a Service (WaaS) is a cloud-based solution that allows businesses to create, manage, and optimize workflows without the need for on-premises infrastructure. It provides a way to automate repetitive tasks and processes, ensuring they are executed consistently.</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Waas</title><link>https://acethecloud.com/tags/waas/</link><description>Recent content in Waas on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 09 Sep 2023 17:38:27 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/waas/index.xml" rel="self" type="application/rss+xml"/><item><title>A Comprehensive Guide to Workflow as a Service System Design</title><link>https://acethecloud.com/blog/a-comprehensive-guide-to-workflow-system-design/</link><pubDate>Sat, 09 Sep 2023 17:38:27 +0530</pubDate><guid>https://acethecloud.com/blog/a-comprehensive-guide-to-workflow-system-design/</guid><description>
+&lt;p&gt;Alright, let&amp;rsquo;s design a Workflow as a Service (WaaS) system. Designing a system like this is a broad topic, and a detailed design could span many pages. Here&amp;rsquo;s a high-level overview to get you started.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1. Overview:&lt;/strong&gt;
+Workflow as a Service (WaaS) is a cloud-based solution that allows businesses to create, manage, and optimize workflows without the need for on-premises infrastructure. It provides a way to automate repetitive tasks and processes, ensuring they are executed consistently.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2. Features:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Create, edit, delete workflows.&lt;/li&gt;
+&lt;li&gt;Visual workflow editor.&lt;/li&gt;
+&lt;li&gt;Role-based access control.&lt;/li&gt;
+&lt;li&gt;Workflow execution logs.&lt;/li&gt;
+&lt;li&gt;Workflow triggers &amp;amp; schedulers.&lt;/li&gt;
+&lt;li&gt;Notification system.&lt;/li&gt;
+&lt;li&gt;Versioning and rollback.&lt;/li&gt;
+&lt;li&gt;Analytics and monitoring.&lt;/li&gt;
+&lt;li&gt;API for integration.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://acethecloud.com/images/blog/workflow-system.jpeg" alt="Sample Workflow Diagram" loading="lazy" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3. Components:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;User Interface (UI)&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Web Interface:&lt;/em&gt; A dashboard to create, monitor, and manage workflows.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Mobile Interface:&lt;/em&gt; Allows users to monitor and trigger workflows on-the-go.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;API Layer&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;RESTful APIs:&lt;/em&gt; To allow external systems to integrate and communicate with our WaaS.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Workflow Engine&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Processes the workflows, understands the logic, and ensures the execution of tasks.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Database&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Relational DB:&lt;/em&gt; To store metadata about workflows, user information, etc.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;NoSQL DB:&lt;/em&gt; To store logs, events, and other unstructured data.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Task Queues &amp;amp; Workers&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Queues will hold tasks that are pending execution.&lt;/li&gt;
+&lt;li&gt;Workers pull tasks from queues and execute them.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Notification Service&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Notify users about the completion, errors, or any updates regarding workflows.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Scheduler&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Used to trigger workflows based on time or certain intervals.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;4. Workflow Creation and Execution:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;User logs in to the dashboard.&lt;/li&gt;
+&lt;li&gt;Creates a new workflow using a drag-and-drop interface, defining tasks and their order.&lt;/li&gt;
+&lt;li&gt;The workflow definition is stored in the relational database.&lt;/li&gt;
+&lt;li&gt;User sets a trigger (manual, API call, scheduler).&lt;/li&gt;
+&lt;li&gt;On trigger, the workflow engine processes the workflow.&lt;/li&gt;
+&lt;li&gt;Each task is queued in the task queue.&lt;/li&gt;
+&lt;li&gt;Workers pick up tasks and execute them in order.&lt;/li&gt;
+&lt;li&gt;The results (success/failure, logs, etc.) are stored in the NoSQL database.&lt;/li&gt;
+&lt;li&gt;On completion or error, the notification service alerts the user.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;5. Scalability and Reliability:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Horizontal Scaling:&lt;/strong&gt; The system can handle more workflows by adding more servers/workers.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Load Balancers:&lt;/strong&gt; Distribute incoming traffic to the API layer and user interface.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Distributed Database:&lt;/strong&gt; Ensure high availability and fault tolerance.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Backup &amp;amp; Recovery:&lt;/strong&gt; Regularly back up data to prevent data loss.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;6. Security:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Authentication &amp;amp; Authorization:&lt;/strong&gt; Ensure only authorized users can create and manage workflows.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Data Encryption:&lt;/strong&gt; All data in transit and at rest should be encrypted.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Audit Logs:&lt;/strong&gt; Keep track of who did what and when.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;7. Monitoring &amp;amp; Logging:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Monitor system health, API response times, queue lengths, and worker status.&lt;/li&gt;
+&lt;li&gt;Logging all operations, especially in the workflow engine, to help debug issues.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;8. Future Enhancements:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;AI &amp;amp; ML:&lt;/strong&gt; Predictive analytics to optimize workflows and provide insights.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Integration with more third-party apps:&lt;/strong&gt; To increase the utility of the WaaS.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;9. Cost Management:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Adopting a multi-tenant architecture can help in optimizing resource usage and cost.&lt;/li&gt;
+&lt;li&gt;Offer different tiers based on the number of workflows, frequency of execution, etc.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;** System Flow
+** System Design Diagram: Workflow as a Service (WaaS)**&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Components&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;User Interface (UI)&lt;/strong&gt;: The front-end component where users create, modify, manage, and monitor workflows.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;API Gateway&lt;/strong&gt;: The entry point for external requests. Handles routing, rate limiting, and authentication.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Workflow Engine&lt;/strong&gt;: The core service that interprets and executes workflows.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Task Scheduler&lt;/strong&gt;: Responsible for scheduling tasks for execution based on time or events.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Task Executor&lt;/strong&gt;: Spawns workers to execute individual tasks or steps within a workflow.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Notification Service&lt;/strong&gt;: Sends out notifications based on workflow events, task completions, errors, etc.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Database&lt;/strong&gt;: Persistent storage for user data, workflow definitions, execution logs, and other system data.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cache&lt;/strong&gt;: To speed up frequent read operations and reduce database load.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;External Integrations&lt;/strong&gt;: Third-party services that workflows may interact with, e.g., email, Slack, CRM systems, etc.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Logging and Monitoring&lt;/strong&gt;: For auditing, debugging, and system health checks.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Flow&lt;/strong&gt;:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;A user accesses the &lt;strong&gt;UI&lt;/strong&gt; to design a workflow.&lt;/li&gt;
+&lt;li&gt;Workflow and task definitions are stored in the &lt;strong&gt;Database&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;When executing a workflow, the &lt;strong&gt;API Gateway&lt;/strong&gt; routes the request to the &lt;strong&gt;Workflow Engine&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;The &lt;strong&gt;Workflow Engine&lt;/strong&gt;, with help from the &lt;strong&gt;Task Scheduler&lt;/strong&gt;, coordinates the execution of tasks using &lt;strong&gt;Task Executor&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;As tasks execute, any logs or events are sent to &lt;strong&gt;Logging and Monitoring&lt;/strong&gt; and &lt;strong&gt;Notification Service&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cache&lt;/strong&gt; might be used for storing frequent configurations, user sessions, or intermediate results.&lt;/li&gt;
+&lt;li&gt;Workflows might need to interact with &lt;strong&gt;External Integrations&lt;/strong&gt; as part of their steps.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src="https://acethecloud.com/images/blog/workflow_sys_design.png" alt="System Design Diagram" loading="lazy" /&gt;&lt;/p&gt;
+&lt;p&gt;*Designing REST APIs&lt;/p&gt;
+&lt;p&gt;Designing RESTful API endpoints for our Workflow as a Service (WaaS) system requires considering all possible actions a user might take and ensuring clear and logical resource identification. Let&amp;rsquo;s outline the main resources and their respective operations:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1. User Management&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Register&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /users/register&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Request:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;email&amp;#34;: &amp;#34;user@example.com&amp;#34;,
+&amp;#34;password&amp;#34;: &amp;#34;securepassword&amp;#34;,
+&amp;#34;name&amp;#34;: &amp;#34;John Doe&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;Response:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;id&amp;#34;: &amp;#34;12345&amp;#34;,
+&amp;#34;email&amp;#34;: &amp;#34;user@example.com&amp;#34;,
+&amp;#34;name&amp;#34;: &amp;#34;John Doe&amp;#34;,
+&amp;#34;createdAt&amp;#34;: &amp;#34;2023-09-20T12:00:00Z&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Login&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /users/login&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Request:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;email&amp;#34;: &amp;#34;user@example.com&amp;#34;,
+&amp;#34;password&amp;#34;: &amp;#34;securepassword&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;Response:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;token&amp;#34;: &amp;#34;jwt_token_for_authentication&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;2. Workflow Management&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Create Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /workflows&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Request:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;name&amp;#34;: &amp;#34;Sample Workflow&amp;#34;,
+&amp;#34;description&amp;#34;: &amp;#34;This is a sample workflow.&amp;#34;,
+&amp;#34;tasks&amp;#34;: [...]
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;Response:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;id&amp;#34;: &amp;#34;abc123&amp;#34;,
+&amp;#34;name&amp;#34;: &amp;#34;Sample Workflow&amp;#34;,
+&amp;#34;description&amp;#34;: &amp;#34;This is a sample workflow.&amp;#34;,
+&amp;#34;tasks&amp;#34;: [...],
+&amp;#34;createdAt&amp;#34;: &amp;#34;2023-09-20T12:01:00Z&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Get All Workflows&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Get Specific Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/{workflowId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Update Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;PUT /workflows/{workflowId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Delete Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;DELETE /workflows/{workflowId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;3. Task Management&lt;/strong&gt; (Tasks are components or steps inside a workflow)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Create Task&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /tasks&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Request:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;workflowId&amp;#34;: &amp;#34;abc123&amp;#34;,
+&amp;#34;name&amp;#34;: &amp;#34;Sample Task&amp;#34;,
+&amp;#34;description&amp;#34;: &amp;#34;This is a sample task.&amp;#34;,
+&amp;#34;action&amp;#34;: &amp;#34;...&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;Response:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;id&amp;#34;: &amp;#34;task001&amp;#34;,
+&amp;#34;workflowId&amp;#34;: &amp;#34;abc123&amp;#34;,
+&amp;#34;name&amp;#34;: &amp;#34;Sample Task&amp;#34;,
+&amp;#34;description&amp;#34;: &amp;#34;This is a sample task.&amp;#34;,
+&amp;#34;action&amp;#34;: &amp;#34;...&amp;#34;,
+&amp;#34;createdAt&amp;#34;: &amp;#34;2023-09-20T12:02:00Z&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Get All Tasks for a Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/{workflowId}/tasks&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Get Specific Task&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /tasks/{taskId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Update Task&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;PUT /tasks/{taskId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Delete Task&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;DELETE /tasks/{taskId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;4. Execution &amp;amp; Logs&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Execute Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /workflows/{workflowId}/execute&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Response:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;executionId&amp;#34;: &amp;#34;exe001&amp;#34;,
+&amp;#34;status&amp;#34;: &amp;#34;Running&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Get Execution Status&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/{workflowId}/executions/{executionId}&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Response:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;executionId&amp;#34;: &amp;#34;exe001&amp;#34;,
+&amp;#34;status&amp;#34;: &amp;#34;Completed&amp;#34;,
+&amp;#34;startedAt&amp;#34;: &amp;#34;2023-09-20T12:03:00Z&amp;#34;,
+&amp;#34;completedAt&amp;#34;: &amp;#34;2023-09-20T12:04:00Z&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Get Logs for an Execution&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/{workflowId}/executions/{executionId}/logs&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;5. Miscellaneous&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Search Workflows&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/search?query=some_search_term&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Let&amp;rsquo;s dive deeper and suggest more specific and advanced functionalities:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1. Workflow Versioning&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Create a Version of a Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /workflows/{workflowId}/versions&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;List All Versions of a Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/{workflowId}/versions&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Get a Specific Version of a Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/{workflowId}/versions/{versionId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Rollback to a Previous Version of a Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;PUT /workflows/{workflowId}/versions/{versionId}/rollback&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;2. Scheduling&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Create a Schedule for Workflow Execution&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /workflows/{workflowId}/schedules&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Request:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;cron&amp;#34;: &amp;#34;0 0 * * *&amp;#34;, // For daily execution at midnight
+&amp;#34;timezone&amp;#34;: &amp;#34;UTC&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;List Schedules for a Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/{workflowId}/schedules&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Delete a Schedule&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;DELETE /workflows/{workflowId}/schedules/{scheduleId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;3. Role-based Access and Collaboration&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Add a Collaborator to a Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /workflows/{workflowId}/collaborators&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Request:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;userId&amp;#34;: &amp;#34;56789&amp;#34;,
+&amp;#34;role&amp;#34;: &amp;#34;editor&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;List Collaborators of a Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/{workflowId}/collaborators&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Update Role of a Collaborator&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;PUT /workflows/{workflowId}/collaborators/{userId}&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Request:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;role&amp;#34;: &amp;#34;viewer&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Remove a Collaborator from a Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;DELETE /workflows/{workflowId}/collaborators/{userId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;4. Notifications&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Subscribe to Workflow Notifications&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /workflows/{workflowId}/subscriptions&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Request:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;eventType&amp;#34;: &amp;#34;completion&amp;#34;,
+&amp;#34;notifyVia&amp;#34;: &amp;#34;email&amp;#34;,
+&amp;#34;destination&amp;#34;: &amp;#34;user@example.com&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;List Subscriptions for a Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/{workflowId}/subscriptions&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Delete a Subscription&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;DELETE /workflows/{workflowId}/subscriptions/{subscriptionId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;5. External Integrations&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Add an Integration (e.g., a third-party service)&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;POST /workflows/{workflowId}/integrations&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Request:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;type&amp;#34;: &amp;#34;slack&amp;#34;,
+&amp;#34;webhookUrl&amp;#34;: &amp;#34;https://hooks.slack.com/services/...&amp;#34;
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;List Integrations for a Workflow&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/{workflowId}/integrations&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Update an Integration&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;PUT /workflows/{workflowId}/integrations/{integrationId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Remove an Integration&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;DELETE /workflows/{workflowId}/integrations/{integrationId}&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;6. Analytics&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Get Workflow Execution Statistics&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /workflows/{workflowId}/stats&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Get System-wide Workflow Execution Trends&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GET /analytics/workflow-executions&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Response:
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;{
+&amp;#34;daily&amp;#34;: [...],
+&amp;#34;monthly&amp;#34;: [...],
+&amp;#34;yearly&amp;#34;: [...]
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;** Metrices&lt;/p&gt;
+&lt;p&gt;When designing a system, especially one as critical as a Workflow as a Service (WaaS) system,
+it&amp;rsquo;s essential to establish metrics that will guide and measure the system&amp;rsquo;s performance in various dimensions. Here are some metrics for availability, uptime, scalability, and cost:&lt;/p&gt;
+&lt;h3&gt;1. &lt;strong&gt;Availability &amp;amp; Uptime&lt;/strong&gt;:&lt;span class="hx:absolute hx:-mt-20" id="1-availability--uptime"&gt;&lt;/span&gt;
+&lt;a href="#1-availability--uptime" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;a. Service Availability Percentage:&lt;/strong&gt;
+Formula:
+&lt;/p&gt;
+&lt;span class="katex-display"&gt;&lt;span class="katex"&gt;&lt;span class="katex-mathml"&gt;&lt;math xmlns="http://www.w3.org/1998/Math/MathML" display="block"&gt;&lt;semantics&gt;&lt;mrow&gt;&lt;mtext&gt;Service Availability&lt;/mtext&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mrow&gt;&lt;mo fence="true"&gt;(&lt;/mo&gt;&lt;mfrac&gt;&lt;mtext&gt;Total Time - Downtime&lt;/mtext&gt;&lt;mtext&gt;Total Time&lt;/mtext&gt;&lt;/mfrac&gt;&lt;mo fence="true"&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;mo&gt;×&lt;/mo&gt;&lt;mn&gt;100&lt;/mn&gt;&lt;mi mathvariant="normal"&gt;%&lt;/mi&gt;&lt;/mrow&gt;&lt;annotation encoding="application/x-tex"&gt; \text{Service Availability} = \left( \frac{\text{Total Time - Downtime}}{\text{Total Time}} \right) \times 100\% &lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;&lt;/span&gt;&lt;span class="katex-html" aria-hidden="true"&gt;&lt;span class="base"&gt;&lt;span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"&gt;&lt;/span&gt;&lt;span class="mord text"&gt;&lt;span class="mord"&gt;Service Availability&lt;/span&gt;&lt;/span&gt;&lt;span class="mspace" style="margin-right:0.2778em;"&gt;&lt;/span&gt;&lt;span class="mrel"&gt;=&lt;/span&gt;&lt;span class="mspace" style="margin-right:0.2778em;"&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="base"&gt;&lt;span class="strut" style="height:2.4em;vertical-align:-0.95em;"&gt;&lt;/span&gt;&lt;span class="minner"&gt;&lt;span class="mopen delimcenter" style="top:0em;"&gt;&lt;span class="delimsizing size3"&gt;(&lt;/span&gt;&lt;/span&gt;&lt;span class="mord"&gt;&lt;span class="mopen nulldelimiter"&gt;&lt;/span&gt;&lt;span class="mfrac"&gt;&lt;span class="vlist-t vlist-t2"&gt;&lt;span class="vlist-r"&gt;&lt;span class="vlist" style="height:1.3714em;"&gt;&lt;span style="top:-2.314em;"&gt;&lt;span class="pstrut" style="height:3em;"&gt;&lt;/span&gt;&lt;span class="mord"&gt;&lt;span class="mord text"&gt;&lt;span class="mord"&gt;Total Time&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="top:-3.23em;"&gt;&lt;span class="pstrut" style="height:3em;"&gt;&lt;/span&gt;&lt;span class="frac-line" style="border-bottom-width:0.04em;"&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="top:-3.677em;"&gt;&lt;span class="pstrut" style="height:3em;"&gt;&lt;/span&gt;&lt;span class="mord"&gt;&lt;span class="mord text"&gt;&lt;span class="mord"&gt;Total Time - Downtime&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="vlist-s"&gt;​&lt;/span&gt;&lt;/span&gt;&lt;span class="vlist-r"&gt;&lt;span class="vlist" style="height:0.686em;"&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="mclose nulldelimiter"&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="mclose delimcenter" style="top:0em;"&gt;&lt;span class="delimsizing size3"&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="mspace" style="margin-right:0.2222em;"&gt;&lt;/span&gt;&lt;span class="mbin"&gt;×&lt;/span&gt;&lt;span class="mspace" style="margin-right:0.2222em;"&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="base"&gt;&lt;span class="strut" style="height:0.8056em;vertical-align:-0.0556em;"&gt;&lt;/span&gt;&lt;span class="mord"&gt;100%&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Target:&lt;/strong&gt; Typically, systems aim for &amp;ldquo;Five Nines&amp;rdquo; (99.999%) availability.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;b. Mean Time Between Failures (MTBF):&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Measure of time elapsed between system failures.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;c. Mean Time To Recover (MTTR):&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Average time taken to recover the system from a failure.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;d. Number of Incidents:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Count of unexpected system disruptions.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;2. &lt;strong&gt;Scalability&lt;/strong&gt;:&lt;span class="hx:absolute hx:-mt-20" id="2-scalability"&gt;&lt;/span&gt;
+&lt;a href="#2-scalability" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;a. Request Per Second (RPS):&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Number of requests the system can handle per second.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;b. Latency:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Time taken to process a request. Break this down further:
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;P50 (Median) Latency:&lt;/strong&gt; 50% of the requests have a latency below this value.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;P95 Latency:&lt;/strong&gt; 95% of the requests are processed within this time.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;P99 Latency:&lt;/strong&gt; 99% of the requests are processed within this time.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;c. Throughput:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Number of tasks or workflows processed per unit of time.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;d. Resource Utilization:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Percentage of system resources (CPU, Memory, I/O) utilized during peak and average loads.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;e. Queue Depth:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The number of tasks waiting in the queue. This gives an indication of how much the system is backed up.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;3. &lt;strong&gt;Cost&lt;/strong&gt;:&lt;span class="hx:absolute hx:-mt-20" id="3-cost"&gt;&lt;/span&gt;
+&lt;a href="#3-cost" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;a. Cost Per Workflow Execution:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Total system cost divided by the number of workflows executed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;b. Infrastructure Costs:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Sum of costs for servers, storage, data transfer, etc.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;c. Operational Costs:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Cost of monitoring, alerting, incident management, and any manual interventions.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;d. Development Costs:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Costs associated with developing, testing, and deploying system improvements.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;e. Third-party Service Costs:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If the system relies on external services, APIs, or data providers, their costs need to be factored in.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;4. &lt;strong&gt;Reliability &amp;amp; Resilience Metrics&lt;/strong&gt;:&lt;span class="hx:absolute hx:-mt-20" id="4-reliability--resilience-metrics"&gt;&lt;/span&gt;
+&lt;a href="#4-reliability--resilience-metrics" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;a. Rate of Failover Success:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Percentage of times the system successfully fails over to a backup or standby system without service disruption.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;b. Backup and Restore Time:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Time taken to create backups and restore from them.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;c. Redundancy Levels:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Number of backup or standby components available (e.g., redundant databases, servers).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;5. &lt;strong&gt;Operational Metrics&lt;/strong&gt;:&lt;span class="hx:absolute hx:-mt-20" id="5-operational-metrics"&gt;&lt;/span&gt;
+&lt;a href="#5-operational-metrics" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;a. Deployment Frequency:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Number of deployments or updates made to the system in a given time frame.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;b. Change Failure Rate:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Percentage of deployments causing a failure in the system.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;c. Incident Response Time:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Time taken from when an incident is reported to when it&amp;rsquo;s addressed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;** Database Schema
+Designing a database schema requires understanding the data and relations you wish to model. Given our previous discussion on a Workflow as a Service (WaaS) system, I&amp;rsquo;ll provide a simplified database schema for that context. This schema will be in a relational database context (like MySQL or PostgreSQL).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Tables:&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Users&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;user_id&lt;/code&gt;: Integer, Primary Key, Auto-Increment&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;email&lt;/code&gt;: Varchar&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;password_hash&lt;/code&gt;: Varchar&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;name&lt;/code&gt;: Varchar&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;created_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;updated_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Workflows&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;workflow_id&lt;/code&gt;: Integer, Primary Key, Auto-Increment&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;user_id&lt;/code&gt;: Foreign Key -&amp;gt; Users.user_id&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;name&lt;/code&gt;: Varchar&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;description&lt;/code&gt;: Text&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;created_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;updated_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Tasks&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;task_id&lt;/code&gt;: Integer, Primary Key, Auto-Increment&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;workflow_id&lt;/code&gt;: Foreign Key -&amp;gt; Workflows.workflow_id&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;name&lt;/code&gt;: Varchar&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;description&lt;/code&gt;: Text&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;action&lt;/code&gt;: Text&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;created_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;updated_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Workflow_Executions&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;execution_id&lt;/code&gt;: Integer, Primary Key, Auto-Increment&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;workflow_id&lt;/code&gt;: Foreign Key -&amp;gt; Workflows.workflow_id&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;status&lt;/code&gt;: Enum (&amp;ldquo;Running&amp;rdquo;, &amp;ldquo;Completed&amp;rdquo;, &amp;ldquo;Failed&amp;rdquo;)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;started_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;completed_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Task_Executions&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;task_execution_id&lt;/code&gt;: Integer, Primary Key, Auto-Increment&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;task_id&lt;/code&gt;: Foreign Key -&amp;gt; Tasks.task_id&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;execution_id&lt;/code&gt;: Foreign Key -&amp;gt; Workflow_Executions.execution_id&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;status&lt;/code&gt;: Enum (&amp;ldquo;Running&amp;rdquo;, &amp;ldquo;Completed&amp;rdquo;, &amp;ldquo;Failed&amp;rdquo;)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;started_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;completed_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Logs&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;log_id&lt;/code&gt;: Integer, Primary Key, Auto-Increment&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;execution_id&lt;/code&gt;: Foreign Key -&amp;gt; Workflow_Executions.execution_id&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;message&lt;/code&gt;: Text&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;log_level&lt;/code&gt;: Enum (&amp;ldquo;Info&amp;rdquo;, &amp;ldquo;Warning&amp;rdquo;, &amp;ldquo;Error&amp;rdquo;)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;created_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Workflow_Collaborators&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;collaborator_id&lt;/code&gt;: Integer, Primary Key, Auto-Increment&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;workflow_id&lt;/code&gt;: Foreign Key -&amp;gt; Workflows.workflow_id&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;user_id&lt;/code&gt;: Foreign Key -&amp;gt; Users.user_id&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;role&lt;/code&gt;: Enum (&amp;ldquo;Viewer&amp;rdquo;, &amp;ldquo;Editor&amp;rdquo;)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;added_at&lt;/code&gt;: Datetime&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;(Note: This is a simplified schema and does not cover advanced features like versioning, scheduling, or integrations. Additionally, proper indexing, constraints, and normalization principles should be applied when designing the full schema.)&lt;/p&gt;
+&lt;p&gt;Remember, the exact database schema would be influenced by the specific requirements, expected query patterns, and the nature of the application. It&amp;rsquo;s also essential to consider using other data storage systems, like NoSQL databases or data lakes, depending on the nature of the data and the scalability needs.&lt;/p&gt;
+&lt;p&gt;By continuously measuring these metrics and setting appropriate thresholds and alarms, you can ensure the WaaS system&amp;rsquo;s reliability, scalability, performance, and cost-effectiveness. Moreover, regular reviews should be done to recalibrate and adjust these metrics based on system performance and business needs.
+In conclusion, designing a Workflow as a Service system involves not only building a robust workflow engine but also ensuring scalability, security, and usability. The above design serves as a starting point, and there&amp;rsquo;s always room for improvements and optimizations based on specific use cases.&lt;/p&gt;</description></item></channel></rss>

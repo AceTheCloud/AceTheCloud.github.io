@@ -1,2 +1,271 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>networking on Ace The Cloud Skills</title><link>https://acethecloud.com/tags/networking/</link><description>Recent content in networking on Ace The Cloud Skills</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 07 Dec 2022 20:18:07 +0600</lastBuildDate><atom:link href="https://acethecloud.com/tags/networking/index.xml" rel="self" type="application/rss+xml"/><item><title>A Beginner's Guide to Multi-Cloud Networking: Key Concepts and Best Practices</title><link>https://acethecloud.com/blog/multicloud-networking/</link><pubDate>Wed, 07 Dec 2022 20:18:07 +0600</pubDate><guid>https://acethecloud.com/blog/multicloud-networking/</guid><description>Multi-cloud networking refers to the ability to connect and use multiple cloud computing environments, such as Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP), in a coordinated manner. This allows organizations to take advantage of the different features and capabilities offered by each cloud provider, and to create a more resilient and flexible infrastructure.
-There are several ways to enable multi-cloud networking, depending on your specific requirements and the tools and services you are using.</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Networking</title><link>https://acethecloud.com/tags/networking/</link><description>Recent content in Networking on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 07 Dec 2022 20:18:07 +0600</lastBuildDate><atom:link href="https://acethecloud.com/tags/networking/index.xml" rel="self" type="application/rss+xml"/><item><title>A Beginner's Guide to Multi-Cloud Networking: Key Concepts and Best Practices</title><link>https://acethecloud.com/blog/multicloud-networking/</link><pubDate>Wed, 07 Dec 2022 20:18:07 +0600</pubDate><guid>https://acethecloud.com/blog/multicloud-networking/</guid><description>
+&lt;p&gt;Multi-cloud networking refers to the ability to connect and use multiple cloud computing environments, such as Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP), in a coordinated manner. This allows organizations to take advantage of the different features and capabilities offered by each cloud provider, and to create a more resilient and flexible infrastructure.&lt;/p&gt;
+&lt;p&gt;There are several ways to enable multi-cloud networking, depending on your specific requirements and the tools and services you are using. Here are some general steps you can follow to set up multi-cloud networking:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1. Determine your networking requirements:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Before you start setting up multi-cloud networking, it&amp;rsquo;s important to understand what you want to achieve and what your networking needs are.
+For example, do you want to connect multiple clouds to create a hybrid cloud environment, or do you want to use multiple clouds for different applications or workloads?&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2. Choose a cloud networking solution:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;There are various tools and services that can help you connect and manage multiple cloud environments.
+Some options include:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;- Cloud networking platforms:&lt;/strong&gt; These platforms, such as Aviatrix or CloudGenix, provide a centralized management console for creating and managing network connections between different clouds.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;- Virtual private network (VPN) services:&lt;/strong&gt;
+VPNs can be used to establish secure connections between different cloud environments.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;- Software-defined networking (SDN) solutions:&lt;/strong&gt;
+SDN technologies, such as OpenStack or VMware NSX, allow you to create and manage network connections between different clouds using software.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3. Set up network connections:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Once you have chosen a networking solution, you can start setting up the necessary network connections between your different cloud environments.
+This may involve configuring VPNs, creating VPC peering connections, or using other networking technologies.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;4. Test and optimize your network:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;After you have set up your network connections, it&amp;rsquo;s important to test them to ensure that they are working as expected.
+You may also want to monitor your network performance and optimize it as needed to ensure that it is meeting your requirements.&lt;/p&gt;
+&lt;h3&gt;how you can use HashiCorp tools to set up multi-cloud networking:&lt;span class="hx:absolute hx:-mt-20" id="how-you-can-use-hashicorp-tools-to-set-up-multi-cloud-networking"&gt;&lt;/span&gt;
+&lt;a href="#how-you-can-use-hashicorp-tools-to-set-up-multi-cloud-networking" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;1. Using Terraform to create network connections:&lt;/strong&gt;
+As mentioned in my previous response, Terraform is a popular infrastructure-as-code tool that can be used to create, manage, and update infrastructure resources across multiple cloud providers. To set up multi-cloud networking using Terraform, you can use the AWS, Azure, and GCP providers to create VPC peering connections or VPNs between your different cloud environments.&lt;/p&gt;
+&lt;p&gt;For example, the following code could be used to create a VPC peering connection between two VPCs in AWS and a virtual network peering connection between two virtual networks in Azure:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# AWS VPC peering connection&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;resource &lt;span class="s2"&gt;&amp;#34;aws_vpc_peering_connection&amp;#34;&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;example&amp;#34;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nv"&gt;peer_vpc_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;vpc-12345678&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nv"&gt;vpc_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;vpc-87654321&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# Azure virtual network peering connection&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;resource &lt;span class="s2"&gt;&amp;#34;azurerm_virtual_network_peering&amp;#34;&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;example&amp;#34;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nv"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;example&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nv"&gt;resource_group_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;example-resource-group&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nv"&gt;virtual_network_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;example-vnet&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nv"&gt;remote_virtual_network_id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Network/virtualNetworks/{virtual-network-name}&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nv"&gt;allow_forwarded_traffic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nv"&gt;use_remote_gateways&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="o"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;2. Using Consul to manage network connections:&lt;/strong&gt;
+Consul is a service mesh platform that can be used to discover and connect services across multiple clouds. To set up multi-cloud networking using Consul, you can use the Consul agents to connect to your different cloud environments and establish a mesh network between them.&lt;/p&gt;
+&lt;p&gt;For example, you could use the following configuration to connect a Consul agent in AWS to a Consul agent in Azure:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# AWS Consul agent configuration&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;service&amp;#34;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;#34;example-service&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;port&amp;#34;&lt;/span&gt;: &lt;span class="m"&gt;8080&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;connect&amp;#34;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;proxy&amp;#34;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;upstreams&amp;#34;&lt;/span&gt;: &lt;span class="o"&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;destination_name&amp;#34;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;#34;example-service&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;local_bind_port&amp;#34;&lt;/span&gt;: &lt;span class="m"&gt;9090&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;telemetry&amp;#34;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;statsd_address&amp;#34;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;#34;127.0.0.1:8125&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;leave_on_terminate&amp;#34;&lt;/span&gt;: &lt;span class="nb"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# Azure Consul agent configuration&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;service&amp;#34;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;name&amp;#34;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;#34;example-service&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;port&amp;#34;&lt;/span&gt;: &lt;span class="m"&gt;8080&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;connect&amp;#34;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;proxy&amp;#34;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;upstreams&amp;#34;&lt;/span&gt;: &lt;span class="o"&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;destination_name&amp;#34;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;#34;example-service&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;local_bind_port&amp;#34;&lt;/span&gt;: &lt;span class="m"&gt;9090&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;telemetry&amp;#34;&lt;/span&gt;: &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;statsd_address&amp;#34;&lt;/span&gt;: &lt;span class="s2"&gt;&amp;#34;127.0.0.1:8125&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="o"&gt;}&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;leave_on_terminate&amp;#34;&lt;/span&gt;: &lt;span class="nb"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="o"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This configuration can be used to connect a Consul agent in Azure to a Consul agent in another cloud environment, such as AWS.
+The service block defines the name and port of the service that the Consul agent is running, while the connect block specifies the details of the upstream service that the agent should connect to.
+The telemetry block specifies the address of the StatsD server, and the leave_on_terminate flag determines whether the agent should deregister itself when it shuts down.&lt;/p&gt;
+&lt;h3&gt;How you can use Amazon Web Services (AWS) to set up multi-cloud networking:&lt;span class="hx:absolute hx:-mt-20" id="how-you-can-use-amazon-web-services-aws-to-set-up-multi-cloud-networking"&gt;&lt;/span&gt;
+&lt;a href="#how-you-can-use-amazon-web-services-aws-to-set-up-multi-cloud-networking" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;1. Using AWS Direct Connect to connect multiple clouds:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;AWS Direct Connect is a network service that allows you to establish a dedicated, high-bandwidth connection between your on-premises or colocated data centers and your AWS resources. You can use AWS Direct Connect to connect multiple cloud environments, such as AWS, Azure, and GCP, over a private network.&lt;/p&gt;
+&lt;p&gt;For example, the following AWS CLI command could be used to create an AWS Direct Connect connection and attach it to a VPC in AWS:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmd" data-lang="cmd"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;aws directconnect create-connection --connection-name &lt;span class="s2"&gt;&amp;#34;MyConnection&amp;#34;&lt;/span&gt; --location &lt;span class="s2"&gt;&amp;#34;EqSe2&amp;#34;&lt;/span&gt; --bandwidth &lt;span class="s2"&gt;&amp;#34;1Gbps&amp;#34;&lt;/span&gt; --vlan &lt;span class="s2"&gt;&amp;#34;802&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;aws directconnect create-private-virtual-interface --connection-id &lt;span class="s2"&gt;&amp;#34;dxcon-abcdefgh&amp;#34;&lt;/span&gt; --virtual-interface-name &lt;span class="s2"&gt;&amp;#34;MyVirtualInterface&amp;#34;&lt;/span&gt; --vlan &lt;span class="s2"&gt;&amp;#34;802&amp;#34;&lt;/span&gt; --asn &lt;span class="s2"&gt;&amp;#34;65000&amp;#34;&lt;/span&gt; --virtual-gateway-id &lt;span class="s2"&gt;&amp;#34;vgw-12345678&amp;#34;&lt;/span&gt; --route-filter-prefixes &lt;span class="s2"&gt;&amp;#34;10.0.0.0/16&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;2. Using AWS VPN to create VPN connections:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;AWS VPN is a network service that allows you to create Virtual Private Network (VPN) connections between your on-premises or colocated data centers and your AWS resources. You can use AWS VPN to connect multiple cloud environments, such as AWS, Azure, and GCP, over a VPN.&lt;/p&gt;
+&lt;p&gt;For example, the following AWS CLI command could be used to create an AWS VPN connection and attach it to a VPC in AWS:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmd" data-lang="cmd"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;aws ec2 create-vpn-connection --type ipsec.1 --customer-gateway-id cgw-12345678 --vpn-gateway-id vgw-87654321 --options &lt;span class="s2"&gt;&amp;#34;StaticRoutesOnly=true&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;aws ec2 create-vpn-connection-route --destination-cidr-block 10.0.0.0/16 --vpn-connection-id vpn-12345678&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;3. Using AWS VPC Peering to connect VPCs:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;AWS VPC Peering allows you to connect VPCs in a hub-and-spoke or full-mesh configuration, allowing resources in different VPCs to communicate directly over the AWS network. You can use AWS VPC Peering to create a multi-cloud environment by connecting AWS VPCs to other cloud environments, such as Azure or GCP.&lt;/p&gt;
+&lt;p&gt;For example, the following AWS CLI command could be used to create a VPC peering connection between two VPCs in AWS:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmd" data-lang="cmd"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;aws ec2 create-vpc-peering-connection --vpc-id vpc-12345678 --peer-vpc-id vpc-87654321 --peer-region us-east-1&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;how you can use Microsoft Azure to set up multi-cloud networking:&lt;span class="hx:absolute hx:-mt-20" id="how-you-can-use-microsoft-azure-to-set-up-multi-cloud-networking"&gt;&lt;/span&gt;
+&lt;a href="#how-you-can-use-microsoft-azure-to-set-up-multi-cloud-networking" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;1. Using Azure Virtual WAN to connect multiple clouds:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Azure Virtual WAN is a network connectivity service that allows you to connect multiple Azure Virtual Networks (VNETs) and on-premises networks in a flexible and scalable manner. You can use Azure Virtual WAN to create a hybrid cloud environment by connecting multiple Azure VNETs or by connecting Azure VNETs to other cloud environments, such as AWS or GCP.
+For example, the following Azure CLI command could be used to create a Virtual WAN hub and connect it to an Azure VNET:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmd" data-lang="cmd"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;az network vwan create -g MyResourceGroup -n MyVirtualWAN --location westus2
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;az network vwan vnet create -g MyResourceGroup -n MyVirtualWAN --vnet MyVNET --address-prefixes 10.0.0.0/16&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;2. Using Azure ExpressRoute to establish private network connections:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Azure ExpressRoute is a private network connection service that allows you to establish secure and high-bandwidth connections between Azure and your on-premises or colocated data centers. You can use Azure ExpressRoute to connect multiple cloud environments, such as Azure, AWS, and GCP, over a private network.&lt;/p&gt;
+&lt;p&gt;For example, the following Azure PowerShell command could be used to create an ExpressRoute circuit and connect it to an Azure VNET:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmd" data-lang="cmd"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;New-AzExpressRouteCircuit -Name MyCircuit -ResourceGroupName MyResourceGroup -Location WestUS -ServiceProviderName &lt;span class="s2"&gt;&amp;#34;MyServiceProvider&amp;#34;&lt;/span&gt; -PeeringLocation &lt;span class="s2"&gt;&amp;#34;Seattle&amp;#34;&lt;/span&gt; -SkuName &lt;span class="s2"&gt;&amp;#34;Standard&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;New-AzVirtualNetworkGatewayConnection -Name MyConnection -ResourceGroupName MyResourceGroup -VirtualNetworkGateway MyVirtualNetworkGateway -ExpressRouteCircuit MyCircuit -ConnectionType ExpressRoute -RoutingWeight 10&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;3. Using Azure Network Peering to connect Azure VNETs:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Azure Network Peering allows you to connect Azure VNETs in a hub-and-spoke or full-mesh configuration, allowing resources in different VNETs to communicate directly over the Azure backbone network. You can use Azure Network Peering to create a multi-cloud environment by connecting Azure VNETs to other cloud environments, such as AWS or GCP.&lt;/p&gt;
+&lt;p&gt;For example, the following Azure PowerShell command could be used to create a VNET peering connection between two Azure VNETs:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmd" data-lang="cmd"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;New-AzVirtualNetworkPeering -Name MyPeering -ResourceGroupName MyResourceGroup -VirtualNetworkName MyVirtualNetwork -RemoteVirtualNetworkId &lt;span class="s2"&gt;&amp;#34;/subscriptions/{subscription-id}/resourceGroups/{resource-group}/providers/Microsoft.Network/virtualNetworks/{virtual-network-name}&amp;#34;&lt;/span&gt; -UseRemoteGateways $false&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;how you can use Google Cloud Platform (GCP) to set up multi-cloud networking:&lt;span class="hx:absolute hx:-mt-20" id="how-you-can-use-google-cloud-platform-gcp-to-set-up-multi-cloud-networking"&gt;&lt;/span&gt;
+&lt;a href="#how-you-can-use-google-cloud-platform-gcp-to-set-up-multi-cloud-networking" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;1. Using Cloud Interconnect to connect multiple clouds:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Cloud Interconnect is a GCP service that allows you to establish high-bandwidth, low-latency connections between GCP and your on-premises or colocated data centers. You can use Cloud Interconnect to connect multiple cloud environments, such as GCP, AWS, and Azure, over a private network.&lt;/p&gt;
+&lt;p&gt;For example, the following gcloud command could be used to create a Cloud Interconnect connection and attach it to a VPC network in GCP:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmd" data-lang="cmd"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;gcloud compute interconnects create my-interconnect --type=direct --region=us-central1 --peer-region=us-east4 --peer-asn=65000
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;gcloud compute interconnects attachments create my-attachment --interconnect=my-interconnect --vpc=my-vpc --ip-range=10.0.0.0/30&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;2. Using Cloud VPN to create VPN connections:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Cloud VPN is a GCP service that allows you to create Secure Sockets Layer (SSL) VPN connections between your on-premises or colocated data centers and your GCP resources. You can use Cloud VPN to connect multiple cloud environments, such as GCP, AWS, and Azure, over a VPN.&lt;/p&gt;
+&lt;p&gt;For example, the following gcloud command could be used to create a Cloud VPN connection and attach it to a VPC network in GCP:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmd" data-lang="cmd"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;gcloud compute target-vpn-gateways create my-vpn-gateway --network=my-vpc --region=us-central1
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;gcloud compute vpn-tunnels create my-vpn-tunnel --target-vpn-gateway=my-vpn-gateway --peer-address=1.2.3.4 --shared-secret=my-shared-secret --region=us-central1&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;3. Using Cloud Router to create VPC peering connections:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Cloud Router is a GCP service that allows you to create VPC peering connections between VPC networks in GCP. You can use Cloud Router to create a multi-cloud environment by connecting GCP VPCs to other cloud environments, such as AWS or Azure.&lt;/p&gt;
+&lt;p&gt;For example, the following gcloud command could be used to create a VPC peering connection between two VPC networks in GCP:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cmd" data-lang="cmd"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;gcloud compute networks peerings create my-peering --network=my-vpc-1 --peer-network=my-vpc-2 --peer-project=my-project-2&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description></item></channel></rss>

@@ -1,4 +1,407 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Cloud_Native on Ace The Cloud Skills</title><link>https://acethecloud.com/tags/cloud_native/</link><description>Recent content in Cloud_Native on Ace The Cloud Skills</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 19 Dec 2021 20:18:07 +0600</lastBuildDate><atom:link href="https://acethecloud.com/tags/cloud_native/index.xml" rel="self" type="application/rss+xml"/><item><title>Cloud Native vs Cloud Agnostic: Weighing the Trade-Offs 🤜 🤛</title><link>https://acethecloud.com/blog/cloud-native-vs-cloud-agnostic/</link><pubDate>Sun, 19 Dec 2021 20:18:07 +0600</pubDate><guid>https://acethecloud.com/blog/cloud-native-vs-cloud-agnostic/</guid><description>Background Speed ​​is an important factor for business in this era when customers are looking for instant gratification. If the fact doesn&amp;rsquo;t convince you, the statistics might. An element as simple as a website&amp;rsquo;s load time carries weight. Statistics indicate that the first five seconds of a page load time have the greatest impact on conversion rates. So when consumer behavior has the greatest impact, it is profitable in the long run to modernize a business model accordingly.</description></item><item><title>Which Azure Messaging Service is Right for Your Use Case? A Comparison and Code Walkthrough 🤜 🤛</title><link>https://acethecloud.com/blog/azure-messaging-options/</link><pubDate>Sun, 05 Dec 2021 22:18:07 +0600</pubDate><guid>https://acethecloud.com/blog/azure-messaging-options/</guid><description>Azure offers a variety of messaging options to help developers build reliable, scalable, and high-performance applications. These options include:
-Azure Service Bus : A fully managed messaging service that provides reliable message delivery and support for a variety of messaging patterns, including point-to-point, publish-subscribe, and request-response.
-Azure Event Grid : A fully managed event routing service that enables developers to build reactive and event-driven applications. Event Grid supports a wide range of event sources and can deliver events to various destinations, including Azure Functions, Azure Logic Apps, and Azure Event Hubs.</description></item><item><title>Which is better Azure App Gateway or Nginx configured on Azure VMs 🤜 🤛</title><link>https://acethecloud.com/blog/azure-application-gateway-and-nginx-on-vm/</link><pubDate>Sun, 05 Dec 2021 22:18:07 +0600</pubDate><guid>https://acethecloud.com/blog/azure-application-gateway-and-nginx-on-vm/</guid><description>Azure Application Gateway is a web traffic load balancer that enables you to manage traffic to your web applications. It includes features such as SSL/TLS offload, HTTP/HTTPS redirection, and cookie-based affinity.
-Nginx is an open-source web server that can also be used as a reverse proxy, load balancer, and HTTP cache. When running Nginx on an Azure Virtual Machine (VM), you have the ability to customize the configuration and install additional modules to suit your needs.</description></item></channel></rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Cloud_Native</title><link>https://acethecloud.com/tags/cloud_native/</link><description>Recent content in Cloud_Native on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 19 Dec 2021 20:18:07 +0600</lastBuildDate><atom:link href="https://acethecloud.com/tags/cloud_native/index.xml" rel="self" type="application/rss+xml"/><item><title>Cloud Native vs Cloud Agnostic: Weighing the Trade-Offs 🤜 🤛</title><link>https://acethecloud.com/blog/cloud-native-vs-cloud-agnostic/</link><pubDate>Sun, 19 Dec 2021 20:18:07 +0600</pubDate><guid>https://acethecloud.com/blog/cloud-native-vs-cloud-agnostic/</guid><description>
+&lt;h3&gt;Background&lt;span class="hx:absolute hx:-mt-20" id="background"&gt;&lt;/span&gt;
+&lt;a href="#background" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Speed ​​is an important factor for business in this era when customers are looking for instant gratification. If the fact doesn&amp;rsquo;t convince you, the statistics might. An element as simple as a website&amp;rsquo;s load time carries weight. Statistics indicate that the first five seconds of a page load time have the greatest impact on conversion rates. So when consumer behavior has the greatest impact, it is profitable in the long run to modernize a business model accordingly.&lt;/p&gt;
+&lt;p&gt;The faster a company can develop and ship a product to its customers, the more likely it is to avoid problems in a fast-paced environment. Cloud Native as a form of technology is designed for this. It is a behavior-driven development model designed, built, and optimized to run in the cloud.&lt;/p&gt;
+&lt;p&gt;Cloud native applications can easily be mistaken as another tool for the digital first era or another platform. However, it is a complete shift to a set of different practices, automated testing, design, customer centric model and an accelerated production environment. With shorter delivery cycles and higher quality, working in the cloud native database requires a transformation within the entire development team of an organization.&lt;/p&gt;
+&lt;h3&gt;➼ Why Cloud Native ?&lt;span class="hx:absolute hx:-mt-20" id="-why-cloud-native-"&gt;&lt;/span&gt;
+&lt;a href="#-why-cloud-native-" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;There are many aspects to being cloud-native including&lt;/p&gt;
+&lt;p&gt;⇢ Infrastructure Services&lt;/p&gt;
+&lt;p&gt;⇢ Automation/Orchestration&lt;/p&gt;
+&lt;p&gt;⇢ Virtualization and Containerization&lt;/p&gt;
+&lt;p&gt;⇢ Microservices Architecture&lt;/p&gt;
+&lt;p&gt;⇢ Observability&lt;/p&gt;
+&lt;p&gt;There&amp;rsquo;s never been a better time to realize the full potential of the cloud by refactoring or rebuilding your applications cloud-native. In essence, this means that your application is built using modern cloud technologies and is hosted and managed end-to-end in the cloud. This includes writing code, testing and deploying the code, and running those applications—all in the cloud.&lt;/p&gt;
+&lt;h3&gt;➼ Benefits for your business to go cloud-native&lt;span class="hx:absolute hx:-mt-20" id="-benefits-for-your-business-to-go-cloud-native"&gt;&lt;/span&gt;
+&lt;a href="#-benefits-for-your-business-to-go-cloud-native" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;⇢ Reduced time to market.&lt;/p&gt;
+&lt;p&gt;⇢ Reduced cost&lt;/p&gt;
+&lt;p&gt;⇢ Improved customer experiences&lt;/p&gt;
+&lt;p&gt;⇢ Ease of management&lt;/p&gt;
+&lt;p&gt;⇢ Reliable systems and reduced down-time&lt;/p&gt;
+&lt;p&gt;⇢ Scalability&lt;/p&gt;
+&lt;p&gt;⇢ Increased Security&lt;/p&gt;
+&lt;p&gt;I highly recommend this book to understand Cloud Native Design Patterns in depth
+&lt;img src="https://acethecloud.com/images/blog/cloudnativebook.jpg" alt="blog image" loading="lazy" /&gt;&lt;/p&gt;
+&lt;h3&gt;➼ Why Cloud Agnostic ?&lt;span class="hx:absolute hx:-mt-20" id="-why-cloud-agnostic-"&gt;&lt;/span&gt;
+&lt;a href="#-why-cloud-agnostic-" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;An organization is cloud-agnostic when the organization&amp;rsquo;s IT systems are not tied to a single cloud provider or do not rely on a cloud provider&amp;rsquo;s proprietary services.&lt;/p&gt;
+&lt;p&gt;Typically, services are distributed across multiple cloud providers to maintain and ensure the uptime of critical applications.&lt;/p&gt;
+&lt;p&gt;A cloud-agnostic approach has many advantages, e.g. organisation is not tied to a specific provider and has more choice and flexibility. In addition, organizations can rest assured that they will see optimal performance from their application, regardless of the cloud environment they use.&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://acethecloud.com/images/blog/nativevsagnostic.png" alt="blog image" loading="lazy" /&gt;&lt;/p&gt;
+&lt;p&gt;A &lt;strong&gt;cloud-agnostic&lt;/strong&gt; strategy takes the inherent flexibility of using public cloud facilities to another level. When workloads and applications are built to run on any public cloud, preferences can be set to switch them between different vendors based on their performance and cost-effectiveness in the context of dynamic factors such as geography and the strengths and offerings of different vendors. Or if temporary technical problems occur with a provider.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Cloud-agnostic&lt;/strong&gt; offers a level of flexibility that improves &lt;strong&gt;cost-efficiency&lt;/strong&gt; even more than simply using the public cloud. Especially for organizations with heavy workloads, even small cost differences can add up to significant sums. And for many digitally-enabled organizations, incremental performance gains and insurance against technical issues on the vendor side are as much an incentive to become cloud-agnostic as cost savings.&lt;/p&gt;
+&lt;h3&gt;➼ These benefits can help companies better understand what value to expect when developing a cloud-agnostic approach.&lt;span class="hx:absolute hx:-mt-20" id="-these-benefits-can-help-companies-better-understand-what-value-to-expect-when-developing-a-cloud-agnostic-approach"&gt;&lt;/span&gt;
+&lt;a href="#-these-benefits-can-help-companies-better-understand-what-value-to-expect-when-developing-a-cloud-agnostic-approach" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;◼ Portability ensures that an application works independently of the platform and can seamlessly migrate from one cloud platform to another.&lt;/p&gt;
+&lt;p&gt;◼ Consistent performance is a valuable characteristic of cloud agnostic, as companies benefit from a standard of performance (speed and scale) independent of the platform or infrastructure the application or service is running on.&lt;/p&gt;
+&lt;p&gt;◼ Cost optimization is a primary tenet of a cloud-agnostic architecture. As pricing models change between cloud providers, cloud-agnostic applications can be migrated easily to run in the cloud platform that delivers the best cost savings.&lt;/p&gt;
+&lt;p&gt;◼ Avoiding vendor lock-in ensures that companies are not subject to one operating platform, but have the freedom to move applications as they see fit.&lt;/p&gt;
+&lt;p&gt;There are &lt;strong&gt;trade-offs&lt;/strong&gt; to consider when deciding between a cloud native and cloud agnostic approach. Here are a few key points to consider:&lt;/p&gt;
+&lt;p&gt;Flexibility: Cloud agnostic approaches offer greater flexibility, as they can be deployed on any cloud platform or on-premises. However, this flexibility comes at the cost of potentially missing out on some of the specific features and services offered by a particular cloud provider.&lt;/p&gt;
+&lt;p&gt;Scalability: Cloud native approaches are typically easier to scale, as they are designed with cloud-specific scalability principles in mind. However, it can be more challenging to scale a cloud agnostic application, as it may need to be re-architected to take advantage of cloud-specific features.&lt;/p&gt;
+&lt;p&gt;Cost: Cloud agnostic approaches may be more cost-effective in the long run, as they can be deployed on the most cost-effective platform at any given time. However, cloud native approaches may be more cost-effective in the short term, as they can take advantage of the specific pricing and cost optimization features of a particular cloud provider.&lt;/p&gt;
+&lt;p&gt;Ultimately, the best approach will depend on the specific needs and goals of your organization. It&amp;rsquo;s important to carefully consider the trade-offs and determine the approach that will best meet your needs.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;➼ Case Study of Acme. Inc&lt;span class="hx:absolute hx:-mt-20" id="-case-study-of-acme-inc"&gt;&lt;/span&gt;
+&lt;a href="#-case-study-of-acme-inc" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;It&amp;rsquo;s not uncommon for organizations to switch from a &lt;strong&gt;cloud native to a cloud agnostic approach&lt;/strong&gt;, or vice versa, as their needs and priorities change over time. Here is a fictionalized example of a company that made such a switch:&lt;/p&gt;
+&lt;p&gt;Acme Inc. is a software company that specializes in developing cloud native applications. All of its applications were designed to be deployed and run on a specific cloud provider, using a combination of containerization and microservices to maximize scalability and reliability.&lt;/p&gt;
+&lt;p&gt;However, as the company grew and its customer base expanded, Acme found that it needed to support a wider range of cloud platforms in order to meet the needs of its customers. Some of its customers preferred to use a particular cloud provider, while others had specific compliance or regulatory requirements that dictated the use of a specific platform.&lt;/p&gt;
+&lt;p&gt;In order to support these diverse requirements, Acme decided to adopt a cloud agnostic approach for its future developments. This meant re-architecting its existing applications to be independent of any specific cloud provider, and developing new applications using a cloud agnostic design from the outset.&lt;/p&gt;
+&lt;p&gt;To do this, Acme adopted a number of cloud agnostic technologies, such as the Cloud Foundry platform and the Kubernetes container orchestration system. These technologies allowed Acme to deploy its applications on any cloud platform, or even on-premises, without requiring significant changes to the codebase.&lt;/p&gt;
+&lt;p&gt;The transition to a cloud agnostic approach was not without its challenges, as Acme had to invest time and resources in re-architecting its existing applications and developing new skills in cloud agnostic technologies. However, in the long run, the company believed that this investment would pay off by giving it greater flexibility and the ability to meet the needs of a wider range of customers.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;➼ Case Study of XYZ. Corp&lt;span class="hx:absolute hx:-mt-20" id="-case-study-of-xyz-corp"&gt;&lt;/span&gt;
+&lt;a href="#-case-study-of-xyz-corp" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;It&amp;rsquo;s not uncommon for organizations to switch from a &lt;strong&gt;cloud agnostic to a cloud native approach&lt;/strong&gt;, or vice versa, as their needs and priorities change over time. Here is a fictionalized example of a company that made such a switch:&lt;/p&gt;
+&lt;p&gt;XYZ Corp is a software company that specialized in developing cloud agnostic applications. All of its applications were designed to be deployed and run on any cloud platform or on-premises, using a combination of cloud-agnostic technologies such as Cloud Foundry and Kubernetes.&lt;/p&gt;
+&lt;p&gt;However, as the company grew and its customer base expanded, XYZ found that it was missing out on some of the specific features and services offered by a particular cloud provider. In addition, it was experiencing some challenges in scaling its applications, as they were not optimized for the cloud-specific features offered by different platforms.&lt;/p&gt;
+&lt;p&gt;In order to take advantage of the specific features and services offered by a particular cloud provider and to improve its scalability, XYZ decided to adopt a cloud native approach for its future developments. This meant re-architecting its existing applications to be optimized for deployment and operation in a specific cloud environment, and developing new applications using a cloud native design from the outset.&lt;/p&gt;
+&lt;p&gt;To do this, XYZ adopted a number of cloud native technologies, such as containerization and microservices. These technologies allowed XYZ to take advantage of the specific features and services offered by a particular cloud provider, and to design its applications for maximum scalability and reliability in the cloud.&lt;/p&gt;
+&lt;p&gt;The transition to a cloud native approach was not without its challenges, as XYZ had to invest time and resources in re-architecting its existing applications and developing new skills in cloud native technologies. However, in the long run, the company believed that this investment would pay off by giving it greater access to the specific features and services offered by a particular cloud provider and by improving the scalability of its applications.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Decision Making Framework&lt;span class="hx:absolute hx:-mt-20" id="decision-making-framework"&gt;&lt;/span&gt;
+&lt;a href="#decision-making-framework" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;So how do you decide which approach is right for your organization? Here is a decision-making framework to help you weigh the pros and cons of each approach:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1‣ Identify your objectives:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;What are your goals for the application? Do you need to take advantage of specific features or services offered by a particular cloud provider? Do you need to be able to deploy the application on multiple platforms, or on-premises? Answering these questions will help you determine whether a cloud native or cloud agnostic approach is more suitable for your needs.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2‣ Consider the flexibility factor:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Cloud agnostic approaches offer greater flexibility, as they can be deployed on any cloud platform or on-premises. However, this flexibility comes at the cost of potentially missing out on some of the specific features and services offered by a particular cloud provider. If flexibility is a key concern for your organization, a cloud agnostic approach may be the better choice.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3‣ Evaluate the scalability factor:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Cloud native approaches are typically easier to scale, as they are designed with cloud-specific scalability principles in mind. However, it can be more challenging to scale a cloud agnostic application, as it may need to be re-architected to take advantage of cloud-specific features. If scalability is a key concern for your organization, a cloud native approach may be the better choice.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;4‣ Consider the cost factor:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Cloud agnostic approaches may be more cost-effective in the long run, as they can be deployed on the most cost-effective platform at any given time. However, cloud native approaches may be more cost-effective in the short term, as they can take advantage of the specific pricing and cost optimization features of a particular cloud provider.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;5‣ Take a holistic view:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Ultimately, the best approach will depend on the specific needs and goals of your organization. It&amp;rsquo;s important to carefully consider all of the above factors and determine the approach that will best meet your needs.&lt;/p&gt;
+&lt;p&gt;In conclusion, the cloud native vs cloud agnostic dilemma is a complex one, and there is no one-size-fits-all answer. By using the decision-making framework outlined above, you can weigh the pros and cons of each approach and determine the best course of action for your organization.&lt;/p&gt;</description></item><item><title>Which Azure Messaging Service is Right for Your Use Case? A Comparison and Code Walkthrough 🤜 🤛</title><link>https://acethecloud.com/blog/azure-messaging-options/</link><pubDate>Sun, 05 Dec 2021 22:18:07 +0600</pubDate><guid>https://acethecloud.com/blog/azure-messaging-options/</guid><description>
+&lt;p&gt;Azure offers a variety of messaging options to help developers build reliable, scalable, and high-performance applications. These options include:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Azure Service Bus&lt;/strong&gt; : A fully managed messaging service that provides reliable message delivery and support for a variety of messaging patterns, including point-to-point, publish-subscribe, and request-response.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Azure Event Grid&lt;/strong&gt; : A fully managed event routing service that enables developers to build reactive and event-driven applications. Event Grid supports a wide range of event sources and can deliver events to various destinations, including Azure Functions, Azure Logic Apps, and Azure Event Hubs.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Azure Event Hubs&lt;/strong&gt; : A scalable, real-time data ingestion and event processing platform that can handle millions of events per second. Event Hubs supports a variety of use cases, including real-time analytics, event-driven architectures, and IoT scenarios.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Azure Queue Storage&lt;/strong&gt; : A scalable, reliable, and low-cost message queuing service that enables developers to decouple applications and build asynchronous workflows.&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://acethecloud.com/images/blog/azure-messaing-options.png" alt="AKS DevOps" loading="lazy" /&gt;&lt;/p&gt;
+&lt;p&gt;Below are some code samples that demonstrate how to use these messaging options in Azure:&lt;/p&gt;
+&lt;h3&gt;Azure Service Bus&lt;span class="hx:absolute hx:-mt-20" id="azure-service-bus"&gt;&lt;/span&gt;
+&lt;a href="#azure-service-bus" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Azure Service Bus is a fully managed messaging service that provides reliable message delivery and support for a variety of messaging patterns, including point-to-point, publish-subscribe, and request-response.&lt;/p&gt;
+&lt;p&gt;Use cases:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Asynchronous communication between applications&lt;/li&gt;
+&lt;li&gt;Decoupling of services and microservices&lt;/li&gt;
+&lt;li&gt;Real-time data processing and integration with other systems&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To use Azure Service Bus, you&amp;rsquo;ll need to create a namespace and a queue or topic in the Azure portal. Then, you can use the following code to send and receive messages using the Azure Service Bus .NET SDK:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cs" data-lang="cs"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// Send a message to the queue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;connectionString&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;Endpoint=sb://my-service-bus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=xxxxxxx&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;queueName&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;my-queue&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;QueueClient&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;connectionString&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;queueName&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;message&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Message&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Encoding&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;UTF8&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetBytes&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;Hello, world!&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;SendAsync&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="n"&gt;Wait&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// Receive a message from the queue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;message&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ReceiveAsync&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="n"&gt;Result&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt; &lt;span class="p"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;body&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Encoding&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;UTF8&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetString&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Body&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;Console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;WriteLine&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;CompleteAsync&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;SystemProperties&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;LockToken&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="n"&gt;Wait&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Azure Event Grid&lt;span class="hx:absolute hx:-mt-20" id="azure-event-grid"&gt;&lt;/span&gt;
+&lt;a href="#azure-event-grid" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Azure Event Grid is a fully managed event routing service that enables developers to build reactive and event-driven applications. Event Grid supports a wide range of event sources and can deliver events to various destinations, including Azure Functions, Azure Logic Apps, and Azure Event Hubs.&lt;/p&gt;
+&lt;p&gt;Use cases:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Event-driven architectures and serverless applications&lt;/li&gt;
+&lt;li&gt;Automation of workflows and business processes&lt;/li&gt;
+&lt;li&gt;Real-time analytics and data processing&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To use Azure Event Grid, you&amp;rsquo;ll need to create an Event Grid topic in the Azure portal and then create a subscription to route events to a destination. Then, you can use the following code to publish events to the Event Grid topic using the Azure Event Grid .NET SDK:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cs" data-lang="cs"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// Publish an event to the Event Grid topic&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;topicEndpoint&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;https://my-event-grid-topic.westus2-1.eventgrid.azure.net/api/events&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;topicKey&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;xxxxxxx&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;EventGridClient&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;TopicCredentials&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;topicKey&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;EventGridEvent&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;EventGridEvent&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;Id&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Guid&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;NewGuid&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="n"&gt;ToString&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;Subject&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;my-event&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;EventType&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;my-event-type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;Data&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;MyEventData&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;Message&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;Hello, world!&amp;#34;&lt;/span&gt; &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;EventTime&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;DateTime&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;UtcNow&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;PublishEventsAsync&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;topicEndpoint&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="n"&gt;Wait&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Azure Event Hubs&lt;span class="hx:absolute hx:-mt-20" id="azure-event-hubs"&gt;&lt;/span&gt;
+&lt;a href="#azure-event-hubs" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Azure Queue Storage is a scalable, reliable, and low-cost message queuing service that enables developers to decouple applications and build asynchronous workflows.&lt;/p&gt;
+&lt;p&gt;Use cases:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Asynchronous communication between applications&lt;/li&gt;
+&lt;li&gt;Decoupling of services and microservices&lt;/li&gt;
+&lt;li&gt;Job scheduling and batch processing&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To use Azure Event Hubs, you&amp;rsquo;ll need to create an Event Hubs namespace and an event hub in the Azure portal. Then, you can use the following code to send and receive events using the Azure Event Hubs .NET SDK:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cs" data-lang="cs"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// Send an event to the event hub&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;connectionString&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;Endpoint=sb://my-event-hubs-namespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=xxxxxxx&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;eventHubName&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;my-event-hub&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;EventHubClient&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;CreateFromConnectionString&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;connectionString&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;eventHubName&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;eventData&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;EventData&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Encoding&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;UTF8&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetBytes&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;Hello, world!&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;SendAsync&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;eventData&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="n"&gt;Wait&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// Receive events from the event hub&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;connectionString&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;Endpoint=sb://my-event-hubs-namespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=xxxxxxx&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;eventHubName&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;my-event-hub&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;EventHubClient&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;CreateFromConnectionString&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;connectionString&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;eventHubName&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;partitionIds&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetPartitionIdsAsync&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="n"&gt;Result&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;foreach&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;partitionId&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="n"&gt;partitionIds&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;receiver&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;CreateReceiver&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;$Default&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;partitionId&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;EventPosition&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FromEnqueuedTime&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DateTime&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;UtcNow&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;receiver&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ReceiveAsync&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="m"&gt;100&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="n"&gt;Result&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;foreach&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;eventData&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;body&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Encoding&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;UTF8&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetString&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;eventData&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Body&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Array&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;Console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;WriteLine&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Azure Queue Storage&lt;span class="hx:absolute hx:-mt-20" id="azure-queue-storage"&gt;&lt;/span&gt;
+&lt;a href="#azure-queue-storage" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Azure Queue Storage is a scalable, reliable, and low-cost message queuing service that enables developers to decouple applications and build asynchronous workflows.&lt;/p&gt;
+&lt;p&gt;Use cases:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Asynchronous communication between applications&lt;/li&gt;
+&lt;li&gt;Decoupling of services and microservices&lt;/li&gt;
+&lt;li&gt;Job scheduling and batch processing&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To use Azure Queue Storage, you&amp;rsquo;ll need to create a storage account and a queue in the Azure portal. Then, you can use the following code to send and receive messages using the Azure Storage .NET SDK:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-cs" data-lang="cs"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// Send a message to the queue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;storageAccount&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;CloudStorageAccount&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;DefaultEndpointsProtocol=https;AccountName=mystorageaccount;AccountKey=xxxxxxx&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;queueClient&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;storageAccount&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;CreateCloudQueueClient&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;queue&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;queueClient&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetQueueReference&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;my-queue&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;queue&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;AddMessageAsync&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;CloudQueueMessage&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;Hello, world!&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)).&lt;/span&gt;&lt;span class="n"&gt;Wait&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// Receive a message from the queue&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;message&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;queue&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GetMessageAsync&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="n"&gt;Result&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt; &lt;span class="p"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="kt"&gt;var&lt;/span&gt; &lt;span class="n"&gt;body&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;AsString&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;Console&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;WriteLine&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;body&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;queue&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DeleteMessageAsync&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="n"&gt;Wait&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;In conclusion, Azure offers a variety of messaging options to help developers build reliable and scalable applications. Whether you need a fully managed messaging service, an event routing service, a real-time data ingestion platform, or a simple message queuing service, Azure has you covered.&lt;/p&gt;</description></item><item><title>Which is better Azure App Gateway or Nginx configured on Azure VMs 🤜 🤛</title><link>https://acethecloud.com/blog/azure-application-gateway-and-nginx-on-vm/</link><pubDate>Sun, 05 Dec 2021 22:18:07 +0600</pubDate><guid>https://acethecloud.com/blog/azure-application-gateway-and-nginx-on-vm/</guid><description>
+&lt;p&gt;Azure Application Gateway is a web traffic load balancer that enables you to manage traffic to your web applications. It includes features such as SSL/TLS offload, HTTP/HTTPS redirection, and cookie-based affinity.&lt;/p&gt;
+&lt;p&gt;Nginx is an open-source web server that can also be used as a reverse proxy, load balancer, and HTTP cache. When running Nginx on an Azure Virtual Machine (VM), you have the ability to customize the configuration and install additional modules to suit your needs.&lt;/p&gt;
+&lt;p&gt;Here are some key differences between Azure Application Gateway and Nginx running on an Azure VM:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Managed service vs. self-managed:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Azure Application Gateway is a fully managed service, while Nginx running on an Azure VM requires you to set up and manage the VM and web server software yourself. This means that with Azure Application Gateway, you don&amp;rsquo;t have to worry about patching, updating, or maintaining the underlying infrastructure.&lt;/p&gt;
+&lt;ol start="2"&gt;
+&lt;li&gt;Scaling:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Both Azure Application Gateway and Nginx running on an Azure VM can scale to meet the needs of your application. However, with Azure Application Gateway, you can enable auto-scaling based on metrics such as CPU utilization, while with Nginx on an Azure VM, you would have to manually scale the VM or set up auto-scaling using a solution such as Azure Monitor.&lt;/p&gt;
+&lt;ol start="3"&gt;
+&lt;li&gt;Performance:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Azure Application Gateway is optimized for high performance, with features such as multiplexing and HTTP/2 support to improve the speed of web traffic. Nginx can also be configured for high performance, but you will need to tune the configuration and possibly use additional tools such as a cache to achieve optimal performance.&lt;/p&gt;
+&lt;ol start="4"&gt;
+&lt;li&gt;Features:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Azure Application Gateway includes a range of features beyond load balancing, such as SSL/TLS offload, which allows you to offload encryption and decryption tasks to the gateway, improving the performance of your backend servers. Nginx can also be configured to provide these features, but you will need to set them up yourself.&lt;/p&gt;
+&lt;p&gt;Here is an example of configuring Azure Application Gateway to load balance traffic to two backend servers using the Azure Portal:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;In the Azure Portal, navigate to your Application Gateway resource.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click on &amp;ldquo;Backend pools&amp;rdquo; in the left-hand menu.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click the &amp;ldquo;+ Add&amp;rdquo; button to create a new backend pool.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Give the backend pool a name, such as &amp;ldquo;MyBackendPool&amp;rdquo;, and select the type of backend servers you want to use (e.g., Azure VMs).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click the &amp;ldquo;+ Add&amp;rdquo; button to add the backend servers to the pool. You can add multiple servers by repeating this step.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click &amp;ldquo;Save&amp;rdquo; to create the backend pool.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click on &amp;ldquo;Listeners&amp;rdquo; in the left-hand menu.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click the &amp;ldquo;+ Add&amp;rdquo; button to create a new listener.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Give the listener a name, such as &amp;ldquo;MyListener&amp;rdquo;, and select the protocol and port you want to use (e.g., HTTP on port 80).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Select the backend pool you created in step 3 as the target for the listener.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Click &amp;ldquo;Save&amp;rdquo; to create the listener.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;This is a basic example of how to set up load balancing with Azure Application Gateway. You can configure additional options, such as SSL/TLS offload, by clicking on the corresponding settings in the left-hand menu.&lt;/p&gt;
+&lt;p&gt;To deploy an Azure Application Gateway using the Azure CLI, you can use the az network application-gateway create command. This command requires the following arguments:&lt;/p&gt;
+&lt;p&gt;&amp;ndash;name: The name of the Application Gateway.
+&amp;ndash;resource-group: The name of the resource group to create the Application Gateway in.
+&amp;ndash;location: The location to create the Application Gateway in.
+&amp;ndash;sku: The SKU of the Application Gateway.
+Here is an example of how to use the az network application-gateway create command to create a basic Application Gateway:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;az network application-gateway create &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --name myAppGateway &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --resource-group myResourceGroup &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --location eastus &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --sku Standard_v2 &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --instance-count &lt;span class="m"&gt;2&lt;/span&gt; &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="se"&gt;&lt;/span&gt; --backend-address-pools &lt;span class="s2"&gt;&amp;#34;name=myBackendPool addresses=10.0.0.1 10.0.0.2&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This command creates an Application Gateway with two instances and a backend pool with two addresses.&lt;/p&gt;
+&lt;p&gt;You can find more information about the az network application-gateway create command and the available options in the Azure CLI documentation &lt;a href="https://docs.microsoft.com/en-us/cli/azure/network/application-gateway/create?view=azure-cli-latest"target="_blank" rel="noopener"&gt;https://docs.microsoft.com/en-us/cli/azure/network/application-gateway/create?view=azure-cli-latest&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Here is an example of configuring Nginx as a load balancer on an Azure VM using the command line:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Install Nginx on your Azure VM. This can be done using the package manager for your operating system (e.g., apt-get on Ubuntu).&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Create a configuration file for Nginx, typically located at /etc/nginx/nginx.conf.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;In the configuration file, define the upstream servers that Nginx should load balance traffic to. For example:&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;upstream&lt;/span&gt; &lt;span class="err"&gt;my_upstream&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;server&lt;/span&gt; &lt;span class="err"&gt;backend1.example.com;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;server&lt;/span&gt; &lt;span class="err"&gt;backend2.example.com;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ol start="4"&gt;
+&lt;li&gt;Define a virtual server block in the configuration file to specify how Nginx should handle incoming traffic. For example:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;listen&lt;/span&gt; &lt;span class="err"&gt;80;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;server_name&lt;/span&gt; &lt;span class="err"&gt;example.com;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;location&lt;/span&gt; &lt;span class="err"&gt;/&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="err"&gt;proxy_pass&lt;/span&gt; &lt;span class="err"&gt;http:&lt;/span&gt;&lt;span class="c1"&gt;//my_upstream;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ol start="5"&gt;
+&lt;li&gt;Restart Nginx to apply the changes:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;sudo systemctl restart nginx&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This is a basic example of how to set up Nginx as a load balancer on an Azure VM. You can configure additional options, such as SSL/TLS offload, by adding additional directives to the configuration file.&lt;/p&gt;
+&lt;h2&gt;Cost Efficiency&lt;span class="hx:absolute hx:-mt-20" id="cost-efficiency"&gt;&lt;/span&gt;
+&lt;a href="#cost-efficiency" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There are a few different factors to consider when comparing the cost of using Azure Application Gateway versus using Nginx as a load balancer on an Azure virtual machine (VM). Some of these factors include the number of requests and data transfer that the load balancer will need to handle, the number of VMs or other resources that the load balancer will be distributing traffic to, and the specific pricing options and discounts that you are eligible for.&lt;/p&gt;
+&lt;p&gt;One way to compare the cost of these two options is to use the Azure pricing calculator. This tool allows you to input specific details about your workload, such as the number of requests and data transfer, and see an estimated cost for each option.&lt;/p&gt;
+&lt;p&gt;Generally, Azure Application Gateway is a fully managed service that is designed to handle a large volume of traffic and is well-suited for high-scale applications. As a result, it may be more expensive than using Nginx as a load balancer on an Azure VM, especially if you are only handling a small volume of traffic.&lt;/p&gt;
+&lt;p&gt;However, there are a few other factors to consider when comparing the cost of these two options. For example, using Azure Application Gateway may be more cost-effective in the long run because it is fully managed and requires minimal maintenance, whereas using Nginx as a load balancer on an Azure VM may require ongoing maintenance and management. Additionally, Azure Application Gateway includes features such as SSL offloading and web application firewall (WAF) capabilities, which may justify the additional cost for some users.&lt;/p&gt;
+&lt;p&gt;The cost of running an Nginx load balancer on an Azure virtual machine (VM) will depend on several factors, including the VM size, region, and configuration.&lt;/p&gt;
+&lt;p&gt;Here are some estimates based on Azure&amp;rsquo;s pricing calculator:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;For a Basic A1 VM (1 vCPU, 1 GB RAM) in the East US region, the cost would be approximately $32.63 per month.&lt;/li&gt;
+&lt;li&gt;For a Standard A2 VM (2 vCPUs, 3.5 GB RAM) in the East US region, the cost would be approximately $65.25 per month.&lt;/li&gt;
+&lt;li&gt;For a Standard D4s_v3 VM (4 vCPUs, 16 GB RAM) in the East US region, the cost would be approximately $130.50 per month.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Keep in mind that these estimates do not include any additional costs for data transfer, storage, or other resources that may be required for your load balancer setup. It&amp;rsquo;s always a good idea to carefully review your costs and adjust your configuration as needed to optimize your budget.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s also worth noting that Azure offers a variety of pricing options for both Azure Application Gateway and Azure VMs, including pay-as-you-go, consumption-based, and reserved pricing options. You can use the Azure pricing calculator to compare the cost of each option based on your specific workload and usage patterns.&lt;/p&gt;
+&lt;p&gt;In summary, Azure Application Gateway is a fully managed service that provides a range of features for load balancing and managing web traffic, while Nginx on an Azure VM gives you more control and customization options but requires more setup and management.
+Which option is best for you will depend on your specific requirements and preferences.&lt;/p&gt;</description></item></channel></rss>
