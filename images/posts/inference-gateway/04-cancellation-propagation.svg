@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" role="img" aria-labelledby="title04 desc04">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380" role="img" aria-labelledby="title04 desc04">
   <title id="title04">Cancellation propagation timeline</title>
   <desc id="desc04">Two stacked thirty-second timelines. The first, without surgical backpressure, shows the GPU continuing to generate tokens for twenty-five seconds after the client disconnects at five seconds — twenty-five wasted GPU-seconds. The second, with surgical backpressure built on Rust and Tokio, shows the GPU stopping cleanly within fifty milliseconds of the client disconnect; the slot is freed and the queue advances.</desc>
   <style>
@@ -25,85 +25,88 @@
       .panel{fill:#1e293b;stroke:#334155}
     }
   </style>
-  <rect class="bg" width="800" height="360"/>
+  <rect class="bg" width="800" height="380"/>
 
   <text class="text-label" x="40" y="28">Cancellation propagation</text>
 
   <!-- Timeline 1 -->
-  <text class="text" x="40" y="74">Without surgical backpressure</text>
+  <text class="text" x="40" y="64">Without surgical backpressure</text>
+
+  <!-- connect / disconnect labels (centred on markers, well above the bar) -->
+  <text class="text-sm" x="80" y="86" text-anchor="middle">connect</text>
+  <text class="text-sm" x="196" y="86" text-anchor="middle">disconnect</text>
 
   <!-- GPU bar t=0..30s -->
-  <rect class="gpu-bar" x="80" y="86" width="116" height="20" aria-hidden="true"/>
-  <rect class="danger" x="196" y="86" width="580" height="20" aria-hidden="true"/>
+  <rect class="gpu-bar" x="80" y="98" width="116" height="20" aria-hidden="true"/>
+  <rect class="danger" x="196" y="98" width="580" height="20" aria-hidden="true"/>
 
   <!-- client connect dot -->
-  <circle class="accent-green" cx="80" cy="96" r="6" aria-hidden="true"/>
-  <text class="text-sm" x="60" y="80">connect</text>
+  <circle class="accent-green" cx="80" cy="108" r="6" aria-hidden="true"/>
 
   <!-- client disconnect X -->
   <g aria-hidden="true">
-    <line x1="190" y1="86" x2="202" y2="106" stroke="#ef4444" stroke-width="2.5"/>
-    <line x1="202" y1="86" x2="190" y2="106" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="190" y1="98" x2="202" y2="118" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="202" y1="98" x2="190" y2="118" stroke="#ef4444" stroke-width="2.5"/>
   </g>
-  <text class="text-sm" x="180" y="80">disconnect</text>
 
-  <text class="text-sm" x="100" y="124">GPU still generating tokens — 25 wasted GPU-seconds</text>
+  <text class="text-sm" x="100" y="138">GPU still generating tokens — 25 wasted GPU-seconds</text>
 
   <!-- axis 1 -->
-  <line class="axis" x1="80" y1="146" x2="780" y2="146"/>
+  <line class="axis" x1="80" y1="160" x2="780" y2="160"/>
   <g aria-hidden="true">
-    <line class="axis" x1="80" y1="142" x2="80" y2="150"/>
-    <line class="axis" x1="196" y1="142" x2="196" y2="150"/>
-    <line class="axis" x1="313" y1="142" x2="313" y2="150"/>
-    <line class="axis" x1="546" y1="142" x2="546" y2="150"/>
-    <line class="axis" x1="780" y1="142" x2="780" y2="150"/>
+    <line class="axis" x1="80" y1="156" x2="80" y2="164"/>
+    <line class="axis" x1="196" y1="156" x2="196" y2="164"/>
+    <line class="axis" x1="313" y1="156" x2="313" y2="164"/>
+    <line class="axis" x1="546" y1="156" x2="546" y2="164"/>
+    <line class="axis" x1="780" y1="156" x2="780" y2="164"/>
   </g>
-  <text class="text-sm" x="76" y="164">0</text>
-  <text class="text-sm" x="190" y="164">5s</text>
-  <text class="text-sm" x="307" y="164">10s</text>
-  <text class="text-sm" x="540" y="164">20s</text>
-  <text class="text-sm" x="770" y="164">30s</text>
+  <text class="text-sm" x="76" y="178">0</text>
+  <text class="text-sm" x="190" y="178">5s</text>
+  <text class="text-sm" x="307" y="178">10s</text>
+  <text class="text-sm" x="540" y="178">20s</text>
+  <text class="text-sm" x="770" y="178">30s</text>
 
   <!-- Timeline 2 -->
-  <text class="text" x="40" y="208">With surgical backpressure (Rust + Tokio)</text>
+  <text class="text" x="40" y="222">With surgical backpressure (Rust + Tokio)</text>
 
-  <rect class="gpu-bar" x="80" y="222" width="116" height="20" aria-hidden="true"/>
-  <rect class="danger" x="196" y="222" width="6" height="20" aria-hidden="true"/>
+  <text class="text-sm" x="80" y="244" text-anchor="middle">connect</text>
+  <text class="text-sm" x="196" y="244" text-anchor="middle">disconnect</text>
 
-  <circle class="accent-green" cx="80" cy="232" r="6" aria-hidden="true"/>
-  <text class="text-sm" x="60" y="216">connect</text>
+  <rect class="gpu-bar" x="80" y="256" width="116" height="20" aria-hidden="true"/>
+  <rect class="danger" x="196" y="256" width="6" height="20" aria-hidden="true"/>
+
+  <circle class="accent-green" cx="80" cy="266" r="6" aria-hidden="true"/>
 
   <g aria-hidden="true">
-    <line x1="190" y1="222" x2="202" y2="242" stroke="#ef4444" stroke-width="2.5"/>
-    <line x1="202" y1="222" x2="190" y2="242" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="190" y1="256" x2="202" y2="276" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="202" y1="256" x2="190" y2="276" stroke="#ef4444" stroke-width="2.5"/>
   </g>
-  <text class="text-sm" x="180" y="216">disconnect</text>
 
-  <text class="text-sm" x="210" y="236">&lt;50 ms drain</text>
-  <text class="text-sm" x="100" y="262">GPU slot freed; queue advances</text>
+  <text class="text-sm" x="216" y="270">&lt;50 ms drain</text>
+  <text class="text-sm" x="100" y="296">GPU slot freed; queue advances</text>
 
   <!-- axis 2 -->
-  <line class="axis" x1="80" y1="282" x2="780" y2="282"/>
+  <line class="axis" x1="80" y1="318" x2="780" y2="318"/>
   <g aria-hidden="true">
-    <line class="axis" x1="80" y1="278" x2="80" y2="286"/>
-    <line class="axis" x1="196" y1="278" x2="196" y2="286"/>
-    <line class="axis" x1="313" y1="278" x2="313" y2="286"/>
-    <line class="axis" x1="546" y1="278" x2="546" y2="286"/>
-    <line class="axis" x1="780" y1="278" x2="780" y2="286"/>
+    <line class="axis" x1="80" y1="314" x2="80" y2="322"/>
+    <line class="axis" x1="196" y1="314" x2="196" y2="322"/>
+    <line class="axis" x1="313" y1="314" x2="313" y2="322"/>
+    <line class="axis" x1="546" y1="314" x2="546" y2="322"/>
+    <line class="axis" x1="780" y1="314" x2="780" y2="322"/>
   </g>
-  <text class="text-sm" x="76" y="300">0</text>
-  <text class="text-sm" x="190" y="300">5s</text>
-  <text class="text-sm" x="307" y="300">10s</text>
-  <text class="text-sm" x="540" y="300">20s</text>
-  <text class="text-sm" x="770" y="300">30s</text>
+  <text class="text-sm" x="76" y="336">0</text>
+  <text class="text-sm" x="190" y="336">5s</text>
+  <text class="text-sm" x="307" y="336">10s</text>
+  <text class="text-sm" x="540" y="336">20s</text>
+  <text class="text-sm" x="770" y="336">30s</text>
 
   <!-- legend -->
   <g aria-hidden="true">
-    <circle class="accent-green" cx="48" cy="338" r="5"/>
-    <text class="text-sm" x="60" y="342">healthy</text>
-    <rect class="danger" x="140" y="333" width="10" height="10"/>
-    <text class="text-sm" x="156" y="342">wasted</text>
-    <rect class="gpu-bar" x="220" y="333" width="10" height="10"/>
-    <text class="text-sm" x="236" y="342">GPU generating</text>
+    <circle class="accent-green" cx="48" cy="364" r="5"/>
+    <text class="text-sm" x="60" y="368">healthy</text>
+    <rect class="danger" x="140" y="359" width="10" height="10"/>
+    <text class="text-sm" x="156" y="368">wasted</text>
+    <rect class="gpu-bar" x="220" y="359" width="10" height="10"/>
+    <text class="text-sm" x="236" y="368">GPU generating</text>
   </g>
 </svg>

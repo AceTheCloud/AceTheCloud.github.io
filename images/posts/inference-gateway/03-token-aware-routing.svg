@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 440" role="img" aria-labelledby="title03 desc03">
   <title id="title03">Token-aware routing decision</title>
-  <desc id="desc03">A central Router box receives an incoming request from the left, consumes four signals from the top — token budget, model loaded, cache affinity, and GPU headroom — and emits three candidate paths to backends on the right. The chosen path goes to backend A on H100; the other two backends are rejected because the model is not loaded and because of higher latency.</desc>
+  <desc id="desc03">A central Router box receives an incoming request from the left, consumes four signals from the top — token budget, model loaded, cache affinity, and GPU headroom — and emits three candidate paths to backends on the right. The chosen path goes to backend A on H100 with FP8; backend B (H200, FP8, model not loaded) and backend C (L40S, FP16, higher latency) are rejected.</desc>
   <style>
     .bg{fill:#fff}
     .stroke{stroke:#475569;fill:none;stroke-width:1.5}
@@ -15,6 +15,8 @@
     .arrow-slate{stroke:#94a3b8;fill:#94a3b8;stroke-width:1.2}
     .arrow-green{stroke:#76b900;fill:#76b900;stroke-width:3}
     .pill{fill:#fff;stroke:#0ea5e9;stroke-width:1.2}
+    .badge-green{fill:#76b900;font-weight:600}
+    .badge-mute{fill:#94a3b8;font-weight:600}
     @media (prefers-color-scheme: dark) {
       .bg{fill:#0f172a}
       .stroke{stroke:#94a3b8}
@@ -89,32 +91,31 @@
   <!-- Arrow from incoming -> router -->
   <line class="arrow-slate" x1="220" y1="198" x2="328" y2="220" marker-end="url(#tri-slate)"/>
 
-  <!-- Backend candidates, right -->
+  <!-- Backend candidates, right.  Status text moved INSIDE each box so it
+       no longer collides with the arrows in the gap. -->
   <g>
-    <rect class="module" x="600" y="160" width="180" height="50" rx="6" style="stroke:#76b900;stroke-width:2"/>
-    <text class="text" x="610" y="180">backend-A</text>
-    <text class="text-sm" x="610" y="198">H100  ·  FP8  ·  loaded</text>
+    <rect class="module" x="600" y="150" width="180" height="62" rx="6" style="stroke:#76b900;stroke-width:2"/>
+    <text class="text" x="610" y="170">backend-A</text>
+    <text class="text-sm" x="610" y="188">H100  ·  FP8  ·  loaded</text>
+    <text class="text-sm badge-green" x="610" y="204">✓ chosen</text>
   </g>
   <g>
-    <rect class="module" x="600" y="225" width="180" height="50" rx="6"/>
-    <text class="text" x="610" y="245">backend-B</text>
-    <text class="text-sm" x="610" y="263">H200  ·  FP8  ·  not loaded</text>
+    <rect class="module" x="600" y="228" width="180" height="62" rx="6"/>
+    <text class="text" x="610" y="248">backend-B</text>
+    <text class="text-sm" x="610" y="266">H200  ·  FP8  ·  not loaded</text>
+    <text class="text-sm badge-mute" x="610" y="282">× model not loaded</text>
   </g>
   <g>
-    <rect class="module" x="600" y="290" width="180" height="50" rx="6"/>
-    <text class="text" x="610" y="310">backend-C</text>
-    <text class="text-sm" x="610" y="328">A100  ·  FP16  ·  higher latency</text>
+    <rect class="module" x="600" y="306" width="180" height="62" rx="6"/>
+    <text class="text" x="610" y="326">backend-C</text>
+    <text class="text-sm" x="610" y="344">L40S  ·  FP16  ·  higher latency</text>
+    <text class="text-sm badge-mute" x="610" y="360">× higher latency / FP16</text>
   </g>
 
-  <!-- Arrows out of router -->
-  <line class="arrow-green" x1="500" y1="210" x2="598" y2="185" marker-end="url(#tri-green)"/>
-  <line class="arrow-slate" x1="500" y1="240" x2="598" y2="250" marker-end="url(#tri-slate)" stroke-dasharray="4 3"/>
-  <line class="arrow-slate" x1="500" y1="265" x2="598" y2="315" marker-end="url(#tri-slate)" stroke-dasharray="4 3"/>
-
-  <!-- Reject annotations -->
-  <text class="text-sm" x="520" y="232" style="fill:#ef4444">chosen</text>
-  <text class="text-sm" x="510" y="244">×  model not loaded</text>
-  <text class="text-sm" x="510" y="288">×  higher latency / FP16</text>
+  <!-- Arrows out of router, retargeted to the new backend y-centres -->
+  <line class="arrow-green" x1="500" y1="210" x2="598" y2="181" marker-end="url(#tri-green)"/>
+  <line class="arrow-slate" x1="500" y1="235" x2="598" y2="259" marker-end="url(#tri-slate)" stroke-dasharray="4 3"/>
+  <line class="arrow-slate" x1="500" y1="260" x2="598" y2="337" marker-end="url(#tri-slate)" stroke-dasharray="4 3"/>
 
   <!-- Bottom hint -->
   <text class="text-sm" x="40" y="404">round-robin would have picked B  ·  token-aware routing picks A</text>
