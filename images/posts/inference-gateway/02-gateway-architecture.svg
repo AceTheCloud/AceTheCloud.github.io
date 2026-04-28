@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 640" role="img" aria-labelledby="title02 desc02">
   <title id="title02">Inference Gateway architecture</title>
-  <desc id="desc02">A vertical block diagram. An OpenAI-compatible client speaks HTTPS, SSE, and WebSocket into the Inference Gateway, a Rust process whose internal stack contains protocol adapters, a tokenizer with a token-budget estimator, an auth and quota layer, a router, a backend pool, and an observability module. Below the gateway is a row of heterogeneous GPU backends labelled H100, H200, B200, GB200, and GB300.</desc>
+  <desc id="desc02">A vertical block diagram. An OpenAI-compatible client speaks HTTPS, SSE, and WebSocket into the Inference Gateway, a Rust process whose internal stack contains protocol adapters, a tokenizer with a token-budget estimator, an auth and quota layer, a router, a backend pool, and an observability module. Below the gateway is a row of heterogeneous GPU backends: H100 and H200 are cold; B200, GB200, and GB300 are loaded and healthy.</desc>
   <style>
     .bg{fill:#fff}
     .stroke{stroke:#475569;fill:none;stroke-width:1.5}
@@ -86,15 +86,15 @@
 
   <g>
     <rect class="module" x="55" y="578" width="130" height="46" rx="6"/>
-    <circle class="accent-green" cx="73" cy="601" r="5" aria-hidden="true"/>
+    <circle class="accent-slate" cx="73" cy="601" r="5" aria-hidden="true"/>
     <text class="text" x="87" y="598">H100</text>
-    <text class="text-sm" x="87" y="614">loaded · healthy</text>
+    <text class="text-sm" x="87" y="614">cold</text>
   </g>
   <g>
     <rect class="module" x="195" y="578" width="130" height="46" rx="6"/>
-    <circle class="accent-green" cx="213" cy="601" r="5" aria-hidden="true"/>
+    <circle class="accent-slate" cx="213" cy="601" r="5" aria-hidden="true"/>
     <text class="text" x="227" y="598">H200</text>
-    <text class="text-sm" x="227" y="614">loaded · healthy</text>
+    <text class="text-sm" x="227" y="614">cold</text>
   </g>
   <g>
     <rect class="module" x="335" y="578" width="130" height="46" rx="6"/>
@@ -104,14 +104,14 @@
   </g>
   <g>
     <rect class="module" x="475" y="578" width="130" height="46" rx="6"/>
-    <circle class="accent-slate" cx="493" cy="601" r="5" aria-hidden="true"/>
+    <circle class="accent-green" cx="493" cy="601" r="5" aria-hidden="true"/>
     <text class="text" x="507" y="598">GB200</text>
-    <text class="text-sm" x="507" y="614">cold</text>
+    <text class="text-sm" x="507" y="614">loaded · healthy</text>
   </g>
   <g>
     <rect class="module" x="615" y="578" width="130" height="46" rx="6"/>
-    <circle class="accent-slate" cx="633" cy="601" r="5" aria-hidden="true"/>
+    <circle class="accent-green" cx="633" cy="601" r="5" aria-hidden="true"/>
     <text class="text" x="647" y="598">GB300</text>
-    <text class="text-sm" x="647" y="614">cold</text>
+    <text class="text-sm" x="647" y="614">loaded · healthy</text>
   </g>
 </svg>
