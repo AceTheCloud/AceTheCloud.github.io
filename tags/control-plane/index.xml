@@ -190,6 +190,71 @@
 &lt;p&gt;&lt;strong&gt;2. Cost of bugs is enormous.&lt;/strong&gt; A memory leak in an inference gateway is millions of tokens lost. A use-after-free in the streaming path is a CVE. Rust&amp;rsquo;s compile-time guarantees are not a luxury — they are the only credible defense at this scale.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;3. Async is the workload.&lt;/strong&gt; Inference is long-lived, streaming, cancellable. Tokio&amp;rsquo;s &lt;code&gt;select!&lt;/code&gt;, structured cancellation, and the maturing &lt;code&gt;async fn in traits&lt;/code&gt; story are the best ergonomics any systems language has for this shape of work.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;4. Single static binary.&lt;/strong&gt; Deploy one binary. No Python wheels, no JVM warmup, no 600 MB Docker image. Cold start matters when an inference gateway is the bottleneck on autoscale events.&lt;/p&gt;
+&lt;h3&gt;Receipts, not vibes&lt;span class="hx:absolute hx:-mt-20" id="receipts-not-vibes"&gt;&lt;/span&gt;
+&lt;a href="#receipts-not-vibes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Ben Dicken keeps a running benchmark — &lt;a href="https://benjdd.com/languages/"target="_blank" rel="noopener"&gt;1 billion nested loop iterations across 14 languages&lt;/a&gt; — that captures the &lt;em&gt;floor&lt;/em&gt; of compute overhead each runtime imposes. The numbers tell the same story I have seen in production over and over:&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;div class="ace-fig-stack"&gt;
+&lt;a href="https://benjdd.com/languages/" target="_blank" rel="noreferrer noopener" class="ace-fig-fallback" aria-label="Open the live benchmark on benjdd.com"&gt;
+&lt;img src="https://acethecloud.com/images/posts/inference-gateway/05-benjdd-1b-iterations.png" alt="Benchmark of 1 billion nested loop iterations across 14 languages: Rust 0.50s ties C/clang -O3 0.50s; Go 0.80s; Node.js 1.03s; Python 74.42s" loading="lazy" /&gt;
+&lt;/a&gt;
+&lt;iframe
+src="https://benjdd.com/languages/"
+loading="lazy"
+title="1 billion nested loop iterations — language race by Ben Dicken"
+referrerpolicy="no-referrer-when-downgrade"
+onload="try{this.contentWindow.location.href;}catch(e){this.classList.add('loaded');}"
+&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+&lt;figcaption&gt;1B nested-loop iterations: Rust ties C/clang -O3; Go is 60% slower; Python is ~150× slower. Live race embedded from &lt;a href="https://benjdd.com/languages/" target="_blank" rel="noreferrer noopener"&gt;benjdd.com/languages&lt;/a&gt; by Ben Dicken — click through if the embed doesn't render.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Language&lt;/th&gt;
+&lt;th&gt;Time&lt;/th&gt;
+&lt;th&gt;Penalty vs Rust&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;C/clang -O3&lt;/td&gt;
+&lt;td&gt;0.50s&lt;/td&gt;
+&lt;td&gt;tie&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Rust&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;0.50s&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;baseline&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Java&lt;/td&gt;
+&lt;td&gt;0.54s&lt;/td&gt;
+&lt;td&gt;1.08×&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Kotlin&lt;/td&gt;
+&lt;td&gt;0.56s&lt;/td&gt;
+&lt;td&gt;1.12×&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Go&lt;/td&gt;
+&lt;td&gt;0.80s&lt;/td&gt;
+&lt;td&gt;1.60×&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Js/Node&lt;/td&gt;
+&lt;td&gt;1.03s&lt;/td&gt;
+&lt;td&gt;2.06×&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Python&lt;/td&gt;
+&lt;td&gt;74.42s&lt;/td&gt;
+&lt;td&gt;~149×&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;A microbenchmark is not a gateway workload — but it does set the floor. &lt;strong&gt;Rust pays nothing on top of what the CPU is willing to give you.&lt;/strong&gt; It ties C with &lt;code&gt;-O3&lt;/code&gt; and beats every managed runtime. Go pays a real ~60% tax. Python pays a wall.&lt;/p&gt;
+&lt;p&gt;For a control plane sitting in front of a multi-million-dollar GPU fleet, the floor matters. Every microsecond the gateway burns on language overhead is a microsecond a GPU was idle. Rust pushes that floor as low as silicon allows — at the same level as C, without C&amp;rsquo;s footguns. That is the property that makes the four points above more than aspirational.&lt;/p&gt;
 &lt;p&gt;Go was the close second. It lost on tail latency under sustained load. For 90% of services Go&amp;rsquo;s GC is irrelevant; for the gateway in front of an inference cluster running at 80% utilization, every millisecond is real.&lt;/p&gt;
 &lt;p&gt;C++ + Envoy works. The cost is joining the Envoy maintenance treadmill, writing non-trivial logic in C++ or Lua filters, and accepting the operational complexity of Envoy in your hot path. It is a defensible choice for organizations already deep in Envoy. For greenfield, no.&lt;/p&gt;
 &lt;h2&gt;Architecture, in One Diagram&lt;span class="hx:absolute hx:-mt-20" id="architecture-in-one-diagram"&gt;&lt;/span&gt;
