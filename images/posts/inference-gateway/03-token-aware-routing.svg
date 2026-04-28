@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 440" role="img" aria-labelledby="title03 desc03">
+  <title id="title03">Token-aware routing decision</title>
+  <desc id="desc03">A central Router box receives an incoming request from the left, consumes four signals from the top — token budget, model loaded, cache affinity, and GPU headroom — and emits three candidate paths to backends on the right. The chosen path goes to backend A on H100; the other two backends are rejected because the model is not loaded and because of higher latency.</desc>
+  <style>
+    .bg{fill:#fff}
+    .stroke{stroke:#475569;fill:none;stroke-width:1.5}
+    .text{font-family:'JetBrains Mono',ui-monospace,monospace;fill:#0f172a;font-size:13px}
+    .text-sm{font-family:'JetBrains Mono',ui-monospace,monospace;fill:#64748b;font-size:11px}
+    .text-label{font-family:'Inter',ui-sans-serif,system-ui,sans-serif;fill:#0f172a;font-size:14px;font-weight:600}
+    .accent-blue{fill:#0ea5e9}
+    .accent-green{fill:#76b900}
+    .accent-slate{fill:#cbd5e1}
+    .panel{fill:#f8fafc;stroke:#e2e8f0;stroke-width:1}
+    .module{fill:#fff;stroke:#475569;stroke-width:1.5}
+    .arrow-slate{stroke:#94a3b8;fill:#94a3b8;stroke-width:1.2}
+    .arrow-green{stroke:#76b900;fill:#76b900;stroke-width:3}
+    .pill{fill:#fff;stroke:#0ea5e9;stroke-width:1.2}
+    @media (prefers-color-scheme: dark) {
+      .bg{fill:#0f172a}
+      .stroke{stroke:#94a3b8}
+      .text{fill:#e2e8f0}
+      .text-sm{fill:#94a3b8}
+      .text-label{fill:#f1f5f9}
+      .accent-slate{fill:#475569}
+      .panel{fill:#1e293b;stroke:#334155}
+      .module{fill:#1e293b;stroke:#94a3b8}
+      .pill{fill:#1e293b;stroke:#0ea5e9}
+      .arrow-slate{stroke:#475569;fill:#475569}
+    }
+  </style>
+  <defs>
+    <marker id="tri-slate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="arrow-slate"/>
+    </marker>
+    <marker id="tri-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="arrow-green"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="800" height="440"/>
+
+  <text class="text-label" x="40" y="32">Token-aware routing</text>
+
+  <!-- Top input signals -->
+  <g>
+    <rect class="pill" x="180" y="60" width="110" height="28" rx="14"/>
+    <text class="text" x="235" y="79" text-anchor="middle">token budget</text>
+    <line class="arrow-slate" x1="235" y1="92" x2="365" y2="178" marker-end="url(#tri-slate)"/>
+  </g>
+  <g>
+    <rect class="pill" x="305" y="60" width="120" height="28" rx="14"/>
+    <text class="text" x="365" y="79" text-anchor="middle">model loaded</text>
+    <line class="arrow-slate" x1="365" y1="92" x2="395" y2="178" marker-end="url(#tri-slate)"/>
+  </g>
+  <g>
+    <rect class="pill" x="440" y="60" width="120" height="28" rx="14"/>
+    <text class="text" x="500" y="79" text-anchor="middle">cache affinity</text>
+    <line class="arrow-slate" x1="500" y1="92" x2="430" y2="178" marker-end="url(#tri-slate)"/>
+  </g>
+  <g>
+    <rect class="pill" x="575" y="60" width="130" height="28" rx="14"/>
+    <text class="text" x="640" y="79" text-anchor="middle">GPU headroom</text>
+    <line class="arrow-slate" x1="640" y1="92" x2="465" y2="178" marker-end="url(#tri-slate)"/>
+  </g>
+
+  <!-- Incoming request, left -->
+  <g>
+    <rect class="module" x="40" y="180" width="180" height="36" rx="6"/>
+    <text class="text" x="130" y="203" text-anchor="middle">Incoming request</text>
+  </g>
+  <g>
+    <rect class="pill" x="40" y="226" width="180" height="22" rx="11"/>
+    <text class="text-sm" x="50" y="241">model: llama3-70b</text>
+  </g>
+  <g>
+    <rect class="pill" x="40" y="254" width="180" height="22" rx="11"/>
+    <text class="text-sm" x="50" y="269">tokens-in: 4096</text>
+  </g>
+  <g>
+    <rect class="pill" x="40" y="282" width="180" height="22" rx="11"/>
+    <text class="text-sm" x="50" y="297">tenant: t-42</text>
+  </g>
+
+  <!-- Router center -->
+  <rect class="module" x="330" y="180" width="170" height="100" rx="10"/>
+  <text class="text" x="415" y="222" text-anchor="middle">Router</text>
+  <text class="text-sm" x="415" y="240" text-anchor="middle">token-aware</text>
+  <text class="text-sm" x="415" y="258" text-anchor="middle">decision engine</text>
+
+  <!-- Arrow from incoming -> router -->
+  <line class="arrow-slate" x1="220" y1="198" x2="328" y2="220" marker-end="url(#tri-slate)"/>
+
+  <!-- Backend candidates, right -->
+  <g>
+    <rect class="module" x="600" y="160" width="180" height="50" rx="6" style="stroke:#76b900;stroke-width:2"/>
+    <text class="text" x="610" y="180">backend-A</text>
+    <text class="text-sm" x="610" y="198">H100  ·  FP8  ·  loaded</text>
+  </g>
+  <g>
+    <rect class="module" x="600" y="225" width="180" height="50" rx="6"/>
+    <text class="text" x="610" y="245">backend-B</text>
+    <text class="text-sm" x="610" y="263">H200  ·  FP8  ·  not loaded</text>
+  </g>
+  <g>
+    <rect class="module" x="600" y="290" width="180" height="50" rx="6"/>
+    <text class="text" x="610" y="310">backend-C</text>
+    <text class="text-sm" x="610" y="328">A100  ·  FP16  ·  higher latency</text>
+  </g>
+
+  <!-- Arrows out of router -->
+  <line class="arrow-green" x1="500" y1="210" x2="598" y2="185" marker-end="url(#tri-green)"/>
+  <line class="arrow-slate" x1="500" y1="240" x2="598" y2="250" marker-end="url(#tri-slate)" stroke-dasharray="4 3"/>
+  <line class="arrow-slate" x1="500" y1="265" x2="598" y2="315" marker-end="url(#tri-slate)" stroke-dasharray="4 3"/>
+
+  <!-- Reject annotations -->
+  <text class="text-sm" x="520" y="232" style="fill:#ef4444">chosen</text>
+  <text class="text-sm" x="510" y="244">×  model not loaded</text>
+  <text class="text-sm" x="510" y="288">×  higher latency / FP16</text>
+
+  <!-- Bottom hint -->
+  <text class="text-sm" x="40" y="404">round-robin would have picked B  ·  token-aware routing picks A</text>
+  <text class="text-sm" x="40" y="422">decision is multi-factor — model presence, GPU SKU, KV-cache affinity, headroom</text>
+</svg>

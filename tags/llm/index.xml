@@ -1,4 +1,4 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Llm</title><link>https://acethecloud.com/tags/llm/</link><description>Recent content in Llm on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 08 Dec 2025 11:00:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/llm/index.xml" rel="self" type="application/rss+xml"/><item><title>Why I'm Writing an Inference Gateway in Rust</title><link>https://acethecloud.com/blog/why-i-am-writing-an-inference-gateway-in-rust/</link><pubDate>Mon, 08 Dec 2025 11:00:00 +0530</pubDate><guid>https://acethecloud.com/blog/why-i-am-writing-an-inference-gateway-in-rust/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Llm</title><link>https://acethecloud.com/tags/llm/</link><description>Recent content in Llm on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 08 Dec 2025 11:00:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/llm/index.xml" rel="self" type="application/rss+xml"/><item><title>Inference Is Not HTTP: The Case for a Purpose-Built Gateway in Rust</title><link>https://acethecloud.com/blog/inference-is-not-http/</link><pubDate>Mon, 08 Dec 2025 11:00:00 +0530</pubDate><guid>https://acethecloud.com/blog/inference-is-not-http/</guid><description>
 &lt;p&gt;Every production LLM stack I have seen has the same hidden weak point: the API layer in front of the model. Teams ship it as a Python shim, an Envoy filter, an NGINX rewrite, or some unholy combination of the three. Most days it works. On the days it doesn&amp;rsquo;t, you discover at exactly the wrong moment that &lt;em&gt;the thing you thought was a load balancer is actually the most consequential piece of infrastructure in your stack&lt;/em&gt;.&lt;/p&gt;
 &lt;p&gt;I am building an inference gateway in Rust. This post is why — the technical case, the engineering case, and the &lt;strong&gt;why now&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;If you serve LLMs at scale, you will reach the same conclusion eventually. I am writing this so you reach it before the 3 AM page rather than during.&lt;/p&gt;
@@ -43,6 +43,10 @@
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/inference-gateway/01-http-vs-inference.svg" alt="Comparison of HTTP request shape vs LLM inference request shape" loading="lazy" /&gt;
+&lt;figcaption&gt;Inference workloads break every assumption HTTP gateways make.&lt;/figcaption&gt;
+&lt;/figure&gt;
 &lt;p&gt;Treating inference traffic like HTTP traffic produces exactly what you would expect: ugly tail latencies, terrible GPU utilization, and outage modes that don&amp;rsquo;t appear in any traditional load-balancer dashboard.&lt;/p&gt;
 &lt;p&gt;The infrastructure category for this — call it the &lt;strong&gt;inference gateway&lt;/strong&gt; — does not exist as a mature product yet. Everyone is rolling their own. Most rolls are bad. We are early enough that getting this right will define the next decade of LLM-serving architecture.&lt;/p&gt;
 &lt;h2&gt;What an Inference Gateway Actually Has to Do&lt;span class="hx:absolute hx:-mt-20" id="what-an-inference-gateway-actually-has-to-do"&gt;&lt;/span&gt;
@@ -54,6 +58,10 @@
 &lt;li&gt;Backend&amp;rsquo;s current token-per-second headroom&lt;/li&gt;
 &lt;li&gt;Prefill/decode disaggregation when the backend supports it&lt;/li&gt;
 &lt;/ul&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/inference-gateway/03-token-aware-routing.svg" alt="A Router box weighs token budget, model loaded, cache affinity, and GPU headroom and chooses backend A on H100 over alternatives" loading="lazy" /&gt;
+&lt;figcaption&gt;Routing is a multi-factor decision. Round-robin is wrong.&lt;/figcaption&gt;
+&lt;/figure&gt;
 &lt;h3&gt;GPU-aware backend selection&lt;span class="hx:absolute hx:-mt-20" id="gpu-aware-backend-selection"&gt;&lt;/span&gt;
 &lt;a href="#gpu-aware-backend-selection" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;Which SKU is healthy and how much spare capacity it has&lt;/li&gt;
@@ -68,6 +76,10 @@
 &lt;li&gt;Token-level metrics emitted as the stream flows&lt;/li&gt;
 &lt;li&gt;Speculative-decoding awareness (don&amp;rsquo;t double-count drafted tokens)&lt;/li&gt;
 &lt;/ul&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/inference-gateway/04-cancellation-propagation.svg" alt="Two timelines showing 25 seconds of wasted GPU work without backpressure versus a sub-50-millisecond drain with Rust and Tokio" loading="lazy" /&gt;
+&lt;figcaption&gt;Cancellation must propagate to the GPU, not just to the gateway.&lt;/figcaption&gt;
+&lt;/figure&gt;
 &lt;h3&gt;Cache-aware routing&lt;span class="hx:absolute hx:-mt-20" id="cache-aware-routing"&gt;&lt;/span&gt;
 &lt;a href="#cache-aware-routing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;Prefix matching to land repeat prompts on warm KV caches&lt;/li&gt;
@@ -181,56 +193,10 @@
 &lt;p&gt;Go was the close second. It lost on tail latency under sustained load. For 90% of services Go&amp;rsquo;s GC is irrelevant; for the gateway in front of an inference cluster running at 80% utilization, every millisecond is real.&lt;/p&gt;
 &lt;p&gt;C++ + Envoy works. The cost is joining the Envoy maintenance treadmill, writing non-trivial logic in C++ or Lua filters, and accepting the operational complexity of Envoy in your hot path. It is a defensible choice for organizations already deep in Envoy. For greenfield, no.&lt;/p&gt;
 &lt;h2&gt;Architecture, in One Diagram&lt;span class="hx:absolute hx:-mt-20" id="architecture-in-one-diagram"&gt;&lt;/span&gt;
-&lt;a href="#architecture-in-one-diagram" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
-&lt;div&gt;&lt;pre&gt;&lt;code&gt; OpenAI-compatible client
-(chat / completions / embeddings)
-│
-│ HTTPS · SSE · WebSocket
-▼
-┌────────────────────────────────────────────────────────┐
-│ INFERENCE GATEWAY (Rust) │
-│ │
-│ ┌───────────────────────────────────────────────────┐ │
-│ │ Protocol Adapters: OpenAI · vendor-X · raw │ │
-│ └────────────────────────┬──────────────────────────┘ │
-│ ▼ │
-│ ┌───────────────────────────────────────────────────┐ │
-│ │ Tokenizer &amp;#43; token-budget estimator (FFI) │ │
-│ └────────────────────────┬──────────────────────────┘ │
-│ ▼ │
-│ ┌───────────────────────────────────────────────────┐ │
-│ │ Auth · Quota · Rate Limit · Cost Pre-check │ │
-│ └────────────────────────┬──────────────────────────┘ │
-│ ▼ │
-│ ┌───────────────────────────────────────────────────┐ │
-│ │ Router: model · GPU · region · cache-affinity │ │
-│ └────────────────────────┬──────────────────────────┘ │
-│ ▼ │
-│ ┌───────────────────────────────────────────────────┐ │
-│ │ Backend Pool (NIM · TensorRT-LLM · vLLM · SGLang) │ │
-│ │ ↳ token-throughput health │ │
-│ │ ↳ cancellation propagation │ │
-│ │ ↳ streaming with surgical backpressure │ │
-│ └────────────────────────┬──────────────────────────┘ │
-│ ▼ │
-│ ┌───────────────────────────────────────────────────┐ │
-│ │ Observability: token metrics · traces · SLOs │ │
-│ └───────────────────────────────────────────────────┘ │
-└────────────────────────────────────────────────────────┘
-│
-▼
-Heterogeneous GPU backends&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
-&lt;button
-class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
-title="Copy code"
-aria-label="Copy code"
-data-copied-label="Copied!"
-&gt;
-&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
-&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
-&lt;/button&gt;
-&lt;/div&gt;
-&lt;/div&gt;
+&lt;a href="#architecture-in-one-diagram" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/inference-gateway/02-gateway-architecture.svg" alt="Vertical block diagram of the inference gateway: client, protocol adapters, tokenizer, auth, router, backend pool, observability, and a row of heterogeneous GPU backends" loading="lazy" /&gt;
+&lt;figcaption&gt;Each module has a single responsibility. Data flows downward; streams flow back up with explicit cancellation.&lt;/figcaption&gt;
+&lt;/figure&gt;
 &lt;p&gt;Each block in that diagram is a Rust module with a single, well-defined responsibility. The data flow is one-way except for the streaming path, which is bidirectional with explicit cancellation. The state is mostly in-memory, lock-free where possible, with a small persistent layer for budgets and audit.&lt;/p&gt;
 &lt;h2&gt;Why Now&lt;span class="hx:absolute hx:-mt-20" id="why-now"&gt;&lt;/span&gt;
 &lt;a href="#why-now" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Three things converged in the last 18 months that make this the right moment to build:&lt;/p&gt;

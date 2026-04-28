@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" role="img" aria-labelledby="title01 desc01">
+  <title id="title01">HTTP vs Inference: traffic shape</title>
+  <desc id="desc01">Two stacked horizontal timelines comparing a 50-millisecond HTTP request-response with a 32-second LLM inference stream made of one large prompt followed by many small token chunks.</desc>
+  <style>
+    .bg{fill:#fff}
+    .stroke{stroke:#475569;fill:none;stroke-width:1.5}
+    .axis{stroke:#94a3b8;fill:none;stroke-width:1}
+    .text{font-family:'JetBrains Mono',ui-monospace,monospace;fill:#0f172a;font-size:13px}
+    .text-sm{font-family:'JetBrains Mono',ui-monospace,monospace;fill:#64748b;font-size:11px}
+    .text-label{font-family:'Inter',ui-sans-serif,system-ui,sans-serif;fill:#0f172a;font-size:14px;font-weight:600}
+    .accent-blue{fill:#0ea5e9}
+    .accent-green{fill:#76b900}
+    .accent-slate{fill:#cbd5e1}
+    .panel{fill:#f8fafc;stroke:#e2e8f0;stroke-width:1}
+    .danger{fill:#ef4444;opacity:0.85}
+    @media (prefers-color-scheme: dark) {
+      .bg{fill:#0f172a}
+      .stroke{stroke:#94a3b8}
+      .axis{stroke:#475569}
+      .text{fill:#e2e8f0}
+      .text-sm{fill:#94a3b8}
+      .text-label{fill:#f1f5f9}
+      .accent-slate{fill:#475569}
+      .panel{fill:#1e293b;stroke:#334155}
+    }
+  </style>
+  <rect class="bg" width="800" height="360"/>
+
+  <text class="text-label" x="40" y="34">HTTP vs Inference: traffic shape</text>
+
+  <!-- Track 1: HTTP -->
+  <text class="text" x="40" y="92">HTTP</text>
+  <text class="text-sm" x="40" y="108">request</text>
+  <rect class="panel" x="150" y="70" width="600" height="56" rx="6"/>
+
+  <!-- request blob -->
+  <rect class="accent-blue" x="160" y="85" width="10" height="20" rx="2" aria-hidden="true"/>
+  <text class="text-sm" x="158" y="120">req</text>
+  <!-- tiny gap then response blob -->
+  <rect class="accent-blue" x="184" y="85" width="10" height="20" rx="2" aria-hidden="true"/>
+  <text class="text-sm" x="180" y="120">res</text>
+
+  <text class="text-sm" x="660" y="102">~50 ms total</text>
+
+  <!-- Track 2: Inference -->
+  <text class="text" x="40" y="186">Inference</text>
+  <text class="text-sm" x="40" y="202">request</text>
+  <rect class="panel" x="150" y="160" width="600" height="76" rx="6"/>
+
+  <!-- prompt blob -->
+  <rect class="accent-blue" x="160" y="184" width="30" height="24" rx="3" aria-hidden="true"/>
+  <text class="text-sm" x="156" y="224">8K tokens · 32 KB</text>
+
+  <!-- streaming tokens -->
+  <g aria-hidden="true">
+    <rect class="accent-green" x="210" y="186" width="14" height="16" rx="2"/>
+    <rect class="accent-green" x="246" y="186" width="14" height="16" rx="2"/>
+    <rect class="accent-green" x="282" y="186" width="14" height="16" rx="2"/>
+    <rect class="accent-green" x="320" y="186" width="14" height="16" rx="2"/>
+    <rect class="accent-green" x="360" y="186" width="14" height="16" rx="2"/>
+    <rect class="accent-green" x="402" y="186" width="14" height="16" rx="2"/>
+    <rect class="accent-green" x="446" y="186" width="14" height="16" rx="2"/>
+    <rect class="accent-green" x="492" y="186" width="14" height="16" rx="2"/>
+    <rect class="accent-green" x="540" y="186" width="14" height="16" rx="2"/>
+    <rect class="accent-green" x="590" y="186" width="14" height="16" rx="2"/>
+    <rect class="accent-green" x="640" y="186" width="14" height="16" rx="2"/>
+    <rect class="accent-green" x="690" y="186" width="14" height="16" rx="2"/>
+  </g>
+  <text class="text-sm" x="210" y="220">tok</text>
+  <text class="text-sm" x="402" y="220">tok</text>
+  <text class="text-sm" x="690" y="220">tok</text>
+
+  <text class="text-sm" x="630" y="178">~32 s streaming</text>
+
+  <!-- Hint -->
+  <text class="text-sm" x="150" y="252">tokens stream over many seconds  ·  cancellation matters  ·  KV-cache reuse matters</text>
+
+  <!-- Time axis -->
+  <line class="axis" x1="150" y1="290" x2="750" y2="290"/>
+  <g aria-hidden="true">
+    <line class="axis" x1="160" y1="286" x2="160" y2="294"/>
+    <line class="axis" x1="180" y1="286" x2="180" y2="294"/>
+    <line class="axis" x1="260" y1="286" x2="260" y2="294"/>
+    <line class="axis" x1="450" y1="286" x2="450" y2="294"/>
+    <line class="axis" x1="700" y1="286" x2="700" y2="294"/>
+  </g>
+  <text class="text-sm" x="156" y="310">0</text>
+  <text class="text-sm" x="172" y="310">50ms</text>
+  <text class="text-sm" x="252" y="310">1s</text>
+  <text class="text-sm" x="442" y="310">5s</text>
+  <text class="text-sm" x="688" y="310">30s+</text>
+  <text class="text-sm" x="150" y="334">time (log-ish, not to scale)</text>
+</svg>
