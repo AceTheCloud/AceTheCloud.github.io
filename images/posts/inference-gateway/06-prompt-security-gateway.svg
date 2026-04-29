@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 470" role="img" aria-labelledby="title06 desc06">
+  <title id="title06">Prompt security enforcement in an inference gateway</title>
+  <desc id="desc06">A simple architecture diagram showing an application request entering an inference gateway. The gateway performs input screening for prompt injection, secrets, PII, and tenant policy; makes allow, redact, block, or step-up decisions; authorizes tool calls; sends safe requests to model backends; and records audit events. Red-team findings and policy updates feed back into the gateway.</desc>
+  <style>
+    .bg{fill:#fff}
+    .stroke{stroke:#475569;fill:none;stroke-width:1.5}
+    .text{font-family:'JetBrains Mono',ui-monospace,monospace;fill:#0f172a;font-size:13px}
+    .text-sm{font-family:'JetBrains Mono',ui-monospace,monospace;fill:#64748b;font-size:11px}
+    .text-xs{font-family:'JetBrains Mono',ui-monospace,monospace;fill:#64748b;font-size:10px}
+    .text-label{font-family:'Inter',ui-sans-serif,system-ui,sans-serif;fill:#0f172a;font-size:14px;font-weight:600}
+    .panel{fill:#f8fafc;stroke:#e2e8f0;stroke-width:1}
+    .module{fill:#fff;stroke:#475569;stroke-width:1.5}
+    .module-strong{fill:#fff;stroke:#76b900;stroke-width:2}
+    .module-warn{fill:#fff;stroke:#f97316;stroke-width:1.5}
+    .pill{fill:#fff;stroke:#0ea5e9;stroke-width:1.2}
+    .pill-green{fill:#ecfccb;stroke:#76b900;stroke-width:1.2}
+    .pill-red{fill:#fee2e2;stroke:#ef4444;stroke-width:1.2}
+    .arrow{stroke:#475569;fill:#475569;stroke-width:1.5}
+    .arrow-green{stroke:#76b900;fill:#76b900;stroke-width:2.4}
+    .arrow-dim{stroke:#94a3b8;fill:#94a3b8;stroke-width:1.2}
+    .badge-green{fill:#76b900;font-weight:700}
+    .badge-red{fill:#ef4444;font-weight:700}
+    .badge-orange{fill:#f97316;font-weight:700}
+    @media (prefers-color-scheme: dark) {
+      .bg{fill:#0f172a}
+      .stroke{stroke:#94a3b8}
+      .text{fill:#e2e8f0}
+      .text-sm,.text-xs{fill:#94a3b8}
+      .text-label{fill:#f1f5f9}
+      .panel{fill:#1e293b;stroke:#334155}
+      .module{fill:#1e293b;stroke:#94a3b8}
+      .module-strong{fill:#1e293b;stroke:#76b900}
+      .module-warn{fill:#1e293b;stroke:#f97316}
+      .pill{fill:#1e293b;stroke:#0ea5e9}
+      .pill-green{fill:#16301f;stroke:#76b900}
+      .pill-red{fill:#3f1d1d;stroke:#ef4444}
+      .arrow{stroke:#94a3b8;fill:#94a3b8}
+      .arrow-dim{stroke:#475569;fill:#475569}
+    }
+  </style>
+  <defs>
+    <marker id="tri06" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="arrow"/>
+    </marker>
+    <marker id="tri06-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="arrow-green"/>
+    </marker>
+    <marker id="tri06-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" class="arrow-dim"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="800" height="470"/>
+  <text class="text-label" x="40" y="34">Prompt security belongs at the gateway boundary</text>
+  <text class="text-sm" x="40" y="54">The policy decision has to happen before prompts, context, or tool calls leave the trust boundary.</text>
+
+  <g>
+    <rect class="module" x="40" y="170" width="140" height="72" rx="8"/>
+    <text class="text" x="110" y="194" text-anchor="middle">App / Agent</text>
+    <text class="text-sm" x="110" y="214" text-anchor="middle">prompt + context</text>
+    <text class="text-sm" x="110" y="232" text-anchor="middle">tool intent</text>
+  </g>
+
+  <line class="arrow" x1="180" y1="206" x2="222" y2="206" marker-end="url(#tri06)"/>
+
+  <rect class="panel" x="230" y="88" width="360" height="260" rx="12"/>
+  <text class="text-label" x="250" y="116">Inference Gateway</text>
+  <text class="text-sm" x="250" y="136">security controls run outside the model prompt</text>
+
+  <g>
+    <rect class="module-strong" x="260" y="156" width="140" height="92" rx="8"/>
+    <text class="text" x="330" y="178" text-anchor="middle">Input screen</text>
+    <text class="text-xs" x="278" y="198">prompt injection</text>
+    <text class="text-xs" x="278" y="214">secrets / PII</text>
+    <text class="text-xs" x="278" y="230">tenant policy</text>
+  </g>
+
+  <line class="arrow-green" x1="400" y1="202" x2="438" y2="202" marker-end="url(#tri06-green)"/>
+
+  <g>
+    <rect class="module-strong" x="448" y="156" width="112" height="92" rx="8"/>
+    <text class="text" x="504" y="178" text-anchor="middle">Decision</text>
+    <text class="text-xs badge-green" x="468" y="199">allow</text>
+    <text class="text-xs badge-orange" x="468" y="216">redact</text>
+    <text class="text-xs badge-red" x="468" y="233">block</text>
+  </g>
+
+  <g>
+    <rect class="module-warn" x="302" y="276" width="216" height="48" rx="8"/>
+    <text class="text" x="410" y="297" text-anchor="middle">Tool authorization</text>
+    <text class="text-xs" x="410" y="315" text-anchor="middle">files, APIs, browser, code</text>
+  </g>
+
+  <line class="arrow-green" x1="504" y1="248" x2="504" y2="270" marker-end="url(#tri06-green)"/>
+
+  <line class="arrow-green" x1="590" y1="206" x2="628" y2="206" marker-end="url(#tri06-green)"/>
+
+  <g>
+    <rect class="module" x="638" y="154" width="122" height="104" rx="8"/>
+    <text class="text" x="699" y="178" text-anchor="middle">Model</text>
+    <text class="text-sm" x="699" y="198" text-anchor="middle">NIM</text>
+    <text class="text-sm" x="699" y="216" text-anchor="middle">TensorRT-LLM</text>
+    <text class="text-sm" x="699" y="234" text-anchor="middle">vLLM / SGLang</text>
+  </g>
+
+  <g>
+    <rect class="pill-green" x="636" y="290" width="124" height="34" rx="17"/>
+    <text class="text-sm" x="698" y="311" text-anchor="middle">safe stream out</text>
+  </g>
+  <line class="arrow-green" x1="698" y1="258" x2="698" y2="284" marker-end="url(#tri06-green)"/>
+
+  <g>
+    <rect class="pill-red" x="40" y="294" width="140" height="34" rx="17"/>
+    <text class="text-sm" x="110" y="315" text-anchor="middle">blocked / redacted</text>
+  </g>
+  <line class="arrow-dim" x1="260" y1="240" x2="184" y2="301" marker-end="url(#tri06-dim)" stroke-dasharray="4 3"/>
+
+  <g>
+    <rect class="module" x="250" y="382" width="160" height="48" rx="8"/>
+    <text class="text" x="330" y="403" text-anchor="middle">Audit trail</text>
+    <text class="text-xs" x="330" y="421" text-anchor="middle">who, what, why, action</text>
+  </g>
+  <g>
+    <rect class="module" x="444" y="382" width="180" height="48" rx="8"/>
+    <text class="text" x="534" y="403" text-anchor="middle">Red-team feedback</text>
+    <text class="text-xs" x="534" y="421" text-anchor="middle">new tests become policy</text>
+  </g>
+  <line class="arrow-dim" x1="410" y1="324" x2="344" y2="376" marker-end="url(#tri06-dim)" stroke-dasharray="4 3"/>
+  <line class="arrow-dim" x1="534" y1="382" x2="534" y2="254" marker-end="url(#tri06-dim)" stroke-dasharray="4 3"/>
+
+  <text class="text-sm" x="40" y="452">The model can reason; the gateway enforces. Different jobs, fewer surprises.</text>
+</svg>

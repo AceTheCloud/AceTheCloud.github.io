@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 640" role="img" aria-labelledby="title02 desc02">
   <title id="title02">Inference Gateway architecture</title>
-  <desc id="desc02">A vertical block diagram. An OpenAI-compatible client speaks HTTPS, SSE, and WebSocket into the Inference Gateway, a Rust process whose internal stack contains protocol adapters, a tokenizer with a token-budget estimator, an auth and quota layer, a router, a backend pool, and an observability module. Below the gateway is a row of heterogeneous GPU backends: H100 and H200 are cold; B200, GB200, and GB300 are loaded and healthy.</desc>
+  <desc id="desc02">A vertical block diagram. An OpenAI-compatible client speaks HTTPS, SSE, and WebSocket into the Inference Gateway, a Rust process whose internal stack contains protocol adapters, a tokenizer with a token-budget estimator, auth and prompt-security policy enforcement, a router, a backend pool, and an observability module. Below the gateway is a row of heterogeneous GPU backends: H100 and H200 are cold; B200, GB200, and GB300 are loaded and healthy.</desc>
   <style>
     .bg{fill:#fff}
     .stroke{stroke:#475569;fill:none;stroke-width:1.5}
@@ -58,7 +58,7 @@
 
   <!-- Module 3: Auth -->
   <rect class="module" x="100" y="274" width="600" height="40" rx="6"/>
-  <text class="text" x="120" y="298">Auth  ·  Quota  ·  Rate Limit  ·  Cost Pre-check</text>
+  <text class="text" x="120" y="298">Auth  ·  Prompt Security  ·  Quota  ·  Rate Limit</text>
   <line class="arrow" x1="400" y1="316" x2="400" y2="334" marker-end="url(#tri)"/>
 
   <!-- Module 4: Router -->

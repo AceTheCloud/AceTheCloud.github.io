@@ -546,6 +546,10 @@ data-copied-label="Copied!"
 &lt;li&gt;Policy enforcement that lives outside the agent&amp;rsquo;s own prompt&lt;/li&gt;
 &lt;li&gt;Red-team findings wired back into runtime controls, not parked in a PDF&lt;/li&gt;
 &lt;/ul&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/inference-gateway/06-prompt-security-gateway.svg" alt="Prompt security enforcement inside an inference gateway, with input screening, policy decisions, tool authorization, model routing, blocked requests, audit logs, and red-team feedback" loading="lazy" /&gt;
+&lt;figcaption&gt;Prompt security is not a nicer system prompt. It is an enforcement path at the gateway boundary.&lt;/figcaption&gt;
+&lt;/figure&gt;
 &lt;p&gt;This is where the emerging prompt-security market is instructive. Vendors are clustering around different slices: Prompt Security focuses on shadow AI, GenAI authorization, and guardrails; Lasso and Lakera emphasize runtime protection; Protect AI, now part of Palo Alto Networks, has pushed model supply-chain and scanning; Dynamo AI leans into privacy and compliance guardrails; WitnessAI targets governance and visibility; Mindgard brings automated AI red teaming into CI/CD; Knostic focuses on knowledge access control for tools like Copilot, Glean, and Gemini.&lt;/p&gt;
 &lt;p&gt;The gateway does not need to replace all of that. It needs to provide the enforcement point where those decisions become real. A system prompt saying &amp;ldquo;do not leak secrets&amp;rdquo; is a suggestion. A gateway that blocks the outbound request, strips sensitive context, denies a tool call, and records the policy decision is infrastructure.&lt;/p&gt;
 &lt;h3&gt;Cost and quota&lt;span class="hx:absolute hx:-mt-20" id="cost-and-quota"&gt;&lt;/span&gt;
