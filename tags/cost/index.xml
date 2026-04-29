@@ -1,0 +1,184 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Cost</title><link>https://acethecloud.com/tags/cost/</link><description>Recent content in Cost on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 07 Nov 2025 00:00:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/cost/index.xml" rel="self" type="application/rss+xml"/><item><title>Tokenomics for Engineers: Measuring Throughput per Dollar Instead of Tokens per Second</title><link>https://acethecloud.com/blog/tokenomics-for-engineers-throughput-per-dollar/</link><pubDate>Fri, 07 Nov 2025 00:00:00 +0530</pubDate><guid>https://acethecloud.com/blog/tokenomics-for-engineers-throughput-per-dollar/</guid><description>
+&lt;p&gt;Tokens per second is a fun number. It looks good in screenshots. It makes benchmark charts feel like race cars. But if you are operating production inference, tokens per second is only the opening line.&lt;/p&gt;
+&lt;p&gt;The real question is:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;How many useful tokens can I deliver per dollar while meeting latency and quality targets?&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That sentence is less glamorous, but it buys the GPUs.&lt;/p&gt;
+&lt;p&gt;Welcome to tokenomics for engineers.&lt;/p&gt;
+&lt;h2&gt;Start with useful tokens&lt;span class="hx:absolute hx:-mt-20" id="start-with-useful-tokens"&gt;&lt;/span&gt;
+&lt;a href="#start-with-useful-tokens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Not all tokens are equal. A streamed answer token that reaches a user inside the latency SLO is useful. A token generated after the client disconnected is confetti. A token from a failed retry may be necessary, but it is not free. Draft tokens in speculative decoding may help, but you should count them differently from accepted output tokens.&lt;/p&gt;
+&lt;p&gt;The first rule: define the unit.&lt;/p&gt;
+&lt;p&gt;For production systems, I like:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;useful output tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;+ required input tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;- wasted retry tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;- canceled tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;- low-quality fallback tokens&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;You do not need a perfect formula on day one. You need a formula honest enough to stop rewarding the wrong behavior.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 940 360" role="img" aria-labelledby="tokenomics-title tokenomics-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="tokenomics-title"&gt;Token economics stack&lt;/title&gt;
+&lt;desc id="tokenomics-desc"&gt;Diagram showing useful tokens as a function of throughput, latency, quality, utilization, and cost.&lt;/desc&gt;
+&lt;rect width="940" height="360" rx="12" fill="#f8fafc"/&gt;
+&lt;text x="42" y="50" font-size="24" font-family="Inter,Arial,sans-serif" font-weight="700" fill="#0f172a"&gt;Tokenomics is a stack, not a single metric&lt;/text&gt;
+&lt;rect x="95" y="95" width="750" height="48" rx="8" fill="#dcfce7" stroke="#76B900"/&gt;
+&lt;text x="390" y="125" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="700" fill="#365314"&gt;Useful tokens&lt;/text&gt;
+&lt;rect x="150" y="165" width="140" height="58" rx="8" fill="#e0f2fe" stroke="#0ea5e9"/&gt;
+&lt;text x="185" y="200" font-size="15" font-family="Inter,Arial,sans-serif" fill="#075985"&gt;Latency&lt;/text&gt;
+&lt;rect x="320" y="165" width="140" height="58" rx="8" fill="#e0f2fe" stroke="#0ea5e9"/&gt;
+&lt;text x="352" y="200" font-size="15" font-family="Inter,Arial,sans-serif" fill="#075985"&gt;Quality&lt;/text&gt;
+&lt;rect x="490" y="165" width="140" height="58" rx="8" fill="#e0f2fe" stroke="#0ea5e9"/&gt;
+&lt;text x="520" y="200" font-size="15" font-family="Inter,Arial,sans-serif" fill="#075985"&gt;Utilization&lt;/text&gt;
+&lt;rect x="660" y="165" width="140" height="58" rx="8" fill="#e0f2fe" stroke="#0ea5e9"/&gt;
+&lt;text x="707" y="200" font-size="15" font-family="Inter,Arial,sans-serif" fill="#075985"&gt;Cost&lt;/text&gt;
+&lt;rect x="250" y="260" width="440" height="45" rx="8" fill="#0f172a"/&gt;
+&lt;text x="334" y="289" font-size="16" font-family="JetBrains Mono,monospace" fill="#f8fafc"&gt;cost per useful million tokens&lt;/text&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;If the metric ignores quality or latency, it is not tokenomics. It is a treadmill with a GPU attached.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Measure the latency envelope&lt;span class="hx:absolute hx:-mt-20" id="measure-the-latency-envelope"&gt;&lt;/span&gt;
+&lt;a href="#measure-the-latency-envelope" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;MLCommons uses tokens per second for LLM throughput because requests vary widely in input and output length. It also calls out latency metrics like TTFT and TPOT because raw throughput without interactivity is not enough.&lt;/p&gt;
+&lt;p&gt;That distinction matters. A batch system may maximize total tokens per second. A chat system must protect time to first token and time between tokens. A coding agent may tolerate slower first token if the overall task completes reliably. A voice assistant has almost no patience at all.&lt;/p&gt;
+&lt;p&gt;Your cost metric should include the SLO:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;tokens per dollar at TTFT &amp;lt;= target and TPOT &amp;lt;= target&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Otherwise you will accidentally optimize for a system that is cheap because users leave.&lt;/p&gt;
+&lt;h2&gt;Utilization is not the same as value&lt;span class="hx:absolute hx:-mt-20" id="utilization-is-not-the-same-as-value"&gt;&lt;/span&gt;
+&lt;a href="#utilization-is-not-the-same-as-value" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;GPU utilization is useful, but it is not the business metric. A GPU can be busy generating low-priority retries while interactive users wait. It can be busy recomputing prefixes that should have been cached. It can be busy serving a model variant that misses quality targets and triggers downstream rework.&lt;/p&gt;
+&lt;p&gt;The better ladder is:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Is the GPU busy?&lt;/li&gt;
+&lt;li&gt;Is it busy on the right work?&lt;/li&gt;
+&lt;li&gt;Is the work meeting latency SLOs?&lt;/li&gt;
+&lt;li&gt;Is the output accepted by the product?&lt;/li&gt;
+&lt;li&gt;Is the cost per accepted outcome improving?&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Step one is infrastructure. Step five is economics.&lt;/p&gt;
+&lt;h2&gt;Where NVIDIA&amp;rsquo;s story is strong&lt;span class="hx:absolute hx:-mt-20" id="where-nvidias-story-is-strong"&gt;&lt;/span&gt;
+&lt;a href="#where-nvidias-story-is-strong" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;NVIDIA talks about cost per token a lot, and for once I think the framing is right. The reason is that inference economics are not only a chip benchmark. They are a full-stack optimization problem.&lt;/p&gt;
+&lt;p&gt;On the hardware side, H200 increased memory capacity and bandwidth over H100, which matters for large models and cache-heavy serving. Blackwell adds new precision options such as NVFP4 and a much larger scale-up fabric in GB200/GB300 NVL72-style systems. On the software side, TensorRT-LLM, vLLM, SGLang, NIM, and Dynamo all affect the realized cost per token. MLPerf results have shown continued gains from both hardware and software improvements, and NVIDIA&amp;rsquo;s own submissions are strongest when you look at the platform rather than a single component.&lt;/p&gt;
+&lt;p&gt;The important caveat: never copy a vendor benchmark into your financial model without translating it into your workload. Sequence length, batch shape, output length, model architecture, quality target, and interactivity change everything.&lt;/p&gt;
+&lt;p&gt;This is not cynicism. This is engineering hygiene.&lt;/p&gt;
+&lt;h2&gt;The actual formula&lt;span class="hx:absolute hx:-mt-20" id="the-actual-formula"&gt;&lt;/span&gt;
+&lt;a href="#the-actual-formula" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;For a first-pass model:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;cost per useful token =
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; all-in hourly cost of serving stack
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; / useful tokens delivered per hour&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The numerator should include:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;GPU or instance cost&lt;/li&gt;
+&lt;li&gt;CPU, memory, storage, and networking&lt;/li&gt;
+&lt;li&gt;orchestration overhead&lt;/li&gt;
+&lt;li&gt;idle capacity kept for SLO headroom&lt;/li&gt;
+&lt;li&gt;engineering and operational cost if you are doing TCO&lt;/li&gt;
+&lt;li&gt;energy if you run your own data center&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The denominator should include:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;tokens delivered inside latency SLO&lt;/li&gt;
+&lt;li&gt;accepted output tokens&lt;/li&gt;
+&lt;li&gt;successful retries only once&lt;/li&gt;
+&lt;li&gt;no tokens generated after cancellation&lt;/li&gt;
+&lt;li&gt;quality filters and safety filters&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 940 380" role="img" aria-labelledby="formula-title formula-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="formula-title"&gt;Cost per useful token formula&lt;/title&gt;
+&lt;desc id="formula-desc"&gt;Diagram showing all-in cost divided by useful tokens delivered under SLO.&lt;/desc&gt;
+&lt;rect width="940" height="380" rx="12" fill="#f8fafc"/&gt;
+&lt;text x="42" y="50" font-size="24" font-family="Inter,Arial,sans-serif" font-weight="700" fill="#0f172a"&gt;A better cost equation&lt;/text&gt;
+&lt;rect x="120" y="100" width="300" height="95" rx="10" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/&gt;
+&lt;text x="183" y="137" font-size="18" font-family="Inter,Arial,sans-serif" font-weight="700" fill="#991b1b"&gt;All-in serving cost&lt;/text&gt;
+&lt;text x="153" y="166" font-size="14" font-family="Inter,Arial,sans-serif" fill="#334155"&gt;GPU + infra + idle headroom&lt;/text&gt;
+&lt;line x1="460" y1="98" x2="460" y2="275" stroke="#475569" stroke-width="4"/&gt;
+&lt;rect x="500" y="100" width="320" height="95" rx="10" fill="#dcfce7" stroke="#76B900" stroke-width="2"/&gt;
+&lt;text x="584" y="137" font-size="18" font-family="Inter,Arial,sans-serif" font-weight="700" fill="#365314"&gt;Useful tokens&lt;/text&gt;
+&lt;text x="537" y="166" font-size="14" font-family="Inter,Arial,sans-serif" fill="#334155"&gt;inside SLO + accepted quality&lt;/text&gt;
+&lt;rect x="270" y="245" width="400" height="58" rx="10" fill="#0f172a"/&gt;
+&lt;text x="330" y="280" font-size="18" font-family="JetBrains Mono,monospace" fill="#f8fafc"&gt;cost per useful token&lt;/text&gt;
+&lt;path d="M270 200 C300 220,330 235,370 245" stroke="#64748b" stroke-width="2" fill="none"/&gt;
+&lt;path d="M660 200 C630 220,600 235,570 245" stroke="#64748b" stroke-width="2" fill="none"/&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;The cheapest token is not the one generated fastest. It is the one that solves the user problem inside the SLO.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Common traps&lt;span class="hx:absolute hx:-mt-20" id="common-traps"&gt;&lt;/span&gt;
+&lt;a href="#common-traps" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Benchmarking only offline throughput.&lt;/strong&gt; Useful for capacity planning, incomplete for interactive products.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Ignoring input tokens.&lt;/strong&gt; Retrieval and agent systems often spend most of their money reading context before generating anything.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Counting canceled tokens.&lt;/strong&gt; If the client disconnects and the backend keeps generating, your accounting should shame the system a little.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Treating all models as interchangeable.&lt;/strong&gt; A cheaper model that causes retries, escalations, or wrong answers may be expensive.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Forgetting cache hit rate.&lt;/strong&gt; Prefix caching can turn a painful repeated prompt into a cheap incremental request.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Assuming utilization equals efficiency.&lt;/strong&gt; A full queue can mean efficiency. It can also mean users are waiting in a hallway.&lt;/p&gt;
+&lt;h2&gt;A dashboard I would trust&lt;span class="hx:absolute hx:-mt-20" id="a-dashboard-i-would-trust"&gt;&lt;/span&gt;
+&lt;a href="#a-dashboard-i-would-trust" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;At minimum:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;input tokens/sec and output tokens/sec&lt;/li&gt;
+&lt;li&gt;useful tokens/sec&lt;/li&gt;
+&lt;li&gt;TTFT p50/p95/p99&lt;/li&gt;
+&lt;li&gt;TPOT p50/p95/p99&lt;/li&gt;
+&lt;li&gt;cache hit rate&lt;/li&gt;
+&lt;li&gt;tokens lost to retries&lt;/li&gt;
+&lt;li&gt;tokens lost after cancellation&lt;/li&gt;
+&lt;li&gt;GPU memory pressure&lt;/li&gt;
+&lt;li&gt;per-model cost per useful million tokens&lt;/li&gt;
+&lt;li&gt;per-tenant budget burn&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Then add a weekly review: which optimization actually moved cost per useful token? Quantization, batching, routing, cache retention, model choice, hardware, or prompt shape?&lt;/p&gt;
+&lt;p&gt;That review is where engineering stops being benchmark tourism and becomes infrastructure strategy.&lt;/p&gt;
+&lt;h2&gt;Closing&lt;span class="hx:absolute hx:-mt-20" id="closing"&gt;&lt;/span&gt;
+&lt;a href="#closing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Tokens per second still matters. Please do not throw it away. Just stop worshipping it alone.&lt;/p&gt;
+&lt;p&gt;The grown-up metric is cost per useful token under latency and quality constraints. NVIDIA&amp;rsquo;s platform story is compelling because it attacks that metric from many sides: hardware, memory bandwidth, precision, kernels, deployment packaging, and distributed serving. But the metric only becomes real when you measure it on your workload.&lt;/p&gt;
+&lt;p&gt;The spreadsheet is allowed back in the meeting now. It just has to bring better columns.&lt;/p&gt;
+&lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
+&lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;MLCommons on LLM throughput and latency metrics: &lt;a href="https://mlcommons.org/2024/03/mlperf-llama2-70b/"target="_blank" rel="noopener"&gt;Llama 2 70B benchmark note&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;NVIDIA H200 and TensorRT-LLM MLPerf results: &lt;a href="https://blogs.nvidia.com/blog/tensorrt-llm-inference-mlperf/"target="_blank" rel="noopener"&gt;NVIDIA blog&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;NVIDIA Blackwell MLPerf Inference v5.0: &lt;a href="https://developer.nvidia.com/blog/nvidia-blackwell-delivers-massive-performance-leaps-in-mlperf-inference-v5-0/"target="_blank" rel="noopener"&gt;technical blog&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;NVIDIA inference economics framing: &lt;a href="https://blogs.nvidia.com/blog/ai-inference-economics/"target="_blank" rel="noopener"&gt;How the Economics of Inference Can Maximize AI Value&lt;/a&gt; and &lt;a href="https://blogs.nvidia.com/blog/lowest-token-cost-ai-factories/"target="_blank" rel="noopener"&gt;Rethinking AI TCO&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;NIM deployment and engine support: &lt;a href="https://www.nvidia.com/en-us/ai-data-science/products/nim-microservices/"target="_blank" rel="noopener"&gt;NVIDIA NIM overview&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>
