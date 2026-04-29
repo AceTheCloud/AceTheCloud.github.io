@@ -95,6 +95,17 @@ data-copied-label="Copied!"
 &lt;figcaption&gt;The GPU matters more when the layers above it know how to use what changed.&lt;/figcaption&gt;
 &lt;/figure&gt;
 &lt;p&gt;If you run Blackwell like a bigger H100, you will get some benefit. If you redesign around larger scale-up domains, lower precision, MoE communication, and distributed cache movement, you get the architectural benefit.&lt;/p&gt;
+&lt;h2&gt;Migration planning questions&lt;span class="hx:absolute hx:-mt-20" id="migration-planning-questions"&gt;&lt;/span&gt;
+&lt;a href="#migration-planning-questions" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Before moving a workload forward a generation, I would ask:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Does the model become memory-bound, compute-bound, or communication-bound at target concurrency?&lt;/li&gt;
+&lt;li&gt;Which precision formats preserve quality for this model and prompt distribution?&lt;/li&gt;
+&lt;li&gt;Does the workload benefit from larger NVLink scale-up domains, or is it mostly embarrassingly parallel?&lt;/li&gt;
+&lt;li&gt;How much of the current cost is recomputing prefixes that a better cache path could avoid?&lt;/li&gt;
+&lt;li&gt;Can the serving engine expose the metrics needed to prove the new hardware is helping?&lt;/li&gt;
+&lt;li&gt;Is the gateway ready to route by model, precision, cache locality, and SLO class?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The best migration plans are not &amp;ldquo;replace H100 with Blackwell.&amp;rdquo; They are &amp;ldquo;move this workload to a different hardware-software operating point and prove the token economics improved.&amp;rdquo;&lt;/p&gt;
 &lt;h2&gt;What actually changes in design reviews&lt;span class="hx:absolute hx:-mt-20" id="what-actually-changes-in-design-reviews"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-changes-in-design-reviews" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Ask different questions:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Before:&lt;/strong&gt; Can the model fit on one GPU?&lt;/p&gt;

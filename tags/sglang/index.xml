@@ -86,6 +86,23 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Speculative decoding is great when the draft is right often enough. Otherwise it is an intern with a stopwatch.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;h2&gt;Acceptance-rate math without drama&lt;span class="hx:absolute hx:-mt-20" id="acceptance-rate-math-without-drama"&gt;&lt;/span&gt;
+&lt;a href="#acceptance-rate-math-without-drama" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The mental model is simple:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;value = accepted drafted tokens - draft overhead - verification overhead&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;A 90% acceptance rate can still be bad if the draft path consumes scarce memory and reduces batch size. A 60% acceptance rate can still be useful if the draft is extremely cheap and decode dominates the workload. The acceptance number is not the decision by itself; it is the first number that tells you where to look.&lt;/p&gt;
+&lt;p&gt;Segment it by prompt class. Code completion, customer support, summarization, tool-using agents, and high-temperature creative writing will not behave the same. One global acceptance-rate chart is a very efficient way to hide the useful answer.&lt;/p&gt;
 &lt;h2&gt;Production rollout&lt;span class="hx:absolute hx:-mt-20" id="production-rollout"&gt;&lt;/span&gt;
 &lt;a href="#production-rollout" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Roll it out like this:&lt;/p&gt;
 &lt;ol&gt;
@@ -199,6 +216,19 @@
 &lt;li&gt;Operational maturity should be validated against your own deployment style.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;If your application is agents, structured outputs, function-like generation, or complex prompt programs, SGLang deserves a serious look.&lt;/p&gt;
+&lt;h2&gt;The versioning and portability trap&lt;span class="hx:absolute hx:-mt-20" id="the-versioning-and-portability-trap"&gt;&lt;/span&gt;
+&lt;a href="#the-versioning-and-portability-trap" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Engine comparisons go stale quickly because all three projects are moving. A fair evaluation should pin:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;engine version and commit&lt;/li&gt;
+&lt;li&gt;CUDA and driver version&lt;/li&gt;
+&lt;li&gt;model revision&lt;/li&gt;
+&lt;li&gt;quantization recipe&lt;/li&gt;
+&lt;li&gt;tensor/pipeline/data parallel settings&lt;/li&gt;
+&lt;li&gt;prefix-cache and batching configuration&lt;/li&gt;
+&lt;li&gt;serving API mode&lt;/li&gt;
+&lt;li&gt;hardware topology&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Without that, &amp;ldquo;Engine X was faster&amp;rdquo; usually means &amp;ldquo;Engine X was configured differently.&amp;rdquo; This is where NVIDIA&amp;rsquo;s packaged path through NIM can be valuable: fewer moving pieces, more repeatable deployment shape. The trade is that you should still understand what NIM is packaging, because production debugging eventually asks impolite questions.&lt;/p&gt;
 &lt;h2&gt;The production decision tree&lt;span class="hx:absolute hx:-mt-20" id="the-production-decision-tree"&gt;&lt;/span&gt;
 &lt;a href="#the-production-decision-tree" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;figure class="ace-fig"&gt;
 &lt;svg viewBox="0 0 940 420" role="img" aria-labelledby="decision-title decision-desc" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -379,6 +409,17 @@ data-copied-label="Copied!"
 &lt;/ul&gt;
 &lt;p&gt;The SGLang Model Gateway documentation recommends cache-aware routing by default and also discusses session affinity when cache efficiency matters. Kubernetes Gateway API Inference Extension talks about request scheduling that is KV-cache and request-cost aware. TensorRT-LLM&amp;rsquo;s KV event API exists precisely so upstream applications can understand cache state.&lt;/p&gt;
 &lt;p&gt;The direction is clear: load balancers are becoming cache managers.&lt;/p&gt;
+&lt;h2&gt;Implementation guardrails&lt;span class="hx:absolute hx:-mt-20" id="implementation-guardrails"&gt;&lt;/span&gt;
+&lt;a href="#implementation-guardrails" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The first version does not need to be fancy. It needs to be hard to fool:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Hash prefixes only after tokenizer and model identity are known.&lt;/li&gt;
+&lt;li&gt;Keep cache state freshness visible; stale maps should reduce confidence automatically.&lt;/li&gt;
+&lt;li&gt;Put tenant boundaries into the cache key unless sharing is explicitly allowed.&lt;/li&gt;
+&lt;li&gt;Cap the cache-affinity bonus so one hot prefix cannot overload a worker forever.&lt;/li&gt;
+&lt;li&gt;Record why a route was chosen, including cache score and queue penalty.&lt;/li&gt;
+&lt;li&gt;Fall back to load-based routing when cache confidence is low.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The last bullet matters most. KV-aware routing should improve the default path, not become a single point of creative failure.&lt;/p&gt;
 &lt;h2&gt;Failure modes&lt;span class="hx:absolute hx:-mt-20" id="failure-modes"&gt;&lt;/span&gt;
 &lt;a href="#failure-modes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;KV-aware routing can go wrong in fun ways:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Stale cache map.&lt;/strong&gt; The router thinks a backend has blocks that were evicted 200 milliseconds ago.&lt;/p&gt;

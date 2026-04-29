@@ -95,6 +95,17 @@
 &lt;/ul&gt;
 &lt;p&gt;Rust&amp;rsquo;s type system helps encode invariants. A parsed token event can be a real enum, not a dictionary with optimism. A routing decision can carry the exact budget and cancellation handle it needs. Shared state can be behind concurrency primitives that make races harder to write.&lt;/p&gt;
 &lt;p&gt;This is the boring stuff that prevents exciting outages.&lt;/p&gt;
+&lt;h2&gt;A minimal gateway contract&lt;span class="hx:absolute hx:-mt-20" id="a-minimal-gateway-contract"&gt;&lt;/span&gt;
+&lt;a href="#a-minimal-gateway-contract" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The gateway should define a small internal contract that every backend adapter must satisfy:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;start request with model, tokenizer, budget, and cancellation handle&lt;/li&gt;
+&lt;li&gt;stream typed token events, not raw strings with hope&lt;/li&gt;
+&lt;li&gt;surface backend queue and memory pressure&lt;/li&gt;
+&lt;li&gt;report accepted, drafted, rejected, and canceled tokens separately&lt;/li&gt;
+&lt;li&gt;support explicit abort where the backend allows it&lt;/li&gt;
+&lt;li&gt;return structured failure reasons that routing can learn from&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Once that contract exists, Rust&amp;rsquo;s type system becomes more than a safety story. It becomes an operations story: fewer ambiguous states, fewer stringly typed surprises, fewer &amp;ldquo;why did the fallback double-bill this tenant?&amp;rdquo; afternoons.&lt;/p&gt;
 &lt;h2&gt;Where NVIDIA fits&lt;span class="hx:absolute hx:-mt-20" id="where-nvidia-fits"&gt;&lt;/span&gt;
 &lt;a href="#where-nvidia-fits" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The Rust gateway story pairs naturally with NVIDIA&amp;rsquo;s inference stack because the gateway can sit above NIM, TensorRT-LLM, vLLM, SGLang, or Dynamo-backed services and make policy decisions without pretending every backend is identical.&lt;/p&gt;
 &lt;p&gt;For example:&lt;/p&gt;

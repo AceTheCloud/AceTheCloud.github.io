@@ -115,6 +115,17 @@ data-copied-label="Copied!"
 &lt;/ul&gt;
 &lt;p&gt;The SGLang Model Gateway documentation recommends cache-aware routing by default and also discusses session affinity when cache efficiency matters. Kubernetes Gateway API Inference Extension talks about request scheduling that is KV-cache and request-cost aware. TensorRT-LLM&amp;rsquo;s KV event API exists precisely so upstream applications can understand cache state.&lt;/p&gt;
 &lt;p&gt;The direction is clear: load balancers are becoming cache managers.&lt;/p&gt;
+&lt;h2&gt;Implementation guardrails&lt;span class="hx:absolute hx:-mt-20" id="implementation-guardrails"&gt;&lt;/span&gt;
+&lt;a href="#implementation-guardrails" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The first version does not need to be fancy. It needs to be hard to fool:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Hash prefixes only after tokenizer and model identity are known.&lt;/li&gt;
+&lt;li&gt;Keep cache state freshness visible; stale maps should reduce confidence automatically.&lt;/li&gt;
+&lt;li&gt;Put tenant boundaries into the cache key unless sharing is explicitly allowed.&lt;/li&gt;
+&lt;li&gt;Cap the cache-affinity bonus so one hot prefix cannot overload a worker forever.&lt;/li&gt;
+&lt;li&gt;Record why a route was chosen, including cache score and queue penalty.&lt;/li&gt;
+&lt;li&gt;Fall back to load-based routing when cache confidence is low.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The last bullet matters most. KV-aware routing should improve the default path, not become a single point of creative failure.&lt;/p&gt;
 &lt;h2&gt;Failure modes&lt;span class="hx:absolute hx:-mt-20" id="failure-modes"&gt;&lt;/span&gt;
 &lt;a href="#failure-modes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;KV-aware routing can go wrong in fun ways:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Stale cache map.&lt;/strong&gt; The router thinks a backend has blocks that were evicted 200 milliseconds ago.&lt;/p&gt;

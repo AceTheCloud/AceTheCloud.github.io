@@ -112,6 +112,16 @@ data-copied-label="Copied!"
 &lt;/ul&gt;
 &lt;p&gt;The autoscaler should not merely add replicas. It should adjust the prefill/decode ratio. If output lengths grow, decode needs more capacity. If input contexts grow, prefill and KV transfer become the pressure points.&lt;/p&gt;
 &lt;p&gt;This is why I like the direction of Dynamo&amp;rsquo;s SLO planner and Kubernetes-native inference gateways. They move the conversation from &amp;ldquo;pods are up&amp;rdquo; to &amp;ldquo;the service objective is being met.&amp;rdquo; That is the right level of abstraction.&lt;/p&gt;
+&lt;h2&gt;What can go wrong&lt;span class="hx:absolute hx:-mt-20" id="what-can-go-wrong"&gt;&lt;/span&gt;
+&lt;a href="#what-can-go-wrong" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Disaggregation fails when teams split the architecture before they can observe the phases. The common traps are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;KV transfer becomes the new bottleneck.&lt;/strong&gt; The diagram looks distributed; the trace looks like waiting.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Autoscaling chases the wrong pool.&lt;/strong&gt; Prefill grows while decode is the pressure point, or the reverse.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Topology is ignored.&lt;/strong&gt; A request crosses a slow boundary because the scheduler saw available GPUs, not the fabric between them.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cache ownership is unclear.&lt;/strong&gt; Nobody knows whether the prefill worker, decode worker, or router owns eviction decisions.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Fallback paths are missing.&lt;/strong&gt; When the KV transfer path is unhealthy, the service should degrade to aggregated serving or reject gracefully, not improvise.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The test I like: turn off one decode pool, double the long-context traffic, and watch whether the planner explains itself. If the dashboards only say &amp;ldquo;pods restarted,&amp;rdquo; the platform is not ready for this architecture yet.&lt;/p&gt;
 &lt;h2&gt;A pragmatic adoption path&lt;span class="hx:absolute hx:-mt-20" id="a-pragmatic-adoption-path"&gt;&lt;/span&gt;
 &lt;a href="#a-pragmatic-adoption-path" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Do not jump straight to the fanciest architecture because a diagram looked handsome.&lt;/p&gt;
 &lt;p&gt;Start here:&lt;/p&gt;
