@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
-  <title id="title">Ankur Gupta avatar</title>
-  <desc id="desc">Initials avatar for Ankur Gupta.</desc>
-  <rect width="128" height="128" rx="28" fill="#e0f2fe"/>
-  <path d="M20 88 C42 52 66 112 108 40" fill="none" stroke="#76B900" stroke-width="9" stroke-linecap="round" opacity="0.75"/>
-  <circle cx="94" cy="38" r="15" fill="#0f172a" opacity="0.10"/>
-  <text x="64" y="78" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#075985">AG</text>
-</svg>
