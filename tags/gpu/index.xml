@@ -1,10 +1,10 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Gpu</title><link>https://acethecloud.com/tags/gpu/</link><description>Recent content in Gpu on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 03 May 2026 09:30:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/gpu/index.xml" rel="self" type="application/rss+xml"/><item><title>The CPU Is Back. NVIDIA Already Built for It.</title><link>https://acethecloud.com/blog/cpu-is-back-nvidia-already-built-for-it/</link><pubDate>Sun, 03 May 2026 09:30:00 +0530</pubDate><guid>https://acethecloud.com/blog/cpu-is-back-nvidia-already-built-for-it/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Gpu</title><link>https://acethecloud.com/tags/gpu/</link><description>Recent content in Gpu on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 03 May 2026 09:30:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/gpu/index.xml" rel="self" type="application/rss+xml"/><item><title>Why Agentic AI Is Bringing CPUs Back Into the Spotlight</title><link>https://acethecloud.com/blog/why-agentic-ai-is-bringing-cpus-back-into-the-spotlight/</link><pubDate>Sun, 03 May 2026 09:30:00 +0530</pubDate><guid>https://acethecloud.com/blog/why-agentic-ai-is-bringing-cpus-back-into-the-spotlight/</guid><description>
 &lt;p&gt;A funny thing is happening in AI infrastructure conversations: the CPU has started walking back into the room with confidence.&lt;/p&gt;
 &lt;p&gt;Not in the old &amp;ldquo;the CPU runs everything&amp;rdquo; way. That era is gone for frontier AI. The GPU is still where most of the expensive tensor math happens. It is still the engine that turns parameters, attention, and activations into tokens.&lt;/p&gt;
 &lt;p&gt;But as workloads move from training to inference, and from inference to agentic systems, the shape of useful work changes. The model does not just consume a batch and produce a loss. It waits for users. It streams. It calls tools. It retrieves context. It validates. It retries. It manages memory. It enforces policy. It handles tenants. It watches budgets. It decides whether a request should go to a fast path, a cheap path, a safe path, or no path at all.&lt;/p&gt;
 &lt;p&gt;That work is not &amp;ldquo;just overhead.&amp;rdquo; In production inference, it is the difference between an AI demo and an AI service.&lt;/p&gt;
 &lt;p&gt;So yes, the CPU is back.&lt;/p&gt;
-&lt;p&gt;The twist is that this makes NVIDIA look stronger, not weaker.&lt;/p&gt;
+&lt;p&gt;The twist is that this does not make the GPU story weaker. It makes the full-system story much more important.&lt;/p&gt;
 &lt;h2&gt;The ratio sketch is directionally right&lt;span class="hx:absolute hx:-mt-20" id="the-ratio-sketch-is-directionally-right"&gt;&lt;/span&gt;
 &lt;a href="#the-ratio-sketch-is-directionally-right" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The image that kicked off this post makes a useful argument: the GPU-to-CPU ratio gets less extreme as AI moves through three eras.&lt;/p&gt;
 &lt;figure class="ace-fig"&gt;
@@ -68,19 +68,19 @@
 &lt;/table&gt;
 &lt;p&gt;This does not make GPUs less important. It makes the system around the GPU more important.&lt;/p&gt;
 &lt;p&gt;And that is where the argument starts to get interesting.&lt;/p&gt;
-&lt;h2&gt;NVIDIA did not just build bigger GPUs&lt;span class="hx:absolute hx:-mt-20" id="nvidia-did-not-just-build-bigger-gpus"&gt;&lt;/span&gt;
-&lt;a href="#nvidia-did-not-just-build-bigger-gpus" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;It is tempting to describe NVIDIA as &amp;ldquo;the GPU company&amp;rdquo; and stop there. That misses the actual architecture move.&lt;/p&gt;
-&lt;p&gt;NVIDIA has been moving from accelerator cards to complete AI factory platforms: GPU, CPU, memory, NVLink, networking, DPUs, rack-scale management, and software. Grace Blackwell and GB300 are not just faster chips. They are a statement about where the unit of design is moving.&lt;/p&gt;
+&lt;h2&gt;The platform was already moving this way&lt;span class="hx:absolute hx:-mt-20" id="the-platform-was-already-moving-this-way"&gt;&lt;/span&gt;
+&lt;a href="#the-platform-was-already-moving-this-way" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;It is tempting to describe this transition as &amp;ldquo;GPUs got less important.&amp;rdquo; That misses the actual architecture move.&lt;/p&gt;
+&lt;p&gt;The leading AI infrastructure platforms have been moving from accelerator cards to complete AI factories: GPU, CPU, memory, NVLink, networking, DPUs, rack-scale management, and software. Grace Blackwell and GB300 are not just faster chips. They are a statement about where the unit of design is moving.&lt;/p&gt;
 &lt;p&gt;The unit is becoming the rack.&lt;/p&gt;
-&lt;p&gt;NVIDIA&amp;rsquo;s GB300 NVL72 product page describes a fully liquid-cooled rack-scale platform with 72 Blackwell Ultra GPUs and 36 Grace CPUs. The same page lists 130 TB/s of NVLink bandwidth and 37 TB of fast memory across the system. Microsoft Azure&amp;rsquo;s GB300 announcement uses the same rack-level framing and says its ND GB300 v6 VMs are optimized for reasoning models, agentic AI systems, and multimodal generative AI.&lt;/p&gt;
+&lt;p&gt;The GB300 NVL72 product page describes a fully liquid-cooled rack-scale platform with 72 Blackwell Ultra GPUs and 36 Grace CPUs. The same page lists 130 TB/s of NVLink bandwidth and 37 TB of fast memory across the system. Microsoft&amp;rsquo;s Azure GB300 announcement uses the same rack-level framing and says its ND GB300 v6 VMs are optimized for reasoning models, agentic AI systems, and multimodal generative AI.&lt;/p&gt;
 &lt;p&gt;That is not a training-era 8:1 world. That is a 2-GPU-per-Grace-CPU rack, tied together by a very serious scale-up fabric.&lt;/p&gt;
 &lt;figure class="ace-fig"&gt;
 &lt;img src="https://acethecloud.com/images/posts/cpu-gpu-agentic-ai/02-grace-blackwell-gb300.svg" alt="GB300 NVL72 rack-scale architecture with 36 Grace CPUs, 72 Blackwell Ultra GPUs, NVLink, fast memory, and scale-out networking" loading="lazy" /&gt;
-&lt;figcaption&gt;GB300 is a good example of NVIDIA's platform shift: CPUs, GPUs, memory, and fabric designed as one rack-scale system.&lt;/figcaption&gt;
+&lt;figcaption&gt;GB300 is a good example of the platform shift: CPUs, GPUs, memory, and fabric designed as one rack-scale system.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p&gt;This is the part I think gets underappreciated. If the CPU becomes more important in agentic inference, NVIDIA is not caught flat-footed. Grace is already in the platform. NVLink-C2C made CPU-GPU coupling a design feature, not an afterthought. NVLink and NVSwitch made scale-up domains bigger. ConnectX, Quantum-X, Spectrum-X, BlueField, Dynamo, NIM, TensorRT-LLM, and Mission Control all point in the same direction:&lt;/p&gt;
+&lt;p&gt;This is the part I think gets underappreciated. If the CPU becomes more important in agentic inference, the best platforms are not caught flat-footed. Grace is already in the system. NVLink-C2C made CPU-GPU coupling a design feature, not an afterthought. NVLink and NVSwitch made scale-up domains bigger. ConnectX, Quantum-X, Spectrum-X, BlueField, Dynamo, NIM, TensorRT-LLM, and Mission Control all point in the same direction:&lt;/p&gt;
 &lt;p&gt;The competitive object is not a GPU. It is the whole path from request to useful token.&lt;/p&gt;
-&lt;p&gt;That is a very NVIDIA answer to the CPU comeback: &amp;ldquo;Good. We put the CPU in the AI factory too.&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;That is the right answer to the CPU comeback: &amp;ldquo;Good. Put the CPU inside the AI factory too.&amp;rdquo;&lt;/p&gt;
 &lt;h2&gt;Why GB300 matters for agentic inference&lt;span class="hx:absolute hx:-mt-20" id="why-gb300-matters-for-agentic-inference"&gt;&lt;/span&gt;
 &lt;a href="#why-gb300-matters-for-agentic-inference" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Reasoning models and agents stretch inference in two uncomfortable ways.&lt;/p&gt;
 &lt;p&gt;First, the request is longer lived. A classic chat request can already be slow, but an agent may run a multi-step workflow with intermediate model calls, retrieval, tool calls, validations, and fallbacks. The user sees one task. The platform sees a graph.&lt;/p&gt;
@@ -119,8 +119,8 @@
 &lt;p&gt;That is not a GPU problem. That is an architecture problem.&lt;/p&gt;
 &lt;h2&gt;Vera Rubin is the clearer signal&lt;span class="hx:absolute hx:-mt-20" id="vera-rubin-is-the-clearer-signal"&gt;&lt;/span&gt;
 &lt;a href="#vera-rubin-is-the-clearer-signal" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;GB300 is the near-term example. Vera Rubin is the stronger long-term clue.&lt;/p&gt;
-&lt;p&gt;The naming is easy to mix up, so let us be precise: Vera is NVIDIA&amp;rsquo;s CPU. Rubin is NVIDIA&amp;rsquo;s GPU. The Vera Rubin platform is the co-designed system around them.&lt;/p&gt;
-&lt;p&gt;NVIDIA&amp;rsquo;s Vera CPU page positions Vera as purpose-built for reinforcement learning and agentic AI, with the CPU directing data movement, managing memory, and orchestrating system control. NVIDIA&amp;rsquo;s Vera Rubin platform page describes Vera Rubin NVL72 as unifying 72 Rubin GPUs, 36 Vera CPUs, ConnectX-9 SuperNICs, and BlueField-4 DPUs, with sixth-generation NVLink and NVLink Switch.&lt;/p&gt;
+&lt;p&gt;The naming is easy to mix up, so let us be precise: Vera is the CPU. Rubin is the GPU. The Vera Rubin platform is the co-designed system around them.&lt;/p&gt;
+&lt;p&gt;The Vera CPU page positions it as purpose-built for reinforcement learning and agentic AI, with the CPU directing data movement, managing memory, and orchestrating system control. The Vera Rubin platform page describes Vera Rubin NVL72 as unifying 72 Rubin GPUs, 36 Vera CPUs, ConnectX-9 SuperNICs, and BlueField-4 DPUs, with sixth-generation NVLink and NVLink Switch.&lt;/p&gt;
 &lt;p&gt;That is the CPU comeback written directly into the roadmap.&lt;/p&gt;
 &lt;figure class="ace-fig"&gt;
 &lt;img src="https://acethecloud.com/images/posts/cpu-gpu-agentic-ai/03-vera-rubin-platform.svg" alt="Vera Rubin platform diagram showing Vera CPUs, Rubin GPUs, NVLink 6, ConnectX-9, BlueField-4, and agentic AI workflow responsibilities" loading="lazy" /&gt;
@@ -137,8 +137,8 @@
 &lt;li&gt;security boundaries around proprietary data and models&lt;/li&gt;
 &lt;li&gt;reliable scale-out networking&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;In a world like that, a CPU designed merely as a generic host is not enough. You want the CPU, GPU, memory, and fabric designed together. NVIDIA&amp;rsquo;s framing around Vera Rubin is exactly that: treat the data center, not the chip, as the unit of compute.&lt;/p&gt;
-&lt;p&gt;It is a neat strategic move. The more people say &amp;ldquo;AI needs CPUs again,&amp;rdquo; the more NVIDIA can point at Grace today and Vera next.&lt;/p&gt;
+&lt;p&gt;In a world like that, a CPU designed merely as a generic host is not enough. You want the CPU, GPU, memory, and fabric designed together. The framing around Vera Rubin is exactly that: treat the data center, not the chip, as the unit of compute.&lt;/p&gt;
+&lt;p&gt;It is a neat strategic move. The more people say &amp;ldquo;AI needs CPUs again,&amp;rdquo; the more Grace today and Vera next look like they were aimed at this moment all along.&lt;/p&gt;
 &lt;h2&gt;What changes in real architecture reviews&lt;span class="hx:absolute hx:-mt-20" id="what-changes-in-real-architecture-reviews"&gt;&lt;/span&gt;
 &lt;a href="#what-changes-in-real-architecture-reviews" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If you are designing AI platforms, this CPU-GPU shift should change the questions you ask.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Old question:&lt;/strong&gt; Which GPU gives the most peak compute?&lt;/p&gt;
@@ -211,7 +211,7 @@ data-copied-label="Copied!"
 &lt;h2&gt;My practical take&lt;span class="hx:absolute hx:-mt-20" id="my-practical-take"&gt;&lt;/span&gt;
 &lt;a href="#my-practical-take" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The CPU is becoming more important because AI is becoming more useful.&lt;/p&gt;
 &lt;p&gt;That sounds glib, but it is true. Training is mainly about producing weights. Inference is about producing service. Agentic inference is about producing outcomes. Outcomes require coordination.&lt;/p&gt;
-&lt;p&gt;This is why I like the NVIDIA system direction. Grace Blackwell, GB300, and Vera Rubin do not pretend that the GPU lives alone. They pull CPU, GPU, memory, networking, and software into the same design conversation.&lt;/p&gt;
+&lt;p&gt;This is why I like the modern CPU+GPU system direction. Grace Blackwell, GB300, and Vera Rubin do not pretend that the GPU lives alone. They pull CPU, GPU, memory, networking, and software into the same design conversation.&lt;/p&gt;
 &lt;p&gt;That is exactly where AI infrastructure is going.&lt;/p&gt;
 &lt;p&gt;The future is not &amp;ldquo;all GPU.&amp;rdquo; It is also not &amp;ldquo;the CPU strikes back.&amp;rdquo; It is a rack-scale, cluster-scale, software-defined AI factory where the CPU and GPU have clear jobs and the fabric between them is first-class.&lt;/p&gt;
 &lt;p&gt;The GPU creates the tokens.&lt;/p&gt;
@@ -220,11 +220,11 @@ data-copied-label="Copied!"
 &lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
 &lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Intel Q1 2026 prepared remarks: &lt;a href="https://download.intel.com/newsroom/2026/earnings/1Q2026-Earnings-Call.pdf"target="_blank" rel="noopener"&gt;Comments from CEO Lip-Bu Tan and CFO Dave Zinsner&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;NVIDIA GB300 NVL72 specifications: &lt;a href="https://www.nvidia.com/en-us/data-center/gb300-nvl72/"target="_blank" rel="noopener"&gt;NVIDIA GB300 NVL72 product page&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;Microsoft Azure GB300 deployment details: &lt;a href="https://azure.microsoft.com/en-us/blog/microsoft-azure-delivers-the-first-large-scale-cluster-with-nvidia-gb300-nvl72-for-openai-workloads/"target="_blank" rel="noopener"&gt;Microsoft Azure delivers the first large scale cluster with NVIDIA GB300 NVL72 for OpenAI workloads&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;NVIDIA Vera CPU positioning: &lt;a href="https://www.nvidia.com/en-us/data-center/vera-cpu/"target="_blank" rel="noopener"&gt;NVIDIA Vera CPU&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;NVIDIA Vera Rubin platform details: &lt;a href="https://www.nvidia.com/en-us/data-center/technologies/rubin/"target="_blank" rel="noopener"&gt;Infrastructure for Scalable AI Reasoning | NVIDIA Vera Rubin Platform&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;NVIDIA Vera Rubin announcement: &lt;a href="https://nvidianews.nvidia.com/news/nvidia-vera-rubin-platform"target="_blank" rel="noopener"&gt;NVIDIA Vera Rubin Opens Agentic AI Frontier&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;GB300 NVL72 specifications: &lt;a href="https://www.nvidia.com/en-us/data-center/gb300-nvl72/"target="_blank" rel="noopener"&gt;GB300 NVL72 product page&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Microsoft Azure GB300 deployment details: &lt;a href="https://azure.microsoft.com/en-us/blog/microsoft-azure-delivers-the-first-large-scale-cluster-with-nvidia-gb300-nvl72-for-openai-workloads/"target="_blank" rel="noopener"&gt;Azure GB300 NVL72 cluster announcement&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Vera CPU positioning: &lt;a href="https://www.nvidia.com/en-us/data-center/vera-cpu/"target="_blank" rel="noopener"&gt;Vera CPU product page&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Vera Rubin platform details: &lt;a href="https://www.nvidia.com/en-us/data-center/technologies/rubin/"target="_blank" rel="noopener"&gt;Infrastructure for Scalable AI Reasoning&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Vera Rubin announcement: &lt;a href="https://nvidianews.nvidia.com/news/nvidia-vera-rubin-platform"target="_blank" rel="noopener"&gt;Vera Rubin Opens Agentic AI Frontier&lt;/a&gt;.&lt;/li&gt;
 &lt;/ul&gt;</description></item><item><title>From H100 to Blackwell: What Actually Changes for Inference Architects</title><link>https://acethecloud.com/blog/h100-to-blackwell-inference-architects/</link><pubDate>Fri, 20 Mar 2026 00:00:00 +0530</pubDate><guid>https://acethecloud.com/blog/h100-to-blackwell-inference-architects/</guid><description>
 &lt;p&gt;Every GPU generation arrives with a fog machine of numbers. More FLOPS. More bandwidth. More memory. More charts that look like a rocket launch.&lt;/p&gt;
 &lt;p&gt;For inference architects, the useful question is simpler:&lt;/p&gt;

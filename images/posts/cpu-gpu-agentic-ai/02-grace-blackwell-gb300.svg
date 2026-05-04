@@ -1,6 +1,6 @@
 <svg viewBox="0 0 1280 720" role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg">
   <title id="title">GB300 NVL72 as a CPU plus GPU rack-scale AI system</title>
-  <desc id="desc">An original diagram of NVIDIA GB300 NVL72 with 36 Grace CPUs, 72 Blackwell Ultra GPUs, NVLink, fast memory, and scale-out networking.</desc>
+  <desc id="desc">An original diagram of GB300 NVL72 with 36 Grace CPUs, 72 Blackwell Ultra GPUs, NVLink, fast memory, and scale-out networking.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0b1120"/>
@@ -33,7 +33,7 @@
   <g>
     <rect x="92" y="152" width="452" height="444" rx="24" fill="#111827" stroke="#334155" stroke-width="2"/>
     <rect x="122" y="188" width="392" height="358" rx="16" fill="#020617" stroke="#1e293b"/>
-    <text x="137" y="226" font-family="JetBrains Mono, Consolas, monospace" font-size="17" fill="#76B900">NVIDIA GB300 NVL72</text>
+    <text x="137" y="226" font-family="JetBrains Mono, Consolas, monospace" font-size="17" fill="#76B900">GB300 NVL72</text>
     <text x="137" y="254" font-family="Inter, Arial, sans-serif" font-size="15" fill="#cbd5e1">A 72-GPU NVLink domain with CPU close enough to matter</text>
 
     <g opacity="0.98">
@@ -81,15 +81,15 @@
     <line x1="936" y1="246" x2="1180" y2="246" stroke="#76B900" stroke-width="3"/>
 
     <circle cx="956" cy="292" r="7" fill="#76B900"/>
-    <text x="980" y="299" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">Reasoning loops stretch request lifetime</text>
+    <text x="980" y="299" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">Reasoning loops run longer</text>
     <circle cx="956" cy="342" r="7" fill="#76B900"/>
-    <text x="980" y="349" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">CPU does routing, tools, policy, queues</text>
+    <text x="980" y="349" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">CPU routes tools and policy</text>
     <circle cx="956" cy="392" r="7" fill="#76B900"/>
-    <text x="980" y="399" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">GPU runs prefill, decode, attention</text>
+    <text x="980" y="399" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">GPU runs prefill and decode</text>
     <circle cx="956" cy="442" r="7" fill="#76B900"/>
     <text x="980" y="449" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">NVLink keeps the rack coherent</text>
     <circle cx="956" cy="492" r="7" fill="#76B900"/>
-    <text x="980" y="499" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">Network scales the AI factory outward</text>
+    <text x="980" y="499" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">Network scales outward</text>
 
     <rect x="936" y="536" width="244" height="36" rx="10" fill="#0f172a"/>
     <text x="959" y="559" font-family="JetBrains Mono, Consolas, monospace" font-size="14" fill="#bbf7d0">2 GPUs per Grace CPU</text>

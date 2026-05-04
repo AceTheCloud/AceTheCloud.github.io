@@ -19,8 +19,8 @@
       <stop offset="0.5" stop-color="#22c55e"/>
       <stop offset="1" stop-color="#06b6d4"/>
     </linearGradient>
-    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-      <path d="M1 1 L11 6 L1 11 Z" fill="#0f766e"/>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M1 1 L9 5 L1 9 Z" fill="#0f766e"/>
     </marker>
     <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.12"/>
@@ -76,8 +76,8 @@
     <text x="930" y="552" font-family="JetBrains Mono, Consolas, monospace" font-size="14" fill="#14532d">scale up, scale out, isolate, observe</text>
   </g>
 
-  <path d="M408 370 C438 330 442 330 472 370" fill="none" stroke="url(#fabric)" stroke-width="5" marker-end="url(#arrow)"/>
-  <path d="M808 370 C838 330 842 330 872 370" fill="none" stroke="url(#fabric)" stroke-width="5" marker-end="url(#arrow)"/>
+  <path d="M420 370 H458" fill="none" stroke="url(#fabric)" stroke-width="4" stroke-linecap="round" marker-end="url(#arrow)"/>
+  <path d="M820 370 H858" fill="none" stroke="url(#fabric)" stroke-width="4" stroke-linecap="round" marker-end="url(#arrow)"/>
 
   <g>
     <rect x="116" y="626" width="1048" height="48" rx="14" fill="#0f172a"/>
