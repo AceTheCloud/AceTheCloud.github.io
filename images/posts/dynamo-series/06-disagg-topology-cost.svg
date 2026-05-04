@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Disaggregated inference topology tradeoff</title>
+  <desc id="desc">Disaggregated serving improves phase-specific scaling when the KV transfer cost is smaller than the scheduling and utilization benefit.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#f7fee7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="72" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Disaggregation is a topology bet</text>
+  <text x="72" y="122" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">The win arrives when phase isolation beats the cost of moving KV state.</text>
+
+  <rect x="96" y="180" width="500" height="390" rx="22" fill="#ffffff" stroke="#bfdbfe" stroke-width="3"/>
+  <text x="145" y="235" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="800" fill="#0f172a">Benefit side</text>
+  <rect x="145" y="290" width="175" height="80" rx="16" fill="#dbeafe"/>
+  <text x="185" y="338" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#1e3a8a">Prefill scale</text>
+  <rect x="365" y="290" width="175" height="80" rx="16" fill="#dbeafe"/>
+  <text x="405" y="338" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#1e3a8a">Decode scale</text>
+  <rect x="145" y="410" width="395" height="70" rx="16" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="176" y="442" font-family="JetBrains Mono, monospace" font-size="17" fill="#1e3a8a">less mixed-phase</text>
+  <text x="176" y="470" font-family="JetBrains Mono, monospace" font-size="17" fill="#1e3a8a">interference</text>
+  <text x="145" y="522" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">More room to tune TTFT and TPOT separately.</text>
+
+  <rect x="684" y="180" width="500" height="390" rx="22" fill="#ffffff" stroke="#fed7aa" stroke-width="3"/>
+  <text x="733" y="235" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="800" fill="#0f172a">Cost side</text>
+  <rect x="733" y="290" width="175" height="80" rx="16" fill="#ffedd5"/>
+  <text x="772" y="338" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#9a3412">KV transfer</text>
+  <rect x="953" y="290" width="175" height="80" rx="16" fill="#ffedd5"/>
+  <text x="999" y="338" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#9a3412">Placement</text>
+  <rect x="733" y="410" width="395" height="70" rx="16" fill="#fff7ed" stroke="#fed7aa"/>
+  <text x="775" y="442" font-family="JetBrains Mono, monospace" font-size="17" fill="#9a3412">fabric, memory tiers</text>
+  <text x="775" y="470" font-family="JetBrains Mono, monospace" font-size="17" fill="#9a3412">worker distance</text>
+  <text x="733" y="510" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">Bad topology can turn a clever split</text>
+  <text x="733" y="538" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">into a slow relay race.</text>
+
+  <rect x="255" y="616" width="770" height="52" rx="14" fill="#0f172a"/>
+  <text x="308" y="650" font-family="JetBrains Mono, monospace" font-size="19" fill="#f8fafc">Deploy it when measured workload shape says the tradeoff wins.</text>
+</svg>

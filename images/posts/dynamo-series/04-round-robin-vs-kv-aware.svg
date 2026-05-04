@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Round robin versus KV-aware routing</title>
+  <desc id="desc">Round-robin routing can recompute the same prompt prefix, while KV-aware routing can reuse warm cache on the right worker.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#f0fdf4"/>
+    </linearGradient>
+    <marker id="badArrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#dc2626"/>
+    </marker>
+    <marker id="goodArrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#76B900"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="72" y="78" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Round-robin asks the wrong question</text>
+  <text x="72" y="118" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">For long prompts, the expensive question is often: who already has the prefix?</text>
+
+  <rect x="72" y="170" width="540" height="430" rx="22" fill="#ffffff" stroke="#fecaca" stroke-width="3"/>
+  <text x="122" y="225" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="800" fill="#991b1b">Round-robin</text>
+  <rect x="122" y="280" width="150" height="70" rx="14" fill="#fee2e2"/>
+  <text x="158" y="323" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#991b1b">Turn 1</text>
+  <rect x="382" y="260" width="160" height="80" rx="14" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="421" y="307" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="800" fill="#334155">Worker A</text>
+  <path d="M275 315 H370" stroke="#dc2626" stroke-width="4" marker-end="url(#badArrow)"/>
+  <text x="386" y="375" font-family="JetBrains Mono, monospace" font-size="17" fill="#475569">cache warms here</text>
+
+  <rect x="122" y="430" width="150" height="70" rx="14" fill="#fee2e2"/>
+  <text x="158" y="473" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#991b1b">Turn 2</text>
+  <rect x="382" y="420" width="160" height="80" rx="14" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="421" y="467" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="800" fill="#334155">Worker B</text>
+  <path d="M275 465 H370" stroke="#dc2626" stroke-width="4" marker-end="url(#badArrow)"/>
+  <text x="350" y="542" font-family="JetBrains Mono, monospace" font-size="18" fill="#991b1b">prefill paid again</text>
+
+  <rect x="668" y="170" width="540" height="430" rx="22" fill="#ffffff" stroke="#bbf7d0" stroke-width="3"/>
+  <text x="718" y="225" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="800" fill="#166534">KV-aware</text>
+  <rect x="718" y="280" width="150" height="70" rx="14" fill="#dcfce7"/>
+  <text x="754" y="323" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#166534">Turn 1</text>
+  <rect x="988" y="260" width="160" height="80" rx="14" fill="#f0fdf4" stroke="#76B900" stroke-width="3"/>
+  <text x="1027" y="307" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="800" fill="#166534">Worker A</text>
+  <path d="M872 315 H976" stroke="#76B900" stroke-width="4" marker-end="url(#goodArrow)"/>
+
+  <rect x="718" y="430" width="150" height="70" rx="14" fill="#dcfce7"/>
+  <text x="754" y="473" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#166534">Turn 2</text>
+  <path d="M872 465 C930 465 955 430 997 345" stroke="#76B900" stroke-width="4" fill="none" marker-end="url(#goodArrow)"/>
+  <text x="945" y="542" font-family="JetBrains Mono, monospace" font-size="18" fill="#166534">reuse blocks, lower TTFT</text>
+
+  <rect x="300" y="638" width="680" height="48" rx="12" fill="#0f172a"/>
+  <text x="365" y="669" font-family="Inter, Arial, sans-serif" font-size="20" fill="#f8fafc">Same users, same model, different routing economics.</text>
+</svg>

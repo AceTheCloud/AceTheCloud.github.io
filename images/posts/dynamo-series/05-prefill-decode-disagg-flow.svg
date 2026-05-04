@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Disaggregated prefill and decode flow</title>
+  <desc id="desc">A request can use a prefill pool for prompt processing, transfer KV state, then use a decode pool for token generation.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eef2ff"/>
+    </linearGradient>
+    <linearGradient id="gpu" x1="0" x2="1">
+      <stop offset="0" stop-color="#274690"/>
+      <stop offset="1" stop-color="#4fb8e9"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="72" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Prefill and decode want different machines</text>
+  <text x="72" y="122" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">Disaggregation separates the bursty prompt phase from the steady token phase.</text>
+
+  <rect x="90" y="215" width="230" height="120" rx="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="142" y="266" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#0f172a">Request</text>
+  <text x="126" y="302" font-family="JetBrains Mono, monospace" font-size="17" fill="#475569">long input prompt</text>
+
+  <path d="M322 275 H415" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="430" y="185" width="270" height="180" rx="22" fill="#ffffff" stroke="#bfdbfe" stroke-width="3"/>
+  <text x="500" y="238" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="800" fill="#0f172a">Prefill pool</text>
+  <rect x="480" y="278" width="80" height="56" rx="12" fill="url(#gpu)"/>
+  <rect x="575" y="278" width="80" height="56" rx="12" fill="url(#gpu)" opacity=".78"/>
+  <text x="492" y="408" font-family="JetBrains Mono, monospace" font-size="18" fill="#1e3a8a">parallel prompt work</text>
+  <text x="520" y="436" font-family="Inter, Arial, sans-serif" font-size="17" fill="#475569">TTFT-sensitive</text>
+
+  <path d="M702 275 H825" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <rect x="730" y="220" width="74" height="110" rx="14" fill="#0f172a"/>
+  <text x="746" y="262" font-family="JetBrains Mono, monospace" font-size="18" fill="#bbf7d0">KV</text>
+  <text x="738" y="292" font-family="JetBrains Mono, monospace" font-size="16" fill="#e0f2fe">move</text>
+  <text x="704" y="365" font-family="Inter, Arial, sans-serif" font-size="15" fill="#475569">NIXL path</text>
+
+  <rect x="840" y="185" width="270" height="180" rx="22" fill="#ffffff" stroke="#bbf7d0" stroke-width="3"/>
+  <text x="920" y="238" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="800" fill="#0f172a">Decode pool</text>
+  <rect x="890" y="278" width="80" height="56" rx="12" fill="url(#gpu)"/>
+  <rect x="985" y="278" width="80" height="56" rx="12" fill="url(#gpu)" opacity=".78"/>
+  <text x="895" y="408" font-family="JetBrains Mono, monospace" font-size="18" fill="#166534">steady token loop</text>
+  <text x="926" y="436" font-family="Inter, Arial, sans-serif" font-size="17" fill="#475569">TPOT-sensitive</text>
+
+  <path d="M975 367 V480 H250 V342" stroke="#64748b" stroke-width="3" stroke-dasharray="8 8" fill="none"/>
+  <text x="425" y="526" font-family="JetBrains Mono, monospace" font-size="20" fill="#475569">tokens stream back while cache events update future routing</text>
+
+  <rect x="235" y="600" width="810" height="50" rx="12" fill="#0f172a"/>
+  <text x="297" y="632" font-family="Inter, Arial, sans-serif" font-size="20" fill="#f8fafc">The hard part is not the split. It is moving state cheaply enough.</text>
+</svg>

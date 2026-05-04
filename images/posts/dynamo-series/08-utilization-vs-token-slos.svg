@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Utilization metrics versus token SLOs</title>
+  <desc id="desc">Classic CPU or GPU utilization can hide poor time to first token and time per output token, so inference autoscaling needs token metrics.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#fefce8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="72" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Utilization can lie politely</text>
+  <text x="72" y="122" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">A cluster can look busy and still make users wait for the wrong phase.</text>
+
+  <rect x="92" y="180" width="505" height="390" rx="22" fill="#ffffff" stroke="#fecaca" stroke-width="3"/>
+  <text x="142" y="235" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="800" fill="#991b1b">Generic autoscaling</text>
+  <text x="142" y="276" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">"Utilization is 72 percent. Looks fine."</text>
+  <rect x="152" y="335" width="350" height="36" rx="18" fill="#fee2e2"/>
+  <rect x="152" y="335" width="252" height="36" rx="18" fill="#ef4444"/>
+  <text x="152" y="412" font-family="JetBrains Mono, monospace" font-size="18" fill="#7f1d1d">TTFT spike: hidden</text>
+  <text x="152" y="448" font-family="JetBrains Mono, monospace" font-size="18" fill="#7f1d1d">decode queue: hidden</text>
+  <text x="152" y="484" font-family="JetBrains Mono, monospace" font-size="18" fill="#7f1d1d">KV pressure: hidden</text>
+
+  <rect x="683" y="180" width="505" height="390" rx="22" fill="#ffffff" stroke="#bbf7d0" stroke-width="3"/>
+  <text x="733" y="235" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="800" fill="#166534">Inference-aware scaling</text>
+  <text x="733" y="276" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">"Which token phase is hurting?"</text>
+  <rect x="743" y="325" width="150" height="75" rx="16" fill="#dcfce7"/>
+  <text x="787" y="370" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800" fill="#166534">TTFT</text>
+  <rect x="925" y="325" width="150" height="75" rx="16" fill="#dcfce7"/>
+  <text x="961" y="370" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800" fill="#166534">TPOT</text>
+  <rect x="743" y="430" width="332" height="74" rx="16" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="780" y="475" font-family="JetBrains Mono, monospace" font-size="17" fill="#166534">scale constrained phase</text>
+
+  <rect x="282" y="625" width="716" height="50" rx="12" fill="#0f172a"/>
+  <text x="341" y="657" font-family="Inter, Arial, sans-serif" font-size="20" fill="#f8fafc">For LLMs, the user experiences tokens, not utilization charts.</text>
+</svg>

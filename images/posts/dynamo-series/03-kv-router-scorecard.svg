@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">KV-aware router scorecard</title>
+  <desc id="desc">A router scores workers by cache overlap, prefill work, decode load, memory pressure, and SLA risk.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eff6ff"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="72" y="78" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">KV-aware routing is a scorecard</text>
+  <text x="72" y="118" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">A warm prefix helps only when the worker can still protect latency.</text>
+
+  <rect x="72" y="175" width="315" height="390" rx="20" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="120" y="230" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="800" fill="#0f172a">Incoming prompt</text>
+  <text x="120" y="270" font-family="JetBrains Mono, monospace" font-size="18" fill="#475569">system + tools</text>
+  <text x="120" y="304" font-family="JetBrains Mono, monospace" font-size="18" fill="#475569">conversation</text>
+  <text x="120" y="338" font-family="JetBrains Mono, monospace" font-size="18" fill="#475569">new user turn</text>
+  <rect x="118" y="390" width="215" height="64" rx="14" fill="#0f172a"/>
+  <text x="146" y="429" font-family="JetBrains Mono, monospace" font-size="20" fill="#bbf7d0">prefix hash</text>
+  <text x="120" y="492" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">The route depends on</text>
+  <text x="120" y="520" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">work already paid for.</text>
+
+  <path d="M390 370 H500" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="520" y="170" width="690" height="420" rx="22" fill="#ffffff" stroke="#bfdbfe" stroke-width="2"/>
+  <text x="570" y="224" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="800" fill="#0f172a">Worker comparison</text>
+  <text x="570" y="260" font-family="Inter, Arial, sans-serif" font-size="18" fill="#64748b">Dynamo KV routing considers cache overlap and load, not turn order.</text>
+
+  <rect x="570" y="315" width="180" height="195" rx="18" fill="#fef2f2" stroke="#fecaca" stroke-width="2"/>
+  <text x="615" y="356" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" fill="#991b1b">Worker A</text>
+  <text x="606" y="394" font-family="JetBrains Mono, monospace" font-size="17" fill="#7f1d1d">cold prefix</text>
+  <text x="607" y="428" font-family="JetBrains Mono, monospace" font-size="17" fill="#7f1d1d">low queue</text>
+  <rect x="608" y="458" width="104" height="18" rx="9" fill="#fecaca"/>
+  <rect x="608" y="458" width="35" height="18" rx="9" fill="#ef4444"/>
+
+  <rect x="800" y="315" width="180" height="195" rx="18" fill="#f0fdf4" stroke="#86efac" stroke-width="3"/>
+  <text x="845" y="356" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" fill="#166534">Worker B</text>
+  <text x="838" y="394" font-family="JetBrains Mono, monospace" font-size="17" fill="#166534">warm prefix</text>
+  <text x="836" y="428" font-family="JetBrains Mono, monospace" font-size="17" fill="#166534">safe queue</text>
+  <rect x="838" y="458" width="104" height="18" rx="9" fill="#dcfce7"/>
+  <rect x="838" y="458" width="65" height="18" rx="9" fill="#76B900"/>
+
+  <rect x="1030" y="315" width="140" height="195" rx="18" fill="#fff7ed" stroke="#fed7aa" stroke-width="2"/>
+  <text x="1063" y="356" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" fill="#9a3412">C</text>
+  <text x="1050" y="394" font-family="JetBrains Mono, monospace" font-size="17" fill="#9a3412">warm</text>
+  <text x="1050" y="428" font-family="JetBrains Mono, monospace" font-size="17" fill="#9a3412">busy</text>
+  <rect x="1050" y="458" width="94" height="18" rx="9" fill="#fed7aa"/>
+  <rect x="1050" y="458" width="84" height="18" rx="9" fill="#f97316"/>
+
+  <rect x="570" y="540" width="610" height="50" rx="12" fill="#0f172a"/>
+  <text x="612" y="572" font-family="JetBrains Mono, monospace" font-size="19" fill="#f8fafc">score = reuse value - queue - memory - SLO risk</text>
+</svg>

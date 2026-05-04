@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Agentic KV cache lifecycle</title>
+  <desc id="desc">Different agent context types have different cache value, from durable system prompts to ephemeral scratch work.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#f0fdf4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="72" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Not every KV block deserves the same fate</text>
+  <text x="72" y="122" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">Agentic inference needs cache policy, not only cache capacity.</text>
+
+  <rect x="92" y="195" width="310" height="360" rx="22" fill="#ffffff" stroke="#bbf7d0" stroke-width="3"/>
+  <text x="145" y="250" font-family="Inter, Arial, sans-serif" font-size="29" font-weight="800" fill="#166534">Keep warm</text>
+  <rect x="145" y="310" width="205" height="58" rx="14" fill="#dcfce7"/>
+  <text x="181" y="346" font-family="JetBrains Mono, monospace" font-size="18" fill="#166534">system prompt</text>
+  <rect x="145" y="392" width="205" height="58" rx="14" fill="#dcfce7"/>
+  <text x="183" y="428" font-family="JetBrains Mono, monospace" font-size="18" fill="#166534">tool schemas</text>
+  <text x="145" y="492" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">High reuse, many turns,</text>
+  <text x="145" y="520" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">worth protecting.</text>
+
+  <rect x="485" y="195" width="310" height="360" rx="22" fill="#ffffff" stroke="#bfdbfe" stroke-width="3"/>
+  <text x="545" y="250" font-family="Inter, Arial, sans-serif" font-size="29" font-weight="800" fill="#1e3a8a">Keep nearby</text>
+  <rect x="538" y="310" width="205" height="58" rx="14" fill="#dbeafe"/>
+  <text x="576" y="346" font-family="JetBrains Mono, monospace" font-size="18" fill="#1e3a8a">retrieval set</text>
+  <rect x="538" y="392" width="205" height="58" rx="14" fill="#dbeafe"/>
+  <text x="578" y="428" font-family="JetBrains Mono, monospace" font-size="18" fill="#1e3a8a">active task</text>
+  <text x="538" y="492" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">Useful soon, but only</text>
+  <text x="538" y="520" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">for this workflow.</text>
+
+  <rect x="878" y="195" width="310" height="360" rx="22" fill="#ffffff" stroke="#fed7aa" stroke-width="3"/>
+  <text x="938" y="250" font-family="Inter, Arial, sans-serif" font-size="29" font-weight="800" fill="#9a3412">Evict first</text>
+  <rect x="931" y="310" width="205" height="58" rx="14" fill="#ffedd5"/>
+  <text x="960" y="346" font-family="JetBrains Mono, monospace" font-size="18" fill="#9a3412">scratch turns</text>
+  <rect x="931" y="392" width="205" height="58" rx="14" fill="#ffedd5"/>
+  <text x="972" y="428" font-family="JetBrains Mono, monospace" font-size="18" fill="#9a3412">failed branch</text>
+  <text x="931" y="492" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">Low reuse, low priority,</text>
+  <text x="931" y="520" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">safe to drop.</text>
+
+  <rect x="270" y="620" width="740" height="50" rx="12" fill="#0f172a"/>
+  <text x="316" y="652" font-family="JetBrains Mono, monospace" font-size="18" fill="#f8fafc">priority hints make cache eviction less blind than plain LRU</text>
+</svg>

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Dynamo control plane stack</title>
+  <desc id="desc">A Dynamo deployment separates the request path, control path, and storage/events path around inference engines.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eefbf2"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" x2="1">
+      <stop offset="0" stop-color="#274690"/>
+      <stop offset="1" stop-color="#55b8e9"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <circle cx="1120" cy="120" r="110" fill="#76B900" opacity=".10"/>
+  <circle cx="120" cy="610" r="150" fill="#38bdf8" opacity=".10"/>
+
+  <text x="72" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Dynamo sits around the engine</text>
+  <text x="72" y="122" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">The engine makes tokens. The distributed runtime keeps the fleet useful.</text>
+
+  <rect x="70" y="175" width="220" height="116" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="112" y="222" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#0f172a">Clients</text>
+  <text x="108" y="258" font-family="JetBrains Mono, monospace" font-size="16" fill="#475569">chat, tools, agents</text>
+
+  <rect x="380" y="160" width="260" height="145" rx="18" fill="#0f172a"/>
+  <text x="430" y="212" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="800" fill="#ffffff">Frontend</text>
+  <text x="414" y="250" font-family="Inter, Arial, sans-serif" font-size="18" fill="#cbd5e1">validate, stream, cancel</text>
+  <text x="428" y="278" font-family="JetBrains Mono, monospace" font-size="17" fill="#bbf7d0">OpenAI-style API</text>
+
+  <rect x="735" y="160" width="260" height="145" rx="18" fill="#ffffff" stroke="#76B900" stroke-width="3"/>
+  <text x="805" y="212" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="800" fill="#0f172a">Router</text>
+  <text x="778" y="250" font-family="Inter, Arial, sans-serif" font-size="19" fill="#475569">KV overlap + load</text>
+  <text x="783" y="278" font-family="JetBrains Mono, monospace" font-size="17" fill="#166534">pick lowest cost</text>
+
+  <rect x="400" y="435" width="195" height="112" rx="16" fill="url(#blue)"/>
+  <text x="457" y="485" font-family="Inter, Arial, sans-serif" font-size="27" font-weight="800" fill="#ffffff">vLLM</text>
+  <text x="430" y="518" font-family="JetBrains Mono, monospace" font-size="16" fill="#e0f2fe">engine backend</text>
+
+  <rect x="625" y="435" width="195" height="112" rx="16" fill="url(#blue)"/>
+  <text x="671" y="485" font-family="Inter, Arial, sans-serif" font-size="27" font-weight="800" fill="#ffffff">SGLang</text>
+  <text x="654" y="518" font-family="JetBrains Mono, monospace" font-size="16" fill="#e0f2fe">engine backend</text>
+
+  <rect x="850" y="435" width="225" height="112" rx="16" fill="url(#blue)"/>
+  <text x="872" y="485" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" fill="#ffffff">TensorRT-LLM</text>
+  <text x="892" y="518" font-family="JetBrains Mono, monospace" font-size="16" fill="#e0f2fe">engine backend</text>
+
+  <path d="M292 233 H372" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M643 233 H727" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M865 307 V388" stroke="#334155" stroke-width="4" fill="none"/>
+  <path d="M865 388 H498 V424" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M865 388 H723 V424" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M865 388 H963 V424" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+  <rect x="95" y="365" width="245" height="245" rx="18" fill="#ffffff" stroke="#dbeafe" stroke-width="2"/>
+  <text x="130" y="412" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="800" fill="#0f172a">Three planes</text>
+  <circle cx="133" cy="458" r="8" fill="#2563eb"/>
+  <text x="158" y="465" font-family="Inter, Arial, sans-serif" font-size="19" fill="#334155">Request path</text>
+  <text x="158" y="492" font-family="Inter, Arial, sans-serif" font-size="16" fill="#64748b">token streaming</text>
+  <circle cx="133" cy="528" r="8" fill="#76B900"/>
+  <text x="158" y="535" font-family="Inter, Arial, sans-serif" font-size="19" fill="#334155">Control path</text>
+  <text x="158" y="562" font-family="Inter, Arial, sans-serif" font-size="16" fill="#64748b">scale and place</text>
+  <circle cx="133" cy="595" r="8" fill="#f59e0b"/>
+  <text x="158" y="602" font-family="Inter, Arial, sans-serif" font-size="19" fill="#334155">State path</text>
+
+  <rect x="700" y="590" width="500" height="56" rx="12" fill="#0f172a"/>
+  <text x="744" y="625" font-family="JetBrains Mono, monospace" font-size="19" fill="#f8fafc">Dynamo coordinates. Engines compute.</text>
+</svg>

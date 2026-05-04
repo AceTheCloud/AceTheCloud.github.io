@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Engine and distributed runtime boundary</title>
+  <desc id="desc">The inference engine optimizes the forward pass while Dynamo handles routing, cache state, scaling, and resilience.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#f0fdf4"/>
+    </linearGradient>
+    <linearGradient id="gpu" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#1d4ed8"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="72" y="82" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Two jobs, one serving system</text>
+  <text x="72" y="122" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">Confusing engine work with fleet work is how good GPUs get bad tail latency.</text>
+
+  <rect x="82" y="185" width="510" height="405" rx="22" fill="#ffffff" stroke="#bfdbfe" stroke-width="3"/>
+  <text x="135" y="244" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#0f172a">Inference engine</text>
+  <text x="135" y="280" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">Optimizes the local token factory</text>
+  <rect x="160" y="335" width="165" height="160" rx="18" fill="url(#gpu)"/>
+  <text x="203" y="425" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="800" fill="#ffffff">GPU</text>
+  <rect x="365" y="335" width="145" height="70" rx="14" fill="#dbeafe" stroke="#93c5fd"/>
+  <text x="393" y="378" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#1e3a8a">prefill</text>
+  <rect x="365" y="430" width="145" height="70" rx="14" fill="#dbeafe" stroke="#93c5fd"/>
+  <text x="394" y="473" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#1e3a8a">decode</text>
+  <text x="135" y="536" font-family="JetBrains Mono, monospace" font-size="17" fill="#475569">kernels, batching, attention</text>
+  <text x="135" y="564" font-family="JetBrains Mono, monospace" font-size="17" fill="#475569">KV stays inside the worker</text>
+
+  <rect x="688" y="185" width="510" height="405" rx="22" fill="#ffffff" stroke="#bbf7d0" stroke-width="3"/>
+  <text x="740" y="244" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#0f172a">Dynamo runtime</text>
+  <text x="740" y="280" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">Optimizes the distributed service</text>
+
+  <rect x="750" y="330" width="170" height="74" rx="14" fill="#ecfccb" stroke="#76B900" stroke-width="2"/>
+  <text x="804" y="375" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#365314">Router</text>
+  <rect x="965" y="330" width="170" height="74" rx="14" fill="#ecfccb" stroke="#76B900" stroke-width="2"/>
+  <text x="1014" y="375" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#365314">Planner</text>
+  <rect x="750" y="430" width="170" height="74" rx="14" fill="#ecfccb" stroke="#76B900" stroke-width="2"/>
+  <text x="807" y="475" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#365314">KVBM</text>
+  <rect x="965" y="430" width="170" height="74" rx="14" fill="#ecfccb" stroke="#76B900" stroke-width="2"/>
+  <text x="1015" y="475" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#365314">NIXL</text>
+  <text x="740" y="536" font-family="JetBrains Mono, monospace" font-size="17" fill="#475569">routing, cache events, transfer</text>
+  <text x="740" y="564" font-family="JetBrains Mono, monospace" font-size="17" fill="#475569">scaling and failover</text>
+
+  <rect x="485" y="318" width="310" height="76" rx="38" fill="#0f172a"/>
+  <text x="548" y="365" font-family="JetBrains Mono, monospace" font-size="22" font-weight="700" fill="#bbf7d0">serving contract</text>
+  <rect x="337" y="630" width="606" height="50" rx="12" fill="#111827"/>
+  <text x="372" y="662" font-family="Inter, Arial, sans-serif" font-size="20" fill="#f8fafc">Best results come when both sides expose useful signals.</text>
+</svg>

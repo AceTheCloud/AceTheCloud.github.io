@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Planner SLO feedback loop</title>
+  <desc id="desc">The Planner uses runtime metrics and SLO targets to adjust prefill and decode capacity.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#ecfeff"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="72" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Autoscaling should listen to token pain</text>
+  <text x="72" y="122" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">Planner turns latency targets and live metrics into capacity decisions.</text>
+
+  <rect x="95" y="250" width="230" height="115" rx="18" fill="#ffffff" stroke="#bfdbfe" stroke-width="3"/>
+  <text x="145" y="299" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="800" fill="#0f172a">Metrics</text>
+  <text x="137" y="326" font-family="JetBrains Mono, monospace" font-size="16" fill="#475569">traffic, queues</text>
+  <text x="137" y="350" font-family="JetBrains Mono, monospace" font-size="16" fill="#475569">KV pressure</text>
+
+  <path d="M330 308 H455" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="475" y="210" width="330" height="195" rx="22" fill="#0f172a"/>
+  <text x="570" y="270" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#ffffff">Planner</text>
+  <text x="540" y="306" font-family="Inter, Arial, sans-serif" font-size="19" fill="#cbd5e1">throughput, load,</text>
+  <text x="540" y="332" font-family="Inter, Arial, sans-serif" font-size="19" fill="#cbd5e1">or SLA target</text>
+  <rect x="538" y="345" width="205" height="38" rx="19" fill="#76B900"/>
+  <text x="573" y="371" font-family="JetBrains Mono, monospace" font-size="17" font-weight="700" fill="#0f172a">TTFT + ITL/TPOT</text>
+
+  <path d="M810 308 H940" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="960" y="210" width="230" height="195" rx="22" fill="#ffffff" stroke="#bbf7d0" stroke-width="3"/>
+  <text x="1011" y="266" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#0f172a">Capacity</text>
+  <text x="1015" y="305" font-family="JetBrains Mono, monospace" font-size="17" fill="#166534">prefill replicas</text>
+  <text x="1017" y="336" font-family="JetBrains Mono, monospace" font-size="17" fill="#166534">decode replicas</text>
+  <text x="1017" y="367" font-family="JetBrains Mono, monospace" font-size="17" fill="#166534">placement knobs</text>
+
+  <path d="M1075 407 V545 H210 V370" stroke="#64748b" stroke-width="4" fill="none" marker-end="url(#arrow)" stroke-dasharray="9 8"/>
+  <text x="396" y="582" font-family="JetBrains Mono, monospace" font-size="20" fill="#475569">feedback: did users get first tokens and next tokens on time?</text>
+
+  <rect x="405" y="635" width="470" height="48" rx="12" fill="#111827"/>
+  <text x="447" y="666" font-family="Inter, Arial, sans-serif" font-size="20" fill="#f8fafc">GPU utilization is useful. It is not the SLO.</text>
+</svg>
