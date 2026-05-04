@@ -1,0 +1,92 @@
+<svg viewBox="0 0 1280 720" role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="title">Training, inference, and agentic AI shift the useful CPU role</title>
+  <desc id="desc">A three-stage infographic showing GPU-heavy training, more CPU-aware inference, and CPU plus GPU co-designed agentic systems.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eef7e7"/>
+    </linearGradient>
+    <linearGradient id="gpu" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="cpu" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#78350f"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="nvidia" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#76B900"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.14"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <circle cx="1150" cy="88" r="116" fill="#76B900" opacity="0.08"/>
+  <circle cx="120" cy="612" r="140" fill="#0ea5e9" opacity="0.07"/>
+
+  <text x="64" y="72" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="800" fill="#0f172a">The GPU:CPU ratio is not a scoreboard</text>
+  <text x="64" y="111" font-family="Inter, Arial, sans-serif" font-size="17" fill="#475569">As AI moves from training to inference to agents, more useful work moves into orchestration, memory, routing, and policy.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="62" y="158" width="354" height="420" rx="18" fill="#ffffff" stroke="#dbeafe"/>
+    <rect x="462" y="158" width="354" height="420" rx="18" fill="#ffffff" stroke="#dcfce7"/>
+    <rect x="862" y="158" width="354" height="420" rx="18" fill="#ffffff" stroke="#e2e8f0"/>
+  </g>
+
+  <path d="M416 368 C436 336 440 336 462 368" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M816 368 C836 336 840 336 862 368" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <g>
+    <text x="95" y="215" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="800" fill="#0f172a">Training era</text>
+    <text x="95" y="244" font-family="Inter, Arial, sans-serif" font-size="14" fill="#64748b">Dense math dominates the room</text>
+    <rect x="112" y="292" width="128" height="174" rx="12" fill="url(#gpu)"/>
+    <text x="143" y="386" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#eff6ff">GPU</text>
+    <rect x="270" y="303" width="52" height="48" rx="8" fill="url(#gpu)" opacity="0.92"/>
+    <rect x="330" y="326" width="52" height="48" rx="8" fill="url(#gpu)" opacity="0.85"/>
+    <rect x="275" y="407" width="52" height="48" rx="8" fill="url(#gpu)" opacity="0.92"/>
+    <rect x="332" y="430" width="52" height="48" rx="8" fill="url(#gpu)" opacity="0.85"/>
+    <rect x="286" y="367" width="58" height="50" rx="8" fill="url(#cpu)"/>
+    <text x="302" y="400" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="800" fill="#fff7ed">CPU</text>
+    <text x="111" y="526" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#0f172a">7-8 GPU : 1 CPU</text>
+    <text x="111" y="554" font-family="Inter, Arial, sans-serif" font-size="15" fill="#475569">HBM capacity, FLOPS, and</text>
+    <text x="111" y="576" font-family="Inter, Arial, sans-serif" font-size="15" fill="#475569">collective throughput lead</text>
+  </g>
+
+  <g>
+    <text x="495" y="215" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="800" fill="#0f172a">Inference era</text>
+    <text x="495" y="244" font-family="Inter, Arial, sans-serif" font-size="14" fill="#64748b">Serving adds decode and cache logic</text>
+    <rect x="517" y="292" width="116" height="174" rx="12" fill="url(#gpu)"/>
+    <text x="541" y="386" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#eff6ff">GPU</text>
+    <rect x="667" y="305" width="62" height="58" rx="9" fill="url(#gpu)" opacity="0.92"/>
+    <rect x="741" y="305" width="62" height="58" rx="9" fill="url(#gpu)" opacity="0.82"/>
+    <rect x="704" y="430" width="62" height="58" rx="9" fill="url(#gpu)" opacity="0.88"/>
+    <rect x="678" y="375" width="94" height="70" rx="10" fill="url(#cpu)"/>
+    <text x="703" y="419" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#fff7ed">CPU</text>
+    <text x="510" y="526" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#0f172a">3-4 GPU : 1 CPU</text>
+    <text x="510" y="554" font-family="Inter, Arial, sans-serif" font-size="15" fill="#475569">Batching, KV cache, token</text>
+    <text x="510" y="576" font-family="Inter, Arial, sans-serif" font-size="15" fill="#475569">routing, and SLO scheduling</text>
+  </g>
+
+  <g>
+    <text x="895" y="215" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="800" fill="#0f172a">Agentic era</text>
+    <text x="895" y="244" font-family="Inter, Arial, sans-serif" font-size="14" fill="#64748b">The control plane gets serious</text>
+    <rect x="908" y="326" width="124" height="124" rx="13" fill="url(#gpu)"/>
+    <text x="937" y="396" font-family="Inter, Arial, sans-serif" font-size="29" font-weight="800" fill="#eff6ff">GPU</text>
+    <rect x="1060" y="326" width="124" height="124" rx="13" fill="url(#cpu)"/>
+    <text x="1091" y="396" font-family="Inter, Arial, sans-serif" font-size="29" font-weight="800" fill="#fff7ed">CPU</text>
+    <path d="M970 304 C1018 271 1075 273 1124 304" fill="none" stroke="#76B900" stroke-width="4" marker-end="url(#arrow)"/>
+    <text x="905" y="526" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#0f172a">~1 GPU : 1 CPU</text>
+    <text x="905" y="554" font-family="Inter, Arial, sans-serif" font-size="15" fill="#475569">Tools, retrieval, memory, auth,</text>
+    <text x="905" y="576" font-family="Inter, Arial, sans-serif" font-size="15" fill="#475569">verification, retries, observability</text>
+  </g>
+
+  <rect x="64" y="624" width="1152" height="52" rx="14" fill="#0f172a"/>
+  <rect x="82" y="641" width="14" height="14" rx="7" fill="url(#nvidia)"/>
+  <text x="108" y="657" font-family="JetBrains Mono, Consolas, monospace" font-size="15" fill="#e2e8f0">Directionally useful, workload-dependent: the CPU feeds, schedules, secures, and observes. The GPU still creates most tokens.</text>
+</svg>

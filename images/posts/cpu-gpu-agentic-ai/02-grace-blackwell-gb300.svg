@@ -1,0 +1,100 @@
+<svg viewBox="0 0 1280 720" role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="title">GB300 NVL72 as a CPU plus GPU rack-scale AI system</title>
+  <desc id="desc">An original diagram of NVIDIA GB300 NVL72 with 36 Grace CPUs, 72 Blackwell Ultra GPUs, NVLink, fast memory, and scale-out networking.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1120"/>
+      <stop offset="1" stop-color="#102a1a"/>
+    </linearGradient>
+    <linearGradient id="gpu" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#93c5fd"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="cpu" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="1" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="fabric" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#76B900"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#76B900" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <path d="M90 620 C280 420 366 662 530 452 C708 224 770 570 964 322 C1078 176 1148 220 1230 116" fill="none" stroke="#76B900" stroke-opacity="0.16" stroke-width="4"/>
+  <path d="M60 110 C300 250 400 40 620 168 C808 278 1000 118 1210 238" fill="none" stroke="#38bdf8" stroke-opacity="0.14" stroke-width="4"/>
+
+  <text x="64" y="72" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#f8fafc">GB300 makes the CPU comeback look boringly practical</text>
+  <text x="64" y="111" font-family="Inter, Arial, sans-serif" font-size="17" fill="#cbd5e1">The interesting unit is not a card. It is a rack-scale CPU + GPU + fabric system for reasoning and agentic inference.</text>
+
+  <g>
+    <rect x="92" y="152" width="452" height="444" rx="24" fill="#111827" stroke="#334155" stroke-width="2"/>
+    <rect x="122" y="188" width="392" height="358" rx="16" fill="#020617" stroke="#1e293b"/>
+    <text x="137" y="226" font-family="JetBrains Mono, Consolas, monospace" font-size="17" fill="#76B900">NVIDIA GB300 NVL72</text>
+    <text x="137" y="254" font-family="Inter, Arial, sans-serif" font-size="15" fill="#cbd5e1">A 72-GPU NVLink domain with CPU close enough to matter</text>
+
+    <g opacity="0.98">
+      <rect x="150" y="298" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="218" y="298" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="286" y="298" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="354" y="298" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="422" y="298" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="150" y="366" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="218" y="366" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="286" y="366" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="354" y="366" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="422" y="366" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="150" y="434" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="218" y="434" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="286" y="434" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="354" y="434" width="58" height="48" rx="8" fill="url(#gpu)"/>
+      <rect x="422" y="434" width="58" height="48" rx="8" fill="url(#gpu)"/>
+    </g>
+
+    <rect x="152" y="278" width="328" height="10" rx="5" fill="url(#fabric)" filter="url(#glow)"/>
+    <rect x="152" y="497" width="328" height="10" rx="5" fill="url(#fabric)" filter="url(#glow)"/>
+    <text x="186" y="525" font-family="JetBrains Mono, Consolas, monospace" font-size="14" fill="#bae6fd">72 Blackwell Ultra GPUs</text>
+  </g>
+
+  <g>
+    <rect x="608" y="174" width="240" height="142" rx="18" fill="#111827" stroke="#334155"/>
+    <rect x="636" y="213" width="72" height="62" rx="10" fill="url(#cpu)"/>
+    <rect x="724" y="213" width="72" height="62" rx="10" fill="url(#cpu)"/>
+    <text x="626" y="296" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="800" fill="#f8fafc">36 Grace CPUs</text>
+    <text x="626" y="270" font-family="Inter, Arial, sans-serif" font-size="13" fill="#fff7ed">host, schedule, feed</text>
+
+    <rect x="608" y="352" width="240" height="106" rx="18" fill="#111827" stroke="#334155"/>
+    <text x="634" y="394" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#f8fafc">130 TB/s</text>
+    <text x="634" y="423" font-family="Inter, Arial, sans-serif" font-size="15" fill="#cbd5e1">NVLink bandwidth inside rack</text>
+
+    <rect x="608" y="494" width="240" height="106" rx="18" fill="#111827" stroke="#334155"/>
+    <text x="634" y="536" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#f8fafc">37 TB</text>
+    <text x="634" y="565" font-family="Inter, Arial, sans-serif" font-size="15" fill="#cbd5e1">fast memory across the system</text>
+  </g>
+
+  <g>
+    <rect x="906" y="174" width="304" height="426" rx="22" fill="#f8fafc" stroke="#d9f99d"/>
+    <text x="936" y="222" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#0f172a">Why this fits agents</text>
+    <line x1="936" y1="246" x2="1180" y2="246" stroke="#76B900" stroke-width="3"/>
+
+    <circle cx="956" cy="292" r="7" fill="#76B900"/>
+    <text x="980" y="299" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">Reasoning loops stretch request lifetime</text>
+    <circle cx="956" cy="342" r="7" fill="#76B900"/>
+    <text x="980" y="349" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">CPU does routing, tools, policy, queues</text>
+    <circle cx="956" cy="392" r="7" fill="#76B900"/>
+    <text x="980" y="399" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">GPU runs prefill, decode, attention</text>
+    <circle cx="956" cy="442" r="7" fill="#76B900"/>
+    <text x="980" y="449" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">NVLink keeps the rack coherent</text>
+    <circle cx="956" cy="492" r="7" fill="#76B900"/>
+    <text x="980" y="499" font-family="Inter, Arial, sans-serif" font-size="16" fill="#0f172a">Network scales the AI factory outward</text>
+
+    <rect x="936" y="536" width="244" height="36" rx="10" fill="#0f172a"/>
+    <text x="959" y="559" font-family="JetBrains Mono, Consolas, monospace" font-size="14" fill="#bbf7d0">2 GPUs per Grace CPU</text>
+  </g>
+
+  <path d="M544 374 C574 374 582 374 608 374" fill="none" stroke="url(#fabric)" stroke-width="5"/>
+  <path d="M848 405 C874 405 882 405 906 405" fill="none" stroke="url(#fabric)" stroke-width="5"/>
+</svg>

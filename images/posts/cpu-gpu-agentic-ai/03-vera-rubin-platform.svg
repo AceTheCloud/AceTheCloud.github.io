@@ -1,0 +1,86 @@
+<svg viewBox="0 0 1280 720" role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="title">Vera Rubin as a CPU GPU co-designed agentic AI platform</title>
+  <desc id="desc">A diagram showing Vera CPUs, Rubin GPUs, NVLink 6, networking, DPUs, and agentic workflow stages working together.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#ecfeff"/>
+    </linearGradient>
+    <linearGradient id="vera" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fef3c7"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="rubin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dbeafe"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="fabric" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#76B900"/>
+      <stop offset="0.5" stop-color="#22c55e"/>
+      <stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#0f766e"/>
+    </marker>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <circle cx="1040" cy="120" r="120" fill="#76B900" opacity="0.08"/>
+  <circle cx="250" cy="610" r="150" fill="#38bdf8" opacity="0.08"/>
+
+  <text x="64" y="72" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" fill="#0f172a">Vera Rubin: the CPU and GPU finally share the job description</text>
+  <text x="64" y="112" font-family="Inter, Arial, sans-serif" font-size="17" fill="#475569">Vera handles data movement and control. Rubin handles model math. NVLink, networking, and DPUs make it one AI factory platform.</text>
+
+  <g filter="url(#soft)">
+    <rect x="72" y="166" width="336" height="410" rx="24" fill="#ffffff" stroke="#fed7aa"/>
+    <rect x="472" y="166" width="336" height="410" rx="24" fill="#ffffff" stroke="#bfdbfe"/>
+    <rect x="872" y="166" width="336" height="410" rx="24" fill="#ffffff" stroke="#bbf7d0"/>
+  </g>
+
+  <g>
+    <text x="108" y="222" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#0f172a">Vera CPU</text>
+    <text x="108" y="253" font-family="Inter, Arial, sans-serif" font-size="15" fill="#64748b">The control side of the AI factory</text>
+    <rect x="112" y="302" width="112" height="92" rx="14" fill="url(#vera)"/>
+    <rect x="252" y="302" width="112" height="92" rx="14" fill="url(#vera)" opacity="0.92"/>
+    <rect x="112" y="424" width="112" height="92" rx="14" fill="url(#vera)" opacity="0.88"/>
+    <rect x="252" y="424" width="112" height="92" rx="14" fill="url(#vera)" opacity="0.8"/>
+    <text x="143" y="355" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#fff7ed">CPU</text>
+    <text x="283" y="355" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#fff7ed">CPU</text>
+    <text x="122" y="552" font-family="JetBrains Mono, Consolas, monospace" font-size="14" fill="#7c2d12">orchestrate, feed, verify, manage memory</text>
+  </g>
+
+  <g>
+    <text x="508" y="222" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#0f172a">Rubin GPU</text>
+    <text x="508" y="253" font-family="Inter, Arial, sans-serif" font-size="15" fill="#64748b">The token factory for model compute</text>
+    <rect x="514" y="302" width="112" height="92" rx="14" fill="url(#rubin)"/>
+    <rect x="654" y="302" width="112" height="92" rx="14" fill="url(#rubin)" opacity="0.92"/>
+    <rect x="514" y="424" width="112" height="92" rx="14" fill="url(#rubin)" opacity="0.88"/>
+    <rect x="654" y="424" width="112" height="92" rx="14" fill="url(#rubin)" opacity="0.8"/>
+    <text x="545" y="355" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#eff6ff">GPU</text>
+    <text x="685" y="355" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#eff6ff">GPU</text>
+    <text x="524" y="552" font-family="JetBrains Mono, Consolas, monospace" font-size="14" fill="#1e3a8a">prefill, decode, attention, reasoning compute</text>
+  </g>
+
+  <g>
+    <text x="908" y="222" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#0f172a">Rack fabric</text>
+    <text x="908" y="253" font-family="Inter, Arial, sans-serif" font-size="15" fill="#64748b">The part that makes the rack a system</text>
+    <rect x="924" y="302" width="244" height="48" rx="12" fill="#0f172a"/>
+    <text x="978" y="332" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="800" fill="#bbf7d0">NVLink 6</text>
+    <rect x="924" y="374" width="244" height="48" rx="12" fill="#0f172a"/>
+    <text x="956" y="404" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="800" fill="#bae6fd">ConnectX-9</text>
+    <rect x="924" y="446" width="244" height="48" rx="12" fill="#0f172a"/>
+    <text x="969" y="476" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="800" fill="#ddd6fe">BlueField-4</text>
+    <text x="930" y="552" font-family="JetBrains Mono, Consolas, monospace" font-size="14" fill="#14532d">scale up, scale out, isolate, observe</text>
+  </g>
+
+  <path d="M408 370 C438 330 442 330 472 370" fill="none" stroke="url(#fabric)" stroke-width="5" marker-end="url(#arrow)"/>
+  <path d="M808 370 C838 330 842 330 872 370" fill="none" stroke="url(#fabric)" stroke-width="5" marker-end="url(#arrow)"/>
+
+  <g>
+    <rect x="116" y="626" width="1048" height="48" rx="14" fill="#0f172a"/>
+    <text x="148" y="656" font-family="JetBrains Mono, Consolas, monospace" font-size="15" fill="#e2e8f0">Vera Rubin NVL72: 36 Vera CPUs + 72 Rubin GPUs + NVLink 6 + network and DPU fabric for agentic AI at rack scale.</text>
+  </g>
+</svg>
