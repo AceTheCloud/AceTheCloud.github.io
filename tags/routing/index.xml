@@ -1,4 +1,920 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Routing</title><link>https://acethecloud.com/tags/routing/</link><description>Recent content in Routing on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 17 Apr 2026 09:30:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/routing/index.xml" rel="self" type="application/rss+xml"/><item><title>Agentic AI Needs Smarter Inference: Hints, Priority, and Cache Lifecycle</title><link>https://acethecloud.com/blog/agentic-ai-smarter-inference-hints-cache-lifecycle/</link><pubDate>Fri, 17 Apr 2026 09:30:00 +0530</pubDate><guid>https://acethecloud.com/blog/agentic-ai-smarter-inference-hints-cache-lifecycle/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Routing</title><link>https://acethecloud.com/tags/routing/</link><description>Recent content in Routing on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 05 May 2026 09:30:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/routing/index.xml" rel="self" type="application/rss+xml"/><item><title>Reduce LLM Inference Cost by 60% Without Serving Stale Answers</title><link>https://acethecloud.com/blog/reduce-llm-inference-cost-semantic-cache-freshness/</link><pubDate>Tue, 05 May 2026 09:30:00 +0530</pubDate><guid>https://acethecloud.com/blog/reduce-llm-inference-cost-semantic-cache-freshness/</guid><description>
+&lt;p&gt;Here is a very real production shape:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;100,000 LLM queries / day
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;$0.40 average cost / query
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;= $40,000 / day
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;60,000 queries are slight variations of the same 200 questions&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;If every one of those requests goes to the model, the system is not being thoughtful. It is paying a very expensive intern to re-type the FAQ all day.&lt;/p&gt;
+&lt;p&gt;The tempting answer is &amp;ldquo;just cache it.&amp;rdquo; That is also how you accidentally serve yesterday&amp;rsquo;s policy, a stale price, a hallucinated product detail, or a response that was correct for one tenant but wrong for another.&lt;/p&gt;
+&lt;p&gt;The right answer is not a dumb cache. It is a &lt;strong&gt;freshness-aware semantic answer system&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;semantic response cache for repeated questions written in different words&lt;/li&gt;
+&lt;li&gt;freshness contract attached to every cached answer&lt;/li&gt;
+&lt;li&gt;deterministic invalidation for source changes, policy changes, and tenant permissions&lt;/li&gt;
+&lt;li&gt;prompt/KV caching underneath for requests that still need model generation&lt;/li&gt;
+&lt;li&gt;cache-aware routing so misses are still cheaper and faster than random placement&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;That sounds like a lot. It is. But the shape is clean once you separate the layers.&lt;/p&gt;
+&lt;h2&gt;The math: 60% is the ceiling, not the promise&lt;span class="hx:absolute hx:-mt-20" id="the-math-60-is-the-ceiling-not-the-promise"&gt;&lt;/span&gt;
+&lt;a href="#the-math-60-is-the-ceiling-not-the-promise" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If 60,000 of 100,000 daily requests are variants of the same 200 questions, the absolute best response-cache result is close to 60% model-call avoidance. Not exactly 60%, because you still need to generate or refresh canonical answers.&lt;/p&gt;
+&lt;p&gt;If those 200 canonical answers refresh once per day:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Before:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;100,000 model calls x $0.40 = $40,000 / day
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;After:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;40,000 unique calls
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;+ 200 canonical refresh calls
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;= 40,200 model calls
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;40,200 x $0.40 = $16,080 / day
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Savings:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;$23,920 / day
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;= 59.8% before cache infrastructure cost&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;If the same 200 answers refresh hourly:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;40,000 unique calls
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;+ (200 canonical answers x 24 refreshes)
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;= 44,800 model calls
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;44,800 x $0.40 = $17,920 / day
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Savings:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;55.2% before cache infrastructure cost&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That is still serious money. The point is not that every workload gets 60%. The point is that repeated intent changes the economics from &amp;ldquo;generate every time&amp;rdquo; to &amp;ldquo;generate when truth changes.&amp;rdquo;&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 540" role="img" aria-labelledby="cost-title cost-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="cost-title"&gt;Inference cost reduction from semantic caching&lt;/title&gt;
+&lt;desc id="cost-desc"&gt;A diagram showing 100,000 daily requests, 60,000 repeated intent requests, and the reduction in model calls after semantic caching.&lt;/desc&gt;
+&lt;rect width="1180" height="540" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="70" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;The repeated-intent math&lt;/text&gt;
+&lt;text x="56" y="108" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Most of the savings comes from avoiding repeated generation, not from squeezing pennies out of the same generation path.&lt;/text&gt;
+&lt;rect x="70" y="170" width="270" height="240" rx="14" fill="#0f172a"/&gt;
+&lt;text x="108" y="220" font-size="24" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#f8fafc"&gt;Before&lt;/text&gt;
+&lt;text x="108" y="270" font-size="48" font-family="Inter,Arial,sans-serif" font-weight="900" fill="#ffffff"&gt;100K&lt;/text&gt;
+&lt;text x="108" y="304" font-size="17" font-family="Inter,Arial,sans-serif" fill="#cbd5e1"&gt;model calls / day&lt;/text&gt;
+&lt;text x="108" y="356" font-size="32" font-family="JetBrains Mono,monospace" font-weight="800" fill="#93c5fd"&gt;$40K&lt;/text&gt;
+&lt;text x="108" y="384" font-size="15" font-family="Inter,Arial,sans-serif" fill="#94a3b8"&gt;at $0.40 per query&lt;/text&gt;
+&lt;path d="M370 288 H485" stroke="#64748b" stroke-width="5" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;rect x="520" y="150" width="270" height="280" rx="14" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/&gt;
+&lt;text x="558" y="205" font-size="24" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#075985"&gt;Find repetition&lt;/text&gt;
+&lt;text x="558" y="258" font-size="46" font-family="Inter,Arial,sans-serif" font-weight="900" fill="#0f172a"&gt;60K&lt;/text&gt;
+&lt;text x="558" y="292" font-size="17" font-family="Inter,Arial,sans-serif" fill="#334155"&gt;queries map to&lt;/text&gt;
+&lt;text x="558" y="334" font-size="38" font-family="Inter,Arial,sans-serif" font-weight="900" fill="#0f172a"&gt;200&lt;/text&gt;
+&lt;text x="558" y="366" font-size="17" font-family="Inter,Arial,sans-serif" fill="#334155"&gt;canonical questions&lt;/text&gt;
+&lt;path d="M820 288 H935" stroke="#64748b" stroke-width="5" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;rect x="970" y="170" width="150" height="240" rx="14" fill="#ecfccb" stroke="#76B900" stroke-width="2"/&gt;
+&lt;text x="1002" y="220" font-size="24" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;After&lt;/text&gt;
+&lt;text x="1000" y="270" font-size="42" font-family="Inter,Arial,sans-serif" font-weight="900" fill="#0f172a"&gt;40.2K&lt;/text&gt;
+&lt;text x="1002" y="304" font-size="16" font-family="Inter,Arial,sans-serif" fill="#334155"&gt;model calls&lt;/text&gt;
+&lt;text x="1002" y="356" font-size="28" font-family="JetBrains Mono,monospace" font-weight="800" fill="#365314"&gt;$16.1K&lt;/text&gt;
+&lt;text x="1002" y="384" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;daily refresh&lt;/text&gt;
+&lt;rect x="334" y="452" width="512" height="46" rx="10" fill="#111827"/&gt;
+&lt;text x="371" y="482" font-size="18" font-family="JetBrains Mono,monospace" fill="#e5e7eb"&gt;maximum practical win: avoid repeat model calls&lt;/text&gt;
+&lt;defs&gt;
+&lt;marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto"&gt;
+&lt;path d="M0,0 L0,8 L11,4 z" fill="#64748b"/&gt;
+&lt;/marker&gt;
+&lt;/defs&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;The first-order savings come from avoiding duplicate generations. Runtime cache reuse is the second-order optimization.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Do not confuse the four caches&lt;span class="hx:absolute hx:-mt-20" id="do-not-confuse-the-four-caches"&gt;&lt;/span&gt;
+&lt;a href="#do-not-confuse-the-four-caches" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;People say &amp;ldquo;cache&amp;rdquo; and then mix four different ideas:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Cache&lt;/th&gt;
+&lt;th&gt;What it saves&lt;/th&gt;
+&lt;th&gt;What it does not save&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Exact response cache&lt;/td&gt;
+&lt;td&gt;Identical request text&lt;/td&gt;
+&lt;td&gt;Paraphrases&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Semantic response cache&lt;/td&gt;
+&lt;td&gt;Similar user intent&lt;/td&gt;
+&lt;td&gt;Unsafe or stale matches&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Retrieval/tool cache&lt;/td&gt;
+&lt;td&gt;Repeated context gathering&lt;/td&gt;
+&lt;td&gt;Final generation&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Prompt/KV cache&lt;/td&gt;
+&lt;td&gt;Recomputing shared prefixes&lt;/td&gt;
+&lt;td&gt;Output-token generation&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;You need all four in serious systems, but they sit at different layers.&lt;/p&gt;
+&lt;p&gt;Semantic response caching is the big lever for the problem above. Redis describes this pattern as storing and reusing previous LLM responses for repeated queries, where paraphrases like &amp;ldquo;features of Product A&amp;rdquo; and &amp;ldquo;main features of Product A&amp;rdquo; can reuse the same answer when similarity is high enough. That is response-level avoidance.&lt;/p&gt;
+&lt;p&gt;Prompt and KV caching are different. OpenAI&amp;rsquo;s prompt caching discounts and speeds up reused input-token prefixes. vLLM Automatic Prefix Caching reuses KV cache when requests share a prefix, which helps prefill. TensorRT-LLM&amp;rsquo;s KV cache supports reuse across requests, offloading, and prioritized eviction. Dynamo&amp;rsquo;s router can use KV overlap and load to route requests toward workers with useful cached blocks.&lt;/p&gt;
+&lt;p&gt;Those runtime features are excellent. They just do not eliminate the whole generation for a paraphrased question. They make the miss path cheaper. The response cache removes the model call entirely when it is safe.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 620" role="img" aria-labelledby="layers-title layers-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="layers-title"&gt;Caching layers for production LLM systems&lt;/title&gt;
+&lt;desc id="layers-desc"&gt;Four cache layers showing exact answer cache, semantic answer cache, retrieval cache, and prompt or KV cache.&lt;/desc&gt;
+&lt;rect width="1180" height="620" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="68" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;One user request, four chances to avoid waste&lt;/text&gt;
+&lt;text x="56" y="106" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;The response cache saves the most. The runtime caches make the remaining misses faster.&lt;/text&gt;
+&lt;rect x="70" y="165" width="230" height="290" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/&gt;
+&lt;text x="104" y="215" font-size="22" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Exact cache&lt;/text&gt;
+&lt;text x="104" y="252" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Same normalized input&lt;/text&gt;
+&lt;rect x="104" y="298" width="142" height="44" rx="8" fill="#e0f2fe"/&gt;
+&lt;text x="128" y="326" font-size="16" font-family="JetBrains Mono,monospace" fill="#075985"&gt;hash hit&lt;/text&gt;
+&lt;text x="104" y="390" font-size="15" font-family="Inter,Arial,sans-serif" fill="#64748b"&gt;Fast, safe, limited.&lt;/text&gt;
+&lt;rect x="340" y="145" width="230" height="330" rx="14" fill="#ecfccb" stroke="#76B900" stroke-width="2"/&gt;
+&lt;text x="374" y="195" font-size="22" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Semantic cache&lt;/text&gt;
+&lt;text x="374" y="232" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Same intent, new words&lt;/text&gt;
+&lt;rect x="374" y="278" width="152" height="44" rx="8" fill="#d9f99d"/&gt;
+&lt;text x="397" y="306" font-size="16" font-family="JetBrains Mono,monospace" fill="#365314"&gt;vector hit&lt;/text&gt;
+&lt;text x="374" y="378" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Largest cost lever for&lt;/text&gt;
+&lt;text x="374" y="402" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;repeated questions.&lt;/text&gt;
+&lt;rect x="610" y="165" width="230" height="290" rx="14" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/&gt;
+&lt;text x="644" y="215" font-size="22" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Context cache&lt;/text&gt;
+&lt;text x="644" y="252" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;RAG, tools, policy&lt;/text&gt;
+&lt;rect x="644" y="298" width="150" height="44" rx="8" fill="#fed7aa"/&gt;
+&lt;text x="665" y="326" font-size="16" font-family="JetBrains Mono,monospace" fill="#9a3412"&gt;facts hit&lt;/text&gt;
+&lt;text x="644" y="390" font-size="15" font-family="Inter,Arial,sans-serif" fill="#64748b"&gt;Keeps grounding fast.&lt;/text&gt;
+&lt;rect x="880" y="145" width="230" height="330" rx="14" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/&gt;
+&lt;text x="914" y="195" font-size="22" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Prompt / KV&lt;/text&gt;
+&lt;text x="914" y="232" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Shared token prefixes&lt;/text&gt;
+&lt;rect x="914" y="278" width="150" height="44" rx="8" fill="#ddd6fe"/&gt;
+&lt;text x="938" y="306" font-size="16" font-family="JetBrains Mono,monospace" fill="#5b21b6"&gt;prefill hit&lt;/text&gt;
+&lt;text x="914" y="378" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Great for misses and&lt;/text&gt;
+&lt;text x="914" y="402" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;multi-turn sessions.&lt;/text&gt;
+&lt;path d="M302 310 H332" stroke="#64748b" stroke-width="4" marker-end="url(#layer-arrow)"/&gt;
+&lt;path d="M572 310 H602" stroke="#64748b" stroke-width="4" marker-end="url(#layer-arrow)"/&gt;
+&lt;path d="M842 310 H872" stroke="#64748b" stroke-width="4" marker-end="url(#layer-arrow)"/&gt;
+&lt;rect x="286" y="525" width="608" height="46" rx="10" fill="#111827"/&gt;
+&lt;text x="326" y="555" font-size="18" font-family="JetBrains Mono,monospace" fill="#e5e7eb"&gt;serve from cache when safe; generate only when needed&lt;/text&gt;
+&lt;defs&gt;
+&lt;marker id="layer-arrow" markerWidth="11" markerHeight="11" refX="9" refY="4" orient="auto"&gt;
+&lt;path d="M0,0 L0,8 L10,4 z" fill="#64748b"/&gt;
+&lt;/marker&gt;
+&lt;/defs&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;A production design should use response caching above the model and KV-aware routing below the gateway.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;The production architecture&lt;span class="hx:absolute hx:-mt-20" id="the-production-architecture"&gt;&lt;/span&gt;
+&lt;a href="#the-production-architecture" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The architecture I would build has seven decisions in the request path.&lt;/p&gt;
+&lt;h3&gt;1. Normalize the request&lt;span class="hx:absolute hx:-mt-20" id="1-normalize-the-request"&gt;&lt;/span&gt;
+&lt;a href="#1-normalize-the-request" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Normalize before lookup:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;trim whitespace&lt;/li&gt;
+&lt;li&gt;canonicalize casing where safe&lt;/li&gt;
+&lt;li&gt;remove tracking noise&lt;/li&gt;
+&lt;li&gt;normalize product names and aliases&lt;/li&gt;
+&lt;li&gt;preserve locale, tenant, role, and entitlement data separately&lt;/li&gt;
+&lt;li&gt;keep the original text for observability and user experience&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Do not over-normalize. &amp;ldquo;How do I reset my password?&amp;rdquo; and &amp;ldquo;Reset the password for user Alice&amp;rdquo; are not the same operation. Normalization should reduce noise, not erase intent.&lt;/p&gt;
+&lt;h3&gt;2. Classify cache eligibility&lt;span class="hx:absolute hx:-mt-20" id="2-classify-cache-eligibility"&gt;&lt;/span&gt;
+&lt;a href="#2-classify-cache-eligibility" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Not every question deserves semantic caching.&lt;/p&gt;
+&lt;p&gt;Good candidates:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;product FAQ&lt;/li&gt;
+&lt;li&gt;documentation Q&amp;amp;A&lt;/li&gt;
+&lt;li&gt;internal policy explanations&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;how do I&amp;rdquo; help&lt;/li&gt;
+&lt;li&gt;troubleshooting steps with stable source docs&lt;/li&gt;
+&lt;li&gt;repeated onboarding questions&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Bad candidates:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;user-specific account state&lt;/li&gt;
+&lt;li&gt;legal, medical, or financial advice without review gates&lt;/li&gt;
+&lt;li&gt;live inventory, price, or incident status&lt;/li&gt;
+&lt;li&gt;queries containing secrets or sensitive personal data&lt;/li&gt;
+&lt;li&gt;long reasoning tasks where the wording changes the answer&lt;/li&gt;
+&lt;li&gt;anything requiring fresh tool execution&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The cache should have a strong &amp;ldquo;no&amp;rdquo; muscle. A false miss costs money. A false hit costs trust.&lt;/p&gt;
+&lt;h3&gt;3. Search exact cache first&lt;span class="hx:absolute hx:-mt-20" id="3-search-exact-cache-first"&gt;&lt;/span&gt;
+&lt;a href="#3-search-exact-cache-first" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Exact cache is cheap and safe. Use a key like:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;sha256(
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; model_family
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + prompt_template_version
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + tenant_id
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + locale
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + normalized_question
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + entitlement_scope
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;If it hits and the freshness contract is still valid, return it. No vector search needed.&lt;/p&gt;
+&lt;h3&gt;4. Search semantic cache next&lt;span class="hx:absolute hx:-mt-20" id="4-search-semantic-cache-next"&gt;&lt;/span&gt;
+&lt;a href="#4-search-semantic-cache-next" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;On an exact miss:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;embed the normalized question&lt;/li&gt;
+&lt;li&gt;search nearest cached questions&lt;/li&gt;
+&lt;li&gt;apply a high similarity threshold&lt;/li&gt;
+&lt;li&gt;optionally rerank near-threshold candidates&lt;/li&gt;
+&lt;li&gt;verify tenant, locale, source version, policy version, and answer type&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Redis&amp;rsquo;s semantic caching guide describes this shape: convert query to vector, run similarity search, and return a cached answer only when the similarity score exceeds the chosen threshold. It also calls out the precision-recall tradeoff: lower thresholds improve hit rate but increase wrong-answer risk.&lt;/p&gt;
+&lt;p&gt;I would start conservative:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Question class&lt;/th&gt;
+&lt;th style="text-align: right"&gt;Starting threshold&lt;/th&gt;
+&lt;th&gt;Why&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;FAQ / docs&lt;/td&gt;
+&lt;td style="text-align: right"&gt;0.90-0.95&lt;/td&gt;
+&lt;td&gt;High precision, easy wins&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Support troubleshooting&lt;/td&gt;
+&lt;td style="text-align: right"&gt;0.88-0.93&lt;/td&gt;
+&lt;td&gt;Similar wording often maps well&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Policy explanation&lt;/td&gt;
+&lt;td style="text-align: right"&gt;0.92-0.97&lt;/td&gt;
+&lt;td&gt;Stale or wrong policy is painful&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;User-specific task&lt;/td&gt;
+&lt;td style="text-align: right"&gt;disabled&lt;/td&gt;
+&lt;td&gt;Run the tool&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Compliance-sensitive answer&lt;/td&gt;
+&lt;td style="text-align: right"&gt;disabled or human-reviewed&lt;/td&gt;
+&lt;td&gt;Do not gamble&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;This is not a universal table. It is a safe starting posture. Your telemetry should tune it.&lt;/p&gt;
+&lt;h3&gt;5. Run the freshness gate&lt;span class="hx:absolute hx:-mt-20" id="5-run-the-freshness-gate"&gt;&lt;/span&gt;
+&lt;a href="#5-run-the-freshness-gate" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The cached answer is not just text. It is an object with a contract:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;answer_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;faq.billing.refunds.v14&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;canonical_question&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;How do refunds work?&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;answer_text&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;...&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;source_ids&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;docs/billing/refunds.md&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;source_versions&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;sha256:7f3a...&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;prompt_template_version&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;support-answer-v8&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;model_family&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;llama-3.1-70b&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;tenant_scope&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;public-docs&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;locale&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;en-US&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;freshness_class&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;policy&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;expires_at&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;2026-05-05T18:30:00Z&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;last_verified_at&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;2026-05-05T09:30:00Z&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The freshness gate checks:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;source document hash still matches&lt;/li&gt;
+&lt;li&gt;policy version still matches&lt;/li&gt;
+&lt;li&gt;tenant permissions still match&lt;/li&gt;
+&lt;li&gt;locale still matches&lt;/li&gt;
+&lt;li&gt;model/prompt version is still allowed&lt;/li&gt;
+&lt;li&gt;answer has not expired&lt;/li&gt;
+&lt;li&gt;no red-team or quality rule has blocked this answer family&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If any check fails, it is a cache miss. Smile politely and generate a new answer.&lt;/p&gt;
+&lt;h3&gt;6. Compose dynamic slots late&lt;span class="hx:absolute hx:-mt-20" id="6-compose-dynamic-slots-late"&gt;&lt;/span&gt;
+&lt;a href="#6-compose-dynamic-slots-late" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;This is how you avoid the &amp;ldquo;cached and stale&amp;rdquo; smell.&lt;/p&gt;
+&lt;p&gt;Do not cache:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;#34;Your current balance is $184.22 and your renewal date is June 8.&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Cache:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Answer plan:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;- explain how billing renewal works
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;- include account balance from billing API
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;- include renewal date from subscription API
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;- link to billing settings&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Then fill the dynamic slots from live systems after the cache hit.&lt;/p&gt;
+&lt;p&gt;This keeps the expensive language work cached while still making the answer feel current. The model wrote the stable explanation once. Your application fills the facts every time.&lt;/p&gt;
+&lt;h3&gt;7. Store misses only after quality checks&lt;span class="hx:absolute hx:-mt-20" id="7-store-misses-only-after-quality-checks"&gt;&lt;/span&gt;
+&lt;a href="#7-store-misses-only-after-quality-checks" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A miss should not blindly populate the cache. Store only when:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;generation completed successfully&lt;/li&gt;
+&lt;li&gt;answer passed policy and quality checks&lt;/li&gt;
+&lt;li&gt;sources are known&lt;/li&gt;
+&lt;li&gt;freshness class is assigned&lt;/li&gt;
+&lt;li&gt;tenant scope is safe&lt;/li&gt;
+&lt;li&gt;output is not too personalized&lt;/li&gt;
+&lt;li&gt;the route is worth caching&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If a one-off weird request misses, do not memorialize it forever. Caches should have taste.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 640" role="img" aria-labelledby="pipeline-title pipeline-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="pipeline-title"&gt;Freshness-aware semantic cache pipeline&lt;/title&gt;
+&lt;desc id="pipeline-desc"&gt;A request flows through normalization, eligibility, exact cache, semantic cache, freshness gate, dynamic slot filling, and model generation on miss.&lt;/desc&gt;
+&lt;rect width="1180" height="640" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="68" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;The safe cache-hit path&lt;/text&gt;
+&lt;text x="56" y="106" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;A semantic match is only the first yes. Freshness, permission, and dynamic facts still have to pass.&lt;/text&gt;
+&lt;rect x="58" y="178" width="142" height="80" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/&gt;
+&lt;text x="88" y="212" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Request&lt;/text&gt;
+&lt;text x="88" y="238" font-size="13" font-family="Inter,Arial,sans-serif" fill="#64748b"&gt;user words&lt;/text&gt;
+&lt;rect x="246" y="178" width="156" height="80" rx="12" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/&gt;
+&lt;text x="276" y="212" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#075985"&gt;Normalize&lt;/text&gt;
+&lt;text x="276" y="238" font-size="13" font-family="Inter,Arial,sans-serif" fill="#334155"&gt;keep scope&lt;/text&gt;
+&lt;rect x="448" y="178" width="166" height="80" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/&gt;
+&lt;text x="478" y="212" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Eligibility&lt;/text&gt;
+&lt;text x="478" y="238" font-size="13" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;safe to cache?&lt;/text&gt;
+&lt;rect x="660" y="154" width="170" height="72" rx="12" fill="#ecfccb" stroke="#76B900" stroke-width="2"/&gt;
+&lt;text x="696" y="185" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;Exact hit&lt;/text&gt;
+&lt;text x="696" y="210" font-size="13" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;hash match&lt;/text&gt;
+&lt;rect x="660" y="254" width="170" height="72" rx="12" fill="#ecfccb" stroke="#76B900" stroke-width="2"/&gt;
+&lt;text x="690" y="285" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;Semantic hit&lt;/text&gt;
+&lt;text x="690" y="310" font-size="13" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;meaning match&lt;/text&gt;
+&lt;rect x="876" y="200" width="170" height="80" rx="12" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/&gt;
+&lt;text x="909" y="232" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#9a3412"&gt;Freshness&lt;/text&gt;
+&lt;text x="909" y="258" font-size="13" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;source + policy&lt;/text&gt;
+&lt;rect x="876" y="380" width="170" height="80" rx="12" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/&gt;
+&lt;text x="913" y="412" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#991b1b"&gt;Generate&lt;/text&gt;
+&lt;text x="913" y="438" font-size="13" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;miss path&lt;/text&gt;
+&lt;rect x="86" y="430" width="230" height="90" rx="12" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/&gt;
+&lt;text x="120" y="465" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#3730a3"&gt;Prompt / KV cache&lt;/text&gt;
+&lt;text x="120" y="492" font-size="13" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;reuse prefixes on miss&lt;/text&gt;
+&lt;rect x="396" y="430" width="250" height="90" rx="12" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/&gt;
+&lt;text x="431" y="465" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#3730a3"&gt;Cache-aware routing&lt;/text&gt;
+&lt;text x="431" y="492" font-size="13" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;send to warm workers&lt;/text&gt;
+&lt;rect x="101" y="555" width="978" height="42" rx="10" fill="#111827"/&gt;
+&lt;text x="222" y="582" font-size="17" font-family="JetBrains Mono,monospace" fill="#e5e7eb"&gt;hit: validate and serve; miss: generate, evaluate, store only if useful&lt;/text&gt;
+&lt;path d="M202 218 H238" stroke="#64748b" stroke-width="4" marker-end="url(#pipe-arrow)"/&gt;
+&lt;path d="M404 218 H440" stroke="#64748b" stroke-width="4" marker-end="url(#pipe-arrow)"/&gt;
+&lt;path d="M616 218 H650" stroke="#64748b" stroke-width="4" marker-end="url(#pipe-arrow)"/&gt;
+&lt;path d="M616 236 C640 250,642 280,650 290" stroke="#64748b" stroke-width="4" fill="none" marker-end="url(#pipe-arrow)"/&gt;
+&lt;path d="M832 190 C850 196,860 206,868 222" stroke="#64748b" stroke-width="4" fill="none" marker-end="url(#pipe-arrow)"/&gt;
+&lt;path d="M832 290 C852 282,862 270,868 256" stroke="#64748b" stroke-width="4" fill="none" marker-end="url(#pipe-arrow)"/&gt;
+&lt;path d="M614 258 C670 365,780 412,866 420" stroke="#ef4444" stroke-width="4" fill="none" stroke-dasharray="8 7" marker-end="url(#miss-arrow)"/&gt;
+&lt;path d="M876 420 H656" stroke="#818cf8" stroke-width="4" fill="none" marker-end="url(#purple-arrow)"/&gt;
+&lt;path d="M396 475 H326" stroke="#818cf8" stroke-width="4" fill="none" marker-end="url(#purple-arrow)"/&gt;
+&lt;defs&gt;
+&lt;marker id="pipe-arrow" markerWidth="11" markerHeight="11" refX="9" refY="4" orient="auto"&gt;
+&lt;path d="M0,0 L0,8 L10,4 z" fill="#64748b"/&gt;
+&lt;/marker&gt;
+&lt;marker id="miss-arrow" markerWidth="11" markerHeight="11" refX="9" refY="4" orient="auto"&gt;
+&lt;path d="M0,0 L0,8 L10,4 z" fill="#ef4444"/&gt;
+&lt;/marker&gt;
+&lt;marker id="purple-arrow" markerWidth="11" markerHeight="11" refX="9" refY="4" orient="auto"&gt;
+&lt;path d="M0,0 L0,8 L10,4 z" fill="#818cf8"/&gt;
+&lt;/marker&gt;
+&lt;/defs&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Similarity alone is not enough. The cache hit has to survive the freshness and permission gates.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;The freshness contract&lt;span class="hx:absolute hx:-mt-20" id="the-freshness-contract"&gt;&lt;/span&gt;
+&lt;a href="#the-freshness-contract" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The trick is not &amp;ldquo;cache for 24 hours.&amp;rdquo; The trick is &amp;ldquo;cache according to the volatility of truth.&amp;rdquo;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Freshness class&lt;/th&gt;
+&lt;th&gt;Example&lt;/th&gt;
+&lt;th&gt;Cache strategy&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Static&lt;/td&gt;
+&lt;td&gt;&amp;ldquo;How do I enable SSO?&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;Long TTL, invalidate on doc update&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Slow policy&lt;/td&gt;
+&lt;td&gt;&amp;ldquo;What is the refund policy?&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;Medium TTL, invalidate on policy version&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Dynamic slots&lt;/td&gt;
+&lt;td&gt;&amp;ldquo;When does my plan renew?&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;Cache explanation, fill account data live&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Live operational&lt;/td&gt;
+&lt;td&gt;&amp;ldquo;Is service X down?&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;Do not cache final answer; cache tool result briefly&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Regulated&lt;/td&gt;
+&lt;td&gt;&amp;ldquo;Can I do X with customer data?&amp;rdquo;&lt;/td&gt;
+&lt;td&gt;Short TTL, strict source pinning, optional review&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;This is where many systems fail. They cache text but not truth. The cached answer needs to know why it was true.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 520" role="img" aria-labelledby="fresh-title fresh-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="fresh-title"&gt;Freshness contract for cached answers&lt;/title&gt;
+&lt;desc id="fresh-desc"&gt;A cached answer is surrounded by source, policy, tenant, model, TTL, and quality metadata before it can be served.&lt;/desc&gt;
+&lt;rect width="1180" height="520" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="68" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Cache the answer with its proof of freshness&lt;/text&gt;
+&lt;text x="56" y="106" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;A cached answer is safe only while its sources, permissions, and policy contract remain valid.&lt;/text&gt;
+&lt;rect x="405" y="190" width="370" height="150" rx="16" fill="#111827"/&gt;
+&lt;text x="472" y="246" font-size="26" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#ffffff"&gt;Cached answer&lt;/text&gt;
+&lt;text x="458" y="286" font-size="16" font-family="JetBrains Mono,monospace" fill="#bbf7d0"&gt;text + citations + answer plan&lt;/text&gt;
+&lt;rect x="86" y="178" width="220" height="70" rx="12" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/&gt;
+&lt;text x="126" y="220" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#075985"&gt;Source versions&lt;/text&gt;
+&lt;rect x="86" y="300" width="220" height="70" rx="12" fill="#ecfccb" stroke="#76B900" stroke-width="2"/&gt;
+&lt;text x="132" y="342" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;Tenant scope&lt;/text&gt;
+&lt;rect x="874" y="178" width="220" height="70" rx="12" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/&gt;
+&lt;text x="919" y="220" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#9a3412"&gt;Policy version&lt;/text&gt;
+&lt;rect x="874" y="300" width="220" height="70" rx="12" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/&gt;
+&lt;text x="918" y="342" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#3730a3"&gt;Prompt version&lt;/text&gt;
+&lt;rect x="402" y="405" width="170" height="58" rx="12" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/&gt;
+&lt;text x="452" y="441" font-size="16" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#991b1b"&gt;Expires&lt;/text&gt;
+&lt;rect x="608" y="405" width="170" height="58" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/&gt;
+&lt;text x="645" y="441" font-size="16" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#334155"&gt;Quality OK&lt;/text&gt;
+&lt;path d="M310 213 H394" stroke="#64748b" stroke-width="4" marker-end="url(#fresh-arrow)"/&gt;
+&lt;path d="M310 335 H394" stroke="#64748b" stroke-width="4" marker-end="url(#fresh-arrow)"/&gt;
+&lt;path d="M870 213 H786" stroke="#64748b" stroke-width="4" marker-end="url(#fresh-arrow-left)"/&gt;
+&lt;path d="M870 335 H786" stroke="#64748b" stroke-width="4" marker-end="url(#fresh-arrow-left)"/&gt;
+&lt;path d="M487 398 V350" stroke="#64748b" stroke-width="4" marker-end="url(#fresh-arrow-up)"/&gt;
+&lt;path d="M693 398 V350" stroke="#64748b" stroke-width="4" marker-end="url(#fresh-arrow-up)"/&gt;
+&lt;defs&gt;
+&lt;marker id="fresh-arrow" markerWidth="11" markerHeight="11" refX="9" refY="4" orient="auto"&gt;
+&lt;path d="M0,0 L0,8 L10,4 z" fill="#64748b"/&gt;
+&lt;/marker&gt;
+&lt;marker id="fresh-arrow-left" markerWidth="11" markerHeight="11" refX="1" refY="4" orient="auto"&gt;
+&lt;path d="M10,0 L10,8 L0,4 z" fill="#64748b"/&gt;
+&lt;/marker&gt;
+&lt;marker id="fresh-arrow-up" markerWidth="11" markerHeight="11" refX="4" refY="1" orient="auto"&gt;
+&lt;path d="M0,10 L8,10 L4,0 z" fill="#64748b"/&gt;
+&lt;/marker&gt;
+&lt;/defs&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;The answer should carry enough metadata for the gateway to prove it is still safe to serve.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;How this reaches 60% without feeling cached&lt;span class="hx:absolute hx:-mt-20" id="how-this-reaches-60-without-feeling-cached"&gt;&lt;/span&gt;
+&lt;a href="#how-this-reaches-60-without-feeling-cached" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The user should not feel like they got a stale canned response. They should feel like the system was fast and competent.&lt;/p&gt;
+&lt;p&gt;That requires three design choices.&lt;/p&gt;
+&lt;h3&gt;Cache canonical answers, not user phrasing&lt;span class="hx:absolute hx:-mt-20" id="cache-canonical-answers-not-user-phrasing"&gt;&lt;/span&gt;
+&lt;a href="#cache-canonical-answers-not-user-phrasing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The user asks:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;#34;Can I get money back if I cancel after two weeks?&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The canonical question might be:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;#34;What is the refund policy after cancellation?&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Store the answer under the canonical intent. Keep the user&amp;rsquo;s original wording for logs and analytics, but do not make every phrasing a new product truth.&lt;/p&gt;
+&lt;h3&gt;Return stable explanation, fill live facts&lt;span class="hx:absolute hx:-mt-20" id="return-stable-explanation-fill-live-facts"&gt;&lt;/span&gt;
+&lt;a href="#return-stable-explanation-fill-live-facts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;For policy, docs, and help, a cached explanation is fine.&lt;/p&gt;
+&lt;p&gt;For account-specific answers, split the response:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;cached:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; explanation of how renewals work
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;live:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; user&amp;#39;s renewal date
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; current plan
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; current balance
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; eligible actions&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This is the difference between &amp;ldquo;cached answer&amp;rdquo; and &amp;ldquo;cached brain with live eyes.&amp;rdquo;&lt;/p&gt;
+&lt;h3&gt;Use stale-while-revalidate for popular intents&lt;span class="hx:absolute hx:-mt-20" id="use-stale-while-revalidate-for-popular-intents"&gt;&lt;/span&gt;
+&lt;a href="#use-stale-while-revalidate-for-popular-intents" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;For the top 200 questions, do not wait for users to discover staleness.&lt;/p&gt;
+&lt;p&gt;Run a background job:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;refresh popular intents on schedule&lt;/li&gt;
+&lt;li&gt;refresh immediately when source docs change&lt;/li&gt;
+&lt;li&gt;compare new answer to old answer&lt;/li&gt;
+&lt;li&gt;alert when the answer changed materially&lt;/li&gt;
+&lt;li&gt;keep the old answer only if its freshness contract still passes&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For slow-changing docs, this keeps latency low. For policy changes, it gives you a controlled rollout instead of surprise.&lt;/p&gt;
+&lt;h2&gt;Where NVIDIA-style runtime caching fits&lt;span class="hx:absolute hx:-mt-20" id="where-nvidia-style-runtime-caching-fits"&gt;&lt;/span&gt;
+&lt;a href="#where-nvidia-style-runtime-caching-fits" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The response cache is above the model. It decides whether the model should be called at all.&lt;/p&gt;
+&lt;p&gt;If the request misses, the runtime layer still matters a lot:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;vLLM Automatic Prefix Caching can reuse KV cache for shared prompt prefixes and avoid recomputing the shared prefill.&lt;/li&gt;
+&lt;li&gt;SGLang RadixAttention organizes common prefixes in a radix tree so requests with shared context can reuse KV state.&lt;/li&gt;
+&lt;li&gt;TensorRT-LLM supports KV reuse across requests, plus tools such as offloading and prioritized eviction.&lt;/li&gt;
+&lt;li&gt;Dynamo adds KV-aware routing and distributed cache coordination, so misses can be routed toward workers with useful cache overlap while still respecting load.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This is the hierarchy I like:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;semantic cache hit:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; skip model generation
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;semantic cache miss:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; use prompt/KV caching
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; use KV-aware routing
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; use batching and good inference kernels&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That is a strong systems story. The gateway saves the obvious money. The inference runtime saves the remaining money. The GPU still does the hard work, but it stops doing the same hard work for no reason.&lt;/p&gt;
+&lt;h2&gt;A practical scoring function&lt;span class="hx:absolute hx:-mt-20" id="a-practical-scoring-function"&gt;&lt;/span&gt;
+&lt;a href="#a-practical-scoring-function" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Semantic cache hit decisions should be boring and auditable:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;eligible =
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; cache_allowed
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; and tenant_match
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; and locale_match
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; and source_versions_current
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; and policy_version_current
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; and similarity_score &amp;gt;= threshold
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; and answer_type_safe
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; and quality_status == &amp;#34;approved&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;For near-threshold matches, use a second check:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;if 0.86 &amp;lt;= similarity_score &amp;lt; 0.92:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; run lightweight reranker or verifier
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;else if similarity_score &amp;gt;= 0.92:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; serve if freshness passes
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;else:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; miss&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Do not use one global threshold. A product FAQ and a compliance answer do not deserve the same risk setting.&lt;/p&gt;
+&lt;h2&gt;What the API could look like&lt;span class="hx:absolute hx:-mt-20" id="what-the-api-could-look-like"&gt;&lt;/span&gt;
+&lt;a href="#what-the-api-could-look-like" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The gateway API can keep this simple:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;query&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;Can I get a refund if I cancel next week?&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;tenant&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;public&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;locale&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;en-US&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;user_scope&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;docs:read&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cache_policy&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;semantic&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;min_similarity&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.93&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;allow_dynamic_slots&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;max_staleness_seconds&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;3600&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Response on hit:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;answer&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;Refund eligibility depends on your plan and cancellation window...&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cache&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;status&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;semantic_hit&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;similarity&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.96&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;canonical_question&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;What is the refund policy after cancellation?&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;freshness&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;valid&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;source_versions&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;sha256:7f3a...&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Response on miss:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;answer&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;Refund eligibility depends on your plan and cancellation window...&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cache&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;status&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;miss&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;stored&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;freshness_class&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;policy&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Expose the cache metadata internally, not necessarily to end users. Operators need to know why an answer was served.&lt;/p&gt;
+&lt;h2&gt;The dashboard I would build&lt;span class="hx:absolute hx:-mt-20" id="the-dashboard-i-would-build"&gt;&lt;/span&gt;
+&lt;a href="#the-dashboard-i-would-build" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If this system is saving tens of thousands of dollars a day, the dashboard should not be decorative.&lt;/p&gt;
+&lt;p&gt;Track:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;request count&lt;/li&gt;
+&lt;li&gt;exact hit rate&lt;/li&gt;
+&lt;li&gt;semantic hit rate&lt;/li&gt;
+&lt;li&gt;miss rate&lt;/li&gt;
+&lt;li&gt;false-positive reports&lt;/li&gt;
+&lt;li&gt;stale-blocked hits&lt;/li&gt;
+&lt;li&gt;freshness-gate failures by reason&lt;/li&gt;
+&lt;li&gt;model calls avoided&lt;/li&gt;
+&lt;li&gt;estimated dollars avoided&lt;/li&gt;
+&lt;li&gt;p50 / p95 latency by hit type&lt;/li&gt;
+&lt;li&gt;answer refresh count&lt;/li&gt;
+&lt;li&gt;cache entries by freshness class&lt;/li&gt;
+&lt;li&gt;top canonical intents&lt;/li&gt;
+&lt;li&gt;cache hit rate by tenant and locale&lt;/li&gt;
+&lt;li&gt;post-hit user correction rate&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The most important chart is not hit rate. It is &lt;strong&gt;safe hit rate&lt;/strong&gt;:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;safe hit rate =
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; cache hits that passed freshness and quality gates
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; / total requests&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;A high hit rate with wrong answers is not optimization. It is a very fast apology generator.&lt;/p&gt;
+&lt;h2&gt;Failure modes to design for&lt;span class="hx:absolute hx:-mt-20" id="failure-modes-to-design-for"&gt;&lt;/span&gt;
+&lt;a href="#failure-modes-to-design-for" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3&gt;False semantic match&lt;span class="hx:absolute hx:-mt-20" id="false-semantic-match"&gt;&lt;/span&gt;
+&lt;a href="#false-semantic-match" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Two questions look similar but need different answers.&lt;/p&gt;
+&lt;p&gt;Mitigation:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;higher threshold&lt;/li&gt;
+&lt;li&gt;class-specific threshold&lt;/li&gt;
+&lt;li&gt;rerank near threshold&lt;/li&gt;
+&lt;li&gt;exact entity matching&lt;/li&gt;
+&lt;li&gt;user feedback loop&lt;/li&gt;
+&lt;li&gt;do not cache high-risk classes&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Stale source&lt;span class="hx:absolute hx:-mt-20" id="stale-source"&gt;&lt;/span&gt;
+&lt;a href="#stale-source" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The source document changed after the answer was cached.&lt;/p&gt;
+&lt;p&gt;Mitigation:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;source hash in cache record&lt;/li&gt;
+&lt;li&gt;event-driven invalidation&lt;/li&gt;
+&lt;li&gt;background refresh&lt;/li&gt;
+&lt;li&gt;stale-while-revalidate only for low-risk content&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Tenant leakage&lt;span class="hx:absolute hx:-mt-20" id="tenant-leakage"&gt;&lt;/span&gt;
+&lt;a href="#tenant-leakage" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A cached answer from one customer is served to another.&lt;/p&gt;
+&lt;p&gt;Mitigation:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;tenant in cache key&lt;/li&gt;
+&lt;li&gt;entitlement scope in cache key&lt;/li&gt;
+&lt;li&gt;no cross-tenant semantic cache unless content is explicitly public&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Personalized answer cached as generic&lt;span class="hx:absolute hx:-mt-20" id="personalized-answer-cached-as-generic"&gt;&lt;/span&gt;
+&lt;a href="#personalized-answer-cached-as-generic" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The answer includes a user&amp;rsquo;s account state and gets reused.&lt;/p&gt;
+&lt;p&gt;Mitigation:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;PII detection before store&lt;/li&gt;
+&lt;li&gt;dynamic slot pattern&lt;/li&gt;
+&lt;li&gt;answer-type classifier&lt;/li&gt;
+&lt;li&gt;deny-list for tool-derived personal data&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Cache poisoning&lt;span class="hx:absolute hx:-mt-20" id="cache-poisoning"&gt;&lt;/span&gt;
+&lt;a href="#cache-poisoning" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Bad or malicious output gets cached and amplified.&lt;/p&gt;
+&lt;p&gt;Mitigation:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;store only after safety and quality checks&lt;/li&gt;
+&lt;li&gt;approval gate for high-traffic canonical answers&lt;/li&gt;
+&lt;li&gt;signed source versions&lt;/li&gt;
+&lt;li&gt;admin purge by canonical intent&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Rollout plan&lt;span class="hx:absolute hx:-mt-20" id="rollout-plan"&gt;&lt;/span&gt;
+&lt;a href="#rollout-plan" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Do not launch this by caching everything.&lt;/p&gt;
+&lt;h3&gt;Week 1: measure repetition&lt;span class="hx:absolute hx:-mt-20" id="week-1-measure-repetition"&gt;&lt;/span&gt;
+&lt;a href="#week-1-measure-repetition" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Cluster requests offline:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;normalize questions&lt;/li&gt;
+&lt;li&gt;embed them&lt;/li&gt;
+&lt;li&gt;find top repeated intents&lt;/li&gt;
+&lt;li&gt;estimate potential savings&lt;/li&gt;
+&lt;li&gt;label risky categories&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You want to know whether the &amp;ldquo;same 200 questions&amp;rdquo; claim is true in your logs. If it is, the project funds itself.&lt;/p&gt;
+&lt;h3&gt;Week 2: exact cache and canonical catalog&lt;span class="hx:absolute hx:-mt-20" id="week-2-exact-cache-and-canonical-catalog"&gt;&lt;/span&gt;
+&lt;a href="#week-2-exact-cache-and-canonical-catalog" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Create the canonical question catalog:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;top intents&lt;/li&gt;
+&lt;li&gt;approved answers&lt;/li&gt;
+&lt;li&gt;source docs&lt;/li&gt;
+&lt;li&gt;freshness class&lt;/li&gt;
+&lt;li&gt;owner&lt;/li&gt;
+&lt;li&gt;TTL&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Start exact caching first. It is boring, which is perfect.&lt;/p&gt;
+&lt;h3&gt;Week 3: semantic cache in shadow mode&lt;span class="hx:absolute hx:-mt-20" id="week-3-semantic-cache-in-shadow-mode"&gt;&lt;/span&gt;
+&lt;a href="#week-3-semantic-cache-in-shadow-mode" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Run semantic lookup but do not serve it yet.&lt;/p&gt;
+&lt;p&gt;For every request, record:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;nearest canonical question&lt;/li&gt;
+&lt;li&gt;similarity score&lt;/li&gt;
+&lt;li&gt;would-hit / would-miss&lt;/li&gt;
+&lt;li&gt;human or automated correctness sample&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Tune thresholds before users see anything.&lt;/p&gt;
+&lt;h3&gt;Week 4: serve low-risk classes&lt;span class="hx:absolute hx:-mt-20" id="week-4-serve-low-risk-classes"&gt;&lt;/span&gt;
+&lt;a href="#week-4-serve-low-risk-classes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Turn on semantic hits for:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;public docs&lt;/li&gt;
+&lt;li&gt;FAQ&lt;/li&gt;
+&lt;li&gt;onboarding help&lt;/li&gt;
+&lt;li&gt;stable troubleshooting&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Keep policy, account, and regulated content in shadow until confidence is high.&lt;/p&gt;
+&lt;h3&gt;Week 5+: add dynamic slots and runtime cache-aware routing&lt;span class="hx:absolute hx:-mt-20" id="week-5-add-dynamic-slots-and-runtime-cache-aware-routing"&gt;&lt;/span&gt;
+&lt;a href="#week-5-add-dynamic-slots-and-runtime-cache-aware-routing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Now layer in:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;live fact filling&lt;/li&gt;
+&lt;li&gt;cache-aware routing&lt;/li&gt;
+&lt;li&gt;prompt/KV cache metrics&lt;/li&gt;
+&lt;li&gt;background refresh&lt;/li&gt;
+&lt;li&gt;automated canonical-intent review&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;At this point the system should be cheaper, faster, and less chaotic.&lt;/p&gt;
+&lt;h2&gt;The answer to the original problem&lt;span class="hx:absolute hx:-mt-20" id="the-answer-to-the-original-problem"&gt;&lt;/span&gt;
+&lt;a href="#the-answer-to-the-original-problem" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;To reduce the cost by roughly 60%, you do not need to make the model cheaper first. You need to stop calling it for the same intent 60,000 times a day.&lt;/p&gt;
+&lt;p&gt;The solution is:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Cluster repeated questions into canonical intents.&lt;/li&gt;
+&lt;li&gt;Build a semantic response cache for safe, repeated intents.&lt;/li&gt;
+&lt;li&gt;Attach source, policy, tenant, locale, prompt, and model metadata to each cached answer.&lt;/li&gt;
+&lt;li&gt;Validate every hit through a freshness gate.&lt;/li&gt;
+&lt;li&gt;Fill dynamic facts from live tools after the cache hit.&lt;/li&gt;
+&lt;li&gt;Store misses only after quality checks.&lt;/li&gt;
+&lt;li&gt;Use prompt/KV caching and cache-aware routing for the remaining misses.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;That architecture can get close to the 60% theoretical savings on the repeated part of the workload while avoiding the two classic cache disasters: wrong answers and stale answers.&lt;/p&gt;
+&lt;p&gt;The best cache is not the one with the highest hit rate. It is the one that knows when to say:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Not this time. The model needs to think again.&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Sources worth reading&lt;span class="hx:absolute hx:-mt-20" id="sources-worth-reading"&gt;&lt;/span&gt;
+&lt;a href="#sources-worth-reading" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://redis.io/docs/latest/develop/ai/langcache/"target="_blank" rel="noopener"&gt;Redis LangCache documentation&lt;/a&gt; for semantic response caching and cache-hit behavior.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://redis.io/blog/how-to-cache-semantic-search/"target="_blank" rel="noopener"&gt;Redis semantic caching guide&lt;/a&gt; for embedding search, similarity thresholds, and precision-recall tradeoffs.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/"target="_blank" rel="noopener"&gt;vLLM Automatic Prefix Caching&lt;/a&gt; for KV reuse on shared prompt prefixes and its limits.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.nvidia.com/dynamo/user-guides/kv-cache-aware-routing"target="_blank" rel="noopener"&gt;NVIDIA Dynamo KV-aware router guide&lt;/a&gt; for routing based on KV overlap and load.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://nvidia.github.io/TensorRT-LLM/features/kvcache.html"target="_blank" rel="noopener"&gt;TensorRT-LLM KV Cache System&lt;/a&gt; for KV reuse, offloading, and prioritized eviction.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://openai.com/index/api-prompt-caching/"target="_blank" rel="noopener"&gt;OpenAI Prompt Caching announcement&lt;/a&gt; for provider-side input-prefix caching economics and cache lifetime behavior.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://sgl-project-sglang-93.mintlify.app/concepts/radix-attention"target="_blank" rel="noopener"&gt;SGLang RadixAttention docs&lt;/a&gt; for prefix-tree based KV reuse across shared contexts.&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Agentic AI Needs Smarter Inference: Hints, Priority, and Cache Lifecycle</title><link>https://acethecloud.com/blog/agentic-ai-smarter-inference-hints-cache-lifecycle/</link><pubDate>Fri, 17 Apr 2026 09:30:00 +0530</pubDate><guid>https://acethecloud.com/blog/agentic-ai-smarter-inference-hints-cache-lifecycle/</guid><description>
 &lt;p&gt;Agentic AI is very good at making infrastructure assumptions look adorable.&lt;/p&gt;
 &lt;p&gt;The old assumption was simple: a user sends a request, the model returns an answer, the service logs a latency number, and everyone pretends the world is shaped like a single HTTP call.&lt;/p&gt;
 &lt;p&gt;Agents do not behave like that.&lt;/p&gt;
