@@ -1,0 +1,566 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Observability</title><link>https://acethecloud.com/tags/observability/</link><description>Recent content in Observability on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 06 May 2026 09:40:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/observability/index.xml" rel="self" type="application/rss+xml"/><item><title>Agents Need Seatbelts: Guardrails and Infinite-Loop Detection for Tool-Using AI</title><link>https://acethecloud.com/blog/agent-guardrails-infinite-loop-detection/</link><pubDate>Wed, 06 May 2026 09:40:00 +0530</pubDate><guid>https://acethecloud.com/blog/agent-guardrails-infinite-loop-detection/</guid><description>
+&lt;p&gt;An agent without guardrails is just a while loop with a credit card.&lt;/p&gt;
+&lt;p&gt;Tool-using agents are powerful because they can observe, plan, call tools, inspect results, and try again. That same loop is the source of the most boring and expensive failure mode in agent systems:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;think -&amp;gt; search -&amp;gt; read -&amp;gt; think -&amp;gt; search -&amp;gt; read -&amp;gt; think -&amp;gt; search&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;No explosion. No dramatic exception. Just a polite machine spending money while making no progress.&lt;/p&gt;
+&lt;p&gt;Guardrails are not a single classifier. They are a control system around the loop.&lt;/p&gt;
+&lt;h2&gt;The loop is the product&lt;span class="hx:absolute hx:-mt-20" id="the-loop-is-the-product"&gt;&lt;/span&gt;
+&lt;a href="#the-loop-is-the-product" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A production agent loop has state:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;user goal&lt;/li&gt;
+&lt;li&gt;plan&lt;/li&gt;
+&lt;li&gt;messages&lt;/li&gt;
+&lt;li&gt;tool calls&lt;/li&gt;
+&lt;li&gt;observations&lt;/li&gt;
+&lt;li&gt;memory&lt;/li&gt;
+&lt;li&gt;budget&lt;/li&gt;
+&lt;li&gt;permissions&lt;/li&gt;
+&lt;li&gt;progress signal&lt;/li&gt;
+&lt;li&gt;termination criteria&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If the system cannot explain why the next step is allowed, it should not take the step.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 570" role="img" aria-labelledby="agent-loop-title agent-loop-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="agent-loop-title"&gt;Agent loop with guardrail checkpoints&lt;/title&gt;
+&lt;desc id="agent-loop-desc"&gt;An agent loop passes through planning, tool authorization, execution, observation, progress check, and budget guardrails.&lt;/desc&gt;
+&lt;rect width="1180" height="570" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="68" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Guardrails belong inside the loop, not around the brochure&lt;/text&gt;
+&lt;text x="56" y="106" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Every agent step should pass permission, budget, and progress checks before it can continue.&lt;/text&gt;
+&lt;rect x="110" y="190" width="160" height="78" rx="14" fill="#e0f2fe" stroke="#38bdf8"/&gt;
+&lt;text x="150" y="236" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#075985"&gt;Plan&lt;/text&gt;
+&lt;rect x="365" y="190" width="190" height="78" rx="14" fill="#ecfccb" stroke="#76B900"/&gt;
+&lt;text x="405" y="236" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;Authorize tool&lt;/text&gt;
+&lt;rect x="650" y="190" width="160" height="78" rx="14" fill="#111827"/&gt;
+&lt;text x="690" y="236" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#ffffff"&gt;Execute&lt;/text&gt;
+&lt;rect x="905" y="190" width="160" height="78" rx="14" fill="#fff7ed" stroke="#f59e0b"/&gt;
+&lt;text x="946" y="236" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#9a3412"&gt;Observe&lt;/text&gt;
+&lt;path d="M280 229 H352" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;path d="M565 229 H637" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;path d="M820 229 H892" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;path d="M985 276 C940 390,305 390,190 276" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;rect x="190" y="395" width="210" height="80" rx="14" fill="#fee2e2" stroke="#ef4444"/&gt;
+&lt;text x="235" y="428" font-size="18" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#991b1b"&gt;Budget stop&lt;/text&gt;
+&lt;text x="235" y="454" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;tokens, steps, time&lt;/text&gt;
+&lt;rect x="485" y="395" width="210" height="80" rx="14" fill="#eef2ff" stroke="#818cf8"/&gt;
+&lt;text x="530" y="428" font-size="18" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#3730a3"&gt;Progress check&lt;/text&gt;
+&lt;text x="530" y="454" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;new facts or done&lt;/text&gt;
+&lt;rect x="780" y="395" width="210" height="80" rx="14" fill="#ffffff" stroke="#cbd5e1"/&gt;
+&lt;text x="825" y="428" font-size="18" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Policy check&lt;/text&gt;
+&lt;text x="825" y="454" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;scope, data, action&lt;/text&gt;
+&lt;defs&gt;
+&lt;marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"&gt;&lt;path d="M0,0 L0,8 L9,4 z" fill="#64748b"/&gt;&lt;/marker&gt;
+&lt;/defs&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;The loop is where safety and cost controls have to live. A one-time input filter is not enough.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Guardrail layers&lt;span class="hx:absolute hx:-mt-20" id="guardrail-layers"&gt;&lt;/span&gt;
+&lt;a href="#guardrail-layers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A useful agent stack has several guardrails:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Layer&lt;/th&gt;
+&lt;th&gt;Example control&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Input&lt;/td&gt;
+&lt;td&gt;prompt injection screening, sensitive data detection&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Planning&lt;/td&gt;
+&lt;td&gt;task scope, allowed tools, required approval&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Tool call&lt;/td&gt;
+&lt;td&gt;authorization, schema validation, rate limits&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Observation&lt;/td&gt;
+&lt;td&gt;sanitize tool output, detect malicious instructions&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Memory&lt;/td&gt;
+&lt;td&gt;do not store secrets, tenant isolation&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Output&lt;/td&gt;
+&lt;td&gt;policy, citations, PII checks&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Loop&lt;/td&gt;
+&lt;td&gt;budgets, progress checks, recursion limits&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;OpenAI&amp;rsquo;s Agents SDK has guardrail concepts around validating inputs and outputs. NVIDIA NeMo Guardrails uses rails to define conversational and action constraints. LangGraph exposes recursion limits to stop runaway graph execution. AutoGen and CrewAI expose iteration or auto-reply limits. OWASP&amp;rsquo;s LLM Top 10 calls out prompt injection, sensitive information disclosure, and excessive agency as major application risks.&lt;/p&gt;
+&lt;p&gt;Different frameworks, same lesson: control the loop.&lt;/p&gt;
+&lt;h2&gt;Infinite loops are usually &amp;ldquo;no progress&amp;rdquo; loops&lt;span class="hx:absolute hx:-mt-20" id="infinite-loops-are-usually-no-progress-loops"&gt;&lt;/span&gt;
+&lt;a href="#infinite-loops-are-usually-no-progress-loops" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Most bad loops are not exact repeats. They are semantically repetitive:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;search &amp;#34;pricing policy&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;read same docs
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;search &amp;#34;pricing policy enterprise&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;read same docs
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;summarize
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;decide context missing
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;search &amp;#34;pricing policy&amp;#34;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Detecting this needs more than a counter.&lt;/p&gt;
+&lt;p&gt;Signals:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;repeated tool name with similar arguments&lt;/li&gt;
+&lt;li&gt;same URLs or documents observed repeatedly&lt;/li&gt;
+&lt;li&gt;no new facts added to state&lt;/li&gt;
+&lt;li&gt;plan text repeating&lt;/li&gt;
+&lt;li&gt;answer confidence not improving&lt;/li&gt;
+&lt;li&gt;token spend increasing while task state is unchanged&lt;/li&gt;
+&lt;li&gt;same error returned by tool multiple times&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Create a state fingerprint:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;fingerprint =
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; hash(goal
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + normalized_plan
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + last_tool_name
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + normalized_tool_args
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + retrieved_doc_ids
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + known_facts)&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;If the fingerprint repeats, or changes without adding facts, slow down or stop.&lt;/p&gt;
+&lt;h2&gt;Budgets are guardrails&lt;span class="hx:absolute hx:-mt-20" id="budgets-are-guardrails"&gt;&lt;/span&gt;
+&lt;a href="#budgets-are-guardrails" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Every agent run should have budgets:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;max steps&lt;/li&gt;
+&lt;li&gt;max tool calls&lt;/li&gt;
+&lt;li&gt;max input tokens&lt;/li&gt;
+&lt;li&gt;max output tokens&lt;/li&gt;
+&lt;li&gt;max total tokens&lt;/li&gt;
+&lt;li&gt;max wall-clock time&lt;/li&gt;
+&lt;li&gt;max retries per tool&lt;/li&gt;
+&lt;li&gt;max repeated action fingerprints&lt;/li&gt;
+&lt;li&gt;max spend&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Budgets should be task-aware. A background research agent may get 50 steps. A customer-support answer may get 4. A payment-changing workflow may require explicit approval before a tool call.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 590" role="img" aria-labelledby="loop-detect-title loop-detect-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="loop-detect-title"&gt;Agent infinite loop detection&lt;/title&gt;
+&lt;desc id="loop-detect-desc"&gt;Loop detection combines hard budgets, repeated action fingerprints, no-progress checks, and human escalation.&lt;/desc&gt;
+&lt;rect width="1180" height="590" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="68" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Loop detection is a set of tripwires&lt;/text&gt;
+&lt;text x="56" y="106" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;A good agent stops when it is done, blocked, over budget, or no longer learning anything new.&lt;/text&gt;
+&lt;rect x="80" y="160" width="240" height="96" rx="14" fill="#fee2e2" stroke="#ef4444"/&gt;
+&lt;text x="126" y="198" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#991b1b"&gt;Hard budget&lt;/text&gt;
+&lt;text x="126" y="228" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;steps, time, tokens&lt;/text&gt;
+&lt;rect x="370" y="160" width="240" height="96" rx="14" fill="#fff7ed" stroke="#f59e0b"/&gt;
+&lt;text x="416" y="198" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#9a3412"&gt;Repeated action&lt;/text&gt;
+&lt;text x="416" y="228" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;same tool + args&lt;/text&gt;
+&lt;rect x="660" y="160" width="240" height="96" rx="14" fill="#eef2ff" stroke="#818cf8"/&gt;
+&lt;text x="706" y="198" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#3730a3"&gt;No progress&lt;/text&gt;
+&lt;text x="706" y="228" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;no new facts&lt;/text&gt;
+&lt;rect x="950" y="160" width="160" height="96" rx="14" fill="#ecfccb" stroke="#76B900"/&gt;
+&lt;text x="984" y="198" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;Done&lt;/text&gt;
+&lt;text x="984" y="228" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;answer or handoff&lt;/text&gt;
+&lt;rect x="305" y="365" width="570" height="90" rx="16" fill="#111827"/&gt;
+&lt;text x="380" y="402" font-size="22" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#ffffff"&gt;Loop controller&lt;/text&gt;
+&lt;text x="380" y="432" font-size="16" font-family="JetBrains Mono,monospace" fill="#bbf7d0"&gt;continue, stop, ask user, or escalate&lt;/text&gt;
+&lt;path d="M200 265 C260 320,330 350,390 360" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;path d="M490 265 C510 315,535 340,560 360" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;path d="M780 265 C750 315,710 342,660 360" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;path d="M1030 265 C980 330,900 360,820 365" stroke="#76B900" stroke-width="3" fill="none" marker-end="url(#green-arrow)"/&gt;
+&lt;defs&gt;
+&lt;marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"&gt;&lt;path d="M0,0 L0,8 L9,4 z" fill="#64748b"/&gt;&lt;/marker&gt;
+&lt;marker id="green-arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"&gt;&lt;path d="M0,0 L0,8 L9,4 z" fill="#76B900"/&gt;&lt;/marker&gt;
+&lt;/defs&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Stopping is a feature. The agent should know when to ask for help instead of improvising forever.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Tool authorization&lt;span class="hx:absolute hx:-mt-20" id="tool-authorization"&gt;&lt;/span&gt;
+&lt;a href="#tool-authorization" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Every tool should declare:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;required permissions&lt;/li&gt;
+&lt;li&gt;allowed input schema&lt;/li&gt;
+&lt;li&gt;side effects&lt;/li&gt;
+&lt;li&gt;rate limit&lt;/li&gt;
+&lt;li&gt;cost estimate&lt;/li&gt;
+&lt;li&gt;approval requirement&lt;/li&gt;
+&lt;li&gt;data classification&lt;/li&gt;
+&lt;li&gt;audit fields&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Dangerous tools need stronger controls:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;payment&lt;/li&gt;
+&lt;li&gt;deletion&lt;/li&gt;
+&lt;li&gt;deployment&lt;/li&gt;
+&lt;li&gt;email sending&lt;/li&gt;
+&lt;li&gt;external API writes&lt;/li&gt;
+&lt;li&gt;database mutation&lt;/li&gt;
+&lt;li&gt;browser automation&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The model should not decide alone whether it is allowed to send money, delete data, or email a customer. That decision belongs to policy code.&lt;/p&gt;
+&lt;h2&gt;Production controls&lt;span class="hx:absolute hx:-mt-20" id="production-controls"&gt;&lt;/span&gt;
+&lt;a href="#production-controls" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Build the runtime with:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;step-by-step tracing&lt;/li&gt;
+&lt;li&gt;state snapshots&lt;/li&gt;
+&lt;li&gt;token and cost budgets&lt;/li&gt;
+&lt;li&gt;tool-call audit log&lt;/li&gt;
+&lt;li&gt;per-tool timeout&lt;/li&gt;
+&lt;li&gt;idempotency keys&lt;/li&gt;
+&lt;li&gt;cancellation propagation&lt;/li&gt;
+&lt;li&gt;human approval gates&lt;/li&gt;
+&lt;li&gt;emergency kill switch&lt;/li&gt;
+&lt;li&gt;replay harness for failed runs&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you cannot replay an agent failure, you cannot debug it. If you cannot bound an agent run, you cannot price it.&lt;/p&gt;
+&lt;h2&gt;The answer is not &amp;ldquo;more guardrails&amp;rdquo;&lt;span class="hx:absolute hx:-mt-20" id="the-answer-is-not-more-guardrails"&gt;&lt;/span&gt;
+&lt;a href="#the-answer-is-not-more-guardrails" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Too many guardrails can make agents useless. The goal is not to block everything. The goal is to make the agent&amp;rsquo;s freedom explicit:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;what can it do?
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;with whose data?
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;for how long?
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;at what cost?
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;with what approval?
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;when should it stop?&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That is the contract. Once the contract is explicit, the agent becomes a system rather than a surprise.&lt;/p&gt;
+&lt;h2&gt;Sources worth reading&lt;span class="hx:absolute hx:-mt-20" id="sources-worth-reading"&gt;&lt;/span&gt;
+&lt;a href="#sources-worth-reading" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://openai.github.io/openai-agents-python/guardrails/"target="_blank" rel="noopener"&gt;OpenAI Agents SDK guardrails&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.nvidia.com/nemo/guardrails/latest/"target="_blank" rel="noopener"&gt;NVIDIA NeMo Guardrails&lt;/a&gt; for conversational and action guardrails.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.langchain.com/oss/python/langgraph/GRAPH_RECURSION_LIMIT"target="_blank" rel="noopener"&gt;LangGraph recursion limit docs&lt;/a&gt; for graph loop protection.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://microsoft.github.io/autogen/"target="_blank" rel="noopener"&gt;AutoGen agent chat docs&lt;/a&gt; for agent interaction controls.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.crewai.com/"target="_blank" rel="noopener"&gt;CrewAI max iterations docs&lt;/a&gt; for execution limits.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/"target="_blank" rel="noopener"&gt;OWASP Top 10 for LLM Applications&lt;/a&gt; for prompt injection, sensitive data, and excessive agency risks.&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Your Token Bill Has a Leak: Cost Monitoring for Hidden LLM Waste</title><link>https://acethecloud.com/blog/cost-monitoring-hidden-token-leaks/</link><pubDate>Wed, 06 May 2026 09:20:00 +0530</pubDate><guid>https://acethecloud.com/blog/cost-monitoring-hidden-token-leaks/</guid><description>
+&lt;p&gt;LLM cost leaks rarely announce themselves.&lt;/p&gt;
+&lt;p&gt;They hide in places that feel harmless:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;giant tool schemas copied into every request&lt;/li&gt;
+&lt;li&gt;RAG chunks nobody reads&lt;/li&gt;
+&lt;li&gt;retries that double-charge users internally&lt;/li&gt;
+&lt;li&gt;background agents looping politely forever&lt;/li&gt;
+&lt;li&gt;streamed tokens generated after the client disconnected&lt;/li&gt;
+&lt;li&gt;hidden reasoning tokens&lt;/li&gt;
+&lt;li&gt;verbose system prompts that grew one incident at a time&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;temporary&amp;rdquo; debug context that became permanent&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The bill arrives later. It is always on time.&lt;/p&gt;
+&lt;h2&gt;Start with token accounting, not vibes&lt;span class="hx:absolute hx:-mt-20" id="start-with-token-accounting-not-vibes"&gt;&lt;/span&gt;
+&lt;a href="#start-with-token-accounting-not-vibes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Every request should produce a usage record:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;tenant&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;acme&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;feature&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;support-chat&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;model&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;gpt-4.1&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;request_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;req_123&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;input_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;8400&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cached_input_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;6200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;output_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;620&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;reasoning_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;180&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;tool_calls&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;retries&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cache_status&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;semantic_miss_prefix_hit&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;estimated_cost_usd&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.48&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;user_visible&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;OpenAI&amp;rsquo;s APIs expose token usage details such as cached input tokens and reasoning tokens for supported models and endpoints. OpenTelemetry&amp;rsquo;s GenAI semantic conventions define common attributes for model, operation, token usage, and request metadata. Use those ideas even if your serving stack is custom.&lt;/p&gt;
+&lt;p&gt;The goal is simple: every generated token should have an owner.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 560" role="img" aria-labelledby="token-ledger-title token-ledger-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="token-ledger-title"&gt;Token cost ledger&lt;/title&gt;
+&lt;desc id="token-ledger-desc"&gt;A token ledger breaks cost into visible answer tokens, hidden reasoning, retries, tool calls, RAG context, and cached tokens.&lt;/desc&gt;
+&lt;rect width="1180" height="560" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="68" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Every token needs an owner&lt;/text&gt;
+&lt;text x="56" y="106" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;If the ledger only shows final answer tokens, most of the cost story is missing.&lt;/text&gt;
+&lt;rect x="86" y="165" width="1000" height="62" rx="12" fill="#111827"/&gt;
+&lt;text x="126" y="205" font-size="20" font-family="JetBrains Mono,monospace" fill="#e5e7eb"&gt;total request cost&lt;/text&gt;
+&lt;rect x="86" y="280" width="175" height="92" rx="14" fill="#ecfccb" stroke="#76B900"/&gt;
+&lt;text x="124" y="318" font-size="18" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;Answer&lt;/text&gt;
+&lt;text x="124" y="346" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;visible tokens&lt;/text&gt;
+&lt;rect x="285" y="280" width="175" height="92" rx="14" fill="#eef2ff" stroke="#818cf8"/&gt;
+&lt;text x="323" y="318" font-size="18" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#3730a3"&gt;Reasoning&lt;/text&gt;
+&lt;text x="323" y="346" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;hidden tokens&lt;/text&gt;
+&lt;rect x="484" y="280" width="175" height="92" rx="14" fill="#fff7ed" stroke="#f59e0b"/&gt;
+&lt;text x="522" y="318" font-size="18" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#9a3412"&gt;RAG&lt;/text&gt;
+&lt;text x="522" y="346" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;context tokens&lt;/text&gt;
+&lt;rect x="683" y="280" width="175" height="92" rx="14" fill="#fee2e2" stroke="#ef4444"/&gt;
+&lt;text x="721" y="318" font-size="18" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#991b1b"&gt;Retries&lt;/text&gt;
+&lt;text x="721" y="346" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;duplicate work&lt;/text&gt;
+&lt;rect x="882" y="280" width="175" height="92" rx="14" fill="#e0f2fe" stroke="#38bdf8"/&gt;
+&lt;text x="920" y="318" font-size="18" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#075985"&gt;Cached&lt;/text&gt;
+&lt;text x="920" y="346" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;discounted input&lt;/text&gt;
+&lt;path d="M173 237 V270" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;path d="M372 237 V270" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;path d="M571 237 V270" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;path d="M770 237 V270" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;path d="M969 237 V270" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;rect x="220" y="430" width="740" height="48" rx="10" fill="#111827"/&gt;
+&lt;text x="280" y="461" font-size="18" font-family="JetBrains Mono,monospace" fill="#e5e7eb"&gt;cost = visible tokens + hidden work + failed attempts&lt;/text&gt;
+&lt;defs&gt;
+&lt;marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"&gt;&lt;path d="M0,0 L0,8 L9,4 z" fill="#64748b"/&gt;&lt;/marker&gt;
+&lt;/defs&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;A cost dashboard that ignores hidden work will make the wrong team look innocent.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Hidden leak 1: schema bloat&lt;span class="hx:absolute hx:-mt-20" id="hidden-leak-1-schema-bloat"&gt;&lt;/span&gt;
+&lt;a href="#hidden-leak-1-schema-bloat" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Tool schemas are useful. They are also repetitive. A large agent with dozens of tools can send thousands of schema tokens per request.&lt;/p&gt;
+&lt;p&gt;Mitigations:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;send only tools relevant to the current state&lt;/li&gt;
+&lt;li&gt;group tools by workflow&lt;/li&gt;
+&lt;li&gt;shorten descriptions after evals prove safety&lt;/li&gt;
+&lt;li&gt;use prompt caching for stable tool schemas&lt;/li&gt;
+&lt;li&gt;measure schema tokens separately&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If the tool list grows every sprint, your token bill is doing product management without permission.&lt;/p&gt;
+&lt;h2&gt;Hidden leak 2: RAG over-retrieval&lt;span class="hx:absolute hx:-mt-20" id="hidden-leak-2-rag-over-retrieval"&gt;&lt;/span&gt;
+&lt;a href="#hidden-leak-2-rag-over-retrieval" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;RAG systems love stuffing context. The model may use three paragraphs while the prompt carries twenty.&lt;/p&gt;
+&lt;p&gt;Track:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;retrieved tokens&lt;/li&gt;
+&lt;li&gt;cited tokens&lt;/li&gt;
+&lt;li&gt;answer-supported chunks&lt;/li&gt;
+&lt;li&gt;context precision&lt;/li&gt;
+&lt;li&gt;no-answer cases&lt;/li&gt;
+&lt;li&gt;per-source token cost&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If a chunk never supports an answer, it should not keep getting invited to dinner.&lt;/p&gt;
+&lt;h2&gt;Hidden leak 3: retries and fallbacks&lt;span class="hx:absolute hx:-mt-20" id="hidden-leak-3-retries-and-fallbacks"&gt;&lt;/span&gt;
+&lt;a href="#hidden-leak-3-retries-and-fallbacks" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Retries are necessary. Blind retries are expensive.&lt;/p&gt;
+&lt;p&gt;Record:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;original request cost&lt;/li&gt;
+&lt;li&gt;retry count&lt;/li&gt;
+&lt;li&gt;retry reason&lt;/li&gt;
+&lt;li&gt;fallback model&lt;/li&gt;
+&lt;li&gt;tokens wasted before failure&lt;/li&gt;
+&lt;li&gt;user-visible success&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A retry after a malformed JSON output is different from a retry after a timeout. One may need constrained decoding. The other may need queue control.&lt;/p&gt;
+&lt;h2&gt;Hidden leak 4: agents that do not stop&lt;span class="hx:absolute hx:-mt-20" id="hidden-leak-4-agents-that-do-not-stop"&gt;&lt;/span&gt;
+&lt;a href="#hidden-leak-4-agents-that-do-not-stop" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Agents can burn tokens in tool loops:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;search -&amp;gt; summarize -&amp;gt; search again -&amp;gt; summarize again -&amp;gt; rethink -&amp;gt; search&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The loop may not be technically infinite. It can simply be expensive enough to feel infinite to finance.&lt;/p&gt;
+&lt;p&gt;Set budgets:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;max steps&lt;/li&gt;
+&lt;li&gt;max tool calls&lt;/li&gt;
+&lt;li&gt;max tokens per turn&lt;/li&gt;
+&lt;li&gt;max wall-clock time&lt;/li&gt;
+&lt;li&gt;max repeated tool/action pairs&lt;/li&gt;
+&lt;li&gt;no-progress detector&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Hidden leak 5: cancellation that does not propagate&lt;span class="hx:absolute hx:-mt-20" id="hidden-leak-5-cancellation-that-does-not-propagate"&gt;&lt;/span&gt;
+&lt;a href="#hidden-leak-5-cancellation-that-does-not-propagate" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If the user closes the tab, the backend should stop generating. If the stream disconnects and the GPU keeps decoding for 30 seconds, those tokens are pure waste.&lt;/p&gt;
+&lt;p&gt;Every streaming system needs:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;client disconnect detection&lt;/li&gt;
+&lt;li&gt;cancellation propagation to model backend&lt;/li&gt;
+&lt;li&gt;token accounting after cancel&lt;/li&gt;
+&lt;li&gt;aborted stream metrics&lt;/li&gt;
+&lt;li&gt;cleanup for held KV cache and queue slots&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Cost dashboard that actually helps&lt;span class="hx:absolute hx:-mt-20" id="cost-dashboard-that-actually-helps"&gt;&lt;/span&gt;
+&lt;a href="#cost-dashboard-that-actually-helps" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;At minimum:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Panel&lt;/th&gt;
+&lt;th&gt;Why it matters&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Cost by tenant / feature / model&lt;/td&gt;
+&lt;td&gt;Finds owners&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Input, cached input, output, reasoning tokens&lt;/td&gt;
+&lt;td&gt;Separates cost classes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;RAG context tokens vs cited tokens&lt;/td&gt;
+&lt;td&gt;Finds retrieval waste&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Tool schema tokens&lt;/td&gt;
+&lt;td&gt;Finds agent bloat&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Retry cost&lt;/td&gt;
+&lt;td&gt;Finds reliability tax&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Canceled-token waste&lt;/td&gt;
+&lt;td&gt;Finds stream cleanup bugs&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Cost per successful task&lt;/td&gt;
+&lt;td&gt;Avoids optimizing raw tokens&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Budget burn rate&lt;/td&gt;
+&lt;td&gt;Catches runaway jobs early&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 580" role="img" aria-labelledby="leak-dashboard-title leak-dashboard-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="leak-dashboard-title"&gt;Hidden token leak dashboard&lt;/title&gt;
+&lt;desc id="leak-dashboard-desc"&gt;A dashboard layout showing token leaks from RAG context, retries, tools, agent loops, and canceled streams.&lt;/desc&gt;
+&lt;rect width="1180" height="580" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="68" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Make waste visible before it becomes normal&lt;/text&gt;
+&lt;text x="56" y="106" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;The best cost controls are boring dashboards with owners and budgets.&lt;/text&gt;
+&lt;rect x="70" y="155" width="310" height="120" rx="14" fill="#fee2e2" stroke="#ef4444"/&gt;
+&lt;text x="112" y="200" font-size="22" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#991b1b"&gt;Retry tax&lt;/text&gt;
+&lt;text x="112" y="232" font-size="16" font-family="JetBrains Mono,monospace" fill="#334155"&gt;12.4% of spend&lt;/text&gt;
+&lt;rect x="435" y="155" width="310" height="120" rx="14" fill="#fff7ed" stroke="#f59e0b"/&gt;
+&lt;text x="477" y="200" font-size="22" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#9a3412"&gt;RAG overfill&lt;/text&gt;
+&lt;text x="477" y="232" font-size="16" font-family="JetBrains Mono,monospace" fill="#334155"&gt;8.7M unused tokens&lt;/text&gt;
+&lt;rect x="800" y="155" width="310" height="120" rx="14" fill="#eef2ff" stroke="#818cf8"/&gt;
+&lt;text x="842" y="200" font-size="22" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#3730a3"&gt;Tool schema&lt;/text&gt;
+&lt;text x="842" y="232" font-size="16" font-family="JetBrains Mono,monospace" fill="#334155"&gt;2.1K tokens / call&lt;/text&gt;
+&lt;rect x="70" y="330" width="310" height="120" rx="14" fill="#ecfccb" stroke="#76B900"/&gt;
+&lt;text x="112" y="375" font-size="22" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;Cache savings&lt;/text&gt;
+&lt;text x="112" y="407" font-size="16" font-family="JetBrains Mono,monospace" fill="#334155"&gt;43% input cached&lt;/text&gt;
+&lt;rect x="435" y="330" width="310" height="120" rx="14" fill="#e0f2fe" stroke="#38bdf8"/&gt;
+&lt;text x="477" y="375" font-size="22" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#075985"&gt;Agent loops&lt;/text&gt;
+&lt;text x="477" y="407" font-size="16" font-family="JetBrains Mono,monospace" fill="#334155"&gt;391 budget stops&lt;/text&gt;
+&lt;rect x="800" y="330" width="310" height="120" rx="14" fill="#ffffff" stroke="#cbd5e1"/&gt;
+&lt;text x="842" y="375" font-size="22" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Canceled waste&lt;/text&gt;
+&lt;text x="842" y="407" font-size="16" font-family="JetBrains Mono,monospace" fill="#334155"&gt;0.8% output tokens&lt;/text&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Use real numbers from your stack. The categories are the point; the sample values are placeholders.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Budget controls&lt;span class="hx:absolute hx:-mt-20" id="budget-controls"&gt;&lt;/span&gt;
+&lt;a href="#budget-controls" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Dashboards are not enough. Add controls:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;per-tenant daily and monthly budgets&lt;/li&gt;
+&lt;li&gt;per-feature budgets&lt;/li&gt;
+&lt;li&gt;model allowlists by use case&lt;/li&gt;
+&lt;li&gt;max input tokens by endpoint&lt;/li&gt;
+&lt;li&gt;max output tokens by task&lt;/li&gt;
+&lt;li&gt;tool-call budgets&lt;/li&gt;
+&lt;li&gt;agent step budgets&lt;/li&gt;
+&lt;li&gt;cost-aware fallback&lt;/li&gt;
+&lt;li&gt;alert on spend velocity, not just absolute spend&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The useful alert is:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;support-chat spend is 3.2x normal for this hour
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;because retry tokens increased after deploy abc123&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Not:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;bill high&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;The metric to optimize&lt;span class="hx:absolute hx:-mt-20" id="the-metric-to-optimize"&gt;&lt;/span&gt;
+&lt;a href="#the-metric-to-optimize" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Do not optimize for lowest token count. Optimize for:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;cost per successful task inside SLO&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Sometimes a longer prompt prevents a retry. Sometimes a bigger model avoids escalation. Sometimes a semantic cache hit is safe and saves everything. Sometimes cutting context makes the answer cheap and wrong.&lt;/p&gt;
+&lt;p&gt;Cost monitoring should help engineering make those tradeoffs consciously.&lt;/p&gt;
+&lt;h2&gt;Sources worth reading&lt;span class="hx:absolute hx:-mt-20" id="sources-worth-reading"&gt;&lt;/span&gt;
+&lt;a href="#sources-worth-reading" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://platform.openai.com/docs/api-reference"target="_blank" rel="noopener"&gt;OpenAI usage and token details&lt;/a&gt; for request usage fields such as cached and reasoning tokens.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://cookbook.openai.com/examples/completions_usage_api"target="_blank" rel="noopener"&gt;OpenAI Usage API cookbook&lt;/a&gt; for organization-level usage analysis.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/"target="_blank" rel="noopener"&gt;OpenTelemetry GenAI semantic conventions&lt;/a&gt; for tracing generative AI requests.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.litellm.ai/docs/proxy/spend_tracking"target="_blank" rel="noopener"&gt;LiteLLM spend tracking&lt;/a&gt; for practical multi-provider cost controls.&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>

@@ -1,0 +1,274 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Ragas</title><link>https://acethecloud.com/tags/ragas/</link><description>Recent content in Ragas on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 06 May 2026 09:00:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/ragas/index.xml" rel="self" type="application/rss+xml"/><item><title>Your RAG Demo Passed. Your RAG System Needs a Judge: RAGAS, Humans, and Evidence</title><link>https://acethecloud.com/blog/rag-evaluation-ragas-human-evals/</link><pubDate>Wed, 06 May 2026 09:00:00 +0530</pubDate><guid>https://acethecloud.com/blog/rag-evaluation-ragas-human-evals/</guid><description>
+&lt;p&gt;RAG demos are forgiving. Production RAG is not.&lt;/p&gt;
+&lt;p&gt;A demo needs one good answer on stage. A production RAG system needs thousands of correct answers across stale documents, ambiguous questions, bad retrieval, missing permissions, partial context, and users who ask &amp;ldquo;same thing as yesterday&amp;rdquo; while changing the noun that matters.&lt;/p&gt;
+&lt;p&gt;RAG evaluation is hard because failures hide in different layers:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;query understanding&lt;/li&gt;
+&lt;li&gt;retrieval recall&lt;/li&gt;
+&lt;li&gt;ranking precision&lt;/li&gt;
+&lt;li&gt;context assembly&lt;/li&gt;
+&lt;li&gt;permission filtering&lt;/li&gt;
+&lt;li&gt;answer faithfulness&lt;/li&gt;
+&lt;li&gt;citation quality&lt;/li&gt;
+&lt;li&gt;final usefulness&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you only grade the final answer, you do not know what broke. If you only grade retrieval, you do not know whether the model used the evidence. You need both automated evals and human judgment.&lt;/p&gt;
+&lt;h2&gt;RAGAS is useful, not a replacement for judgment&lt;span class="hx:absolute hx:-mt-20" id="ragas-is-useful-not-a-replacement-for-judgment"&gt;&lt;/span&gt;
+&lt;a href="#ragas-is-useful-not-a-replacement-for-judgment" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;RAGAS popularized a practical set of RAG metrics such as faithfulness, answer relevancy, context precision, and context recall. The value is not that any single metric is perfect. The value is that it forces the team to separate &amp;ldquo;did we retrieve the right evidence?&amp;rdquo; from &amp;ldquo;did the model answer using that evidence?&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;Typical metric questions:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Metric area&lt;/th&gt;
+&lt;th&gt;Question it answers&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Context recall&lt;/td&gt;
+&lt;td&gt;Did retrieval find the evidence needed?&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Context precision&lt;/td&gt;
+&lt;td&gt;Was the retrieved context mostly useful?&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Faithfulness&lt;/td&gt;
+&lt;td&gt;Is the answer grounded in supplied context?&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Answer relevancy&lt;/td&gt;
+&lt;td&gt;Did the answer address the user&amp;rsquo;s question?&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;These are excellent smoke detectors. They are not the fire department.&lt;/p&gt;
+&lt;p&gt;LLM-as-judge metrics can be noisy. They can inherit model bias. They can miss product nuance. They can reward answer style over truth. Use them to find regressions and prioritize review, not to declare final truth without calibration.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 580" role="img" aria-labelledby="rag-layers-title rag-layers-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="rag-layers-title"&gt;RAG evaluation layers&lt;/title&gt;
+&lt;desc id="rag-layers-desc"&gt;A RAG evaluation pipeline with retrieval, context, generation, citation, and human review layers.&lt;/desc&gt;
+&lt;rect width="1180" height="580" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="68" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Evaluate the pipeline, not just the answer&lt;/text&gt;
+&lt;text x="56" y="106" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;RAG breaks in layers. The eval harness should show which layer failed.&lt;/text&gt;
+&lt;rect x="76" y="180" width="170" height="86" rx="14" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/&gt;
+&lt;text x="120" y="216" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#075985"&gt;Query&lt;/text&gt;
+&lt;text x="108" y="242" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;intent + scope&lt;/text&gt;
+&lt;path d="M256 223 H308" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;rect x="322" y="180" width="190" height="86" rx="14" fill="#ecfccb" stroke="#76B900" stroke-width="2"/&gt;
+&lt;text x="364" y="216" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;Retrieval&lt;/text&gt;
+&lt;text x="356" y="242" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;recall, precision&lt;/text&gt;
+&lt;path d="M522 223 H574" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;rect x="588" y="180" width="190" height="86" rx="14" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/&gt;
+&lt;text x="630" y="216" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#9a3412"&gt;Context&lt;/text&gt;
+&lt;text x="620" y="242" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;chunk quality&lt;/text&gt;
+&lt;path d="M788 223 H840" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;rect x="854" y="180" width="190" height="86" rx="14" fill="#111827"/&gt;
+&lt;text x="896" y="216" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#ffffff"&gt;Answer&lt;/text&gt;
+&lt;text x="890" y="242" font-size="14" font-family="Inter,Arial,sans-serif" fill="#bbf7d0"&gt;faithful, useful&lt;/text&gt;
+&lt;rect x="176" y="355" width="230" height="96" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/&gt;
+&lt;text x="222" y="393" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;RAGAS metrics&lt;/text&gt;
+&lt;text x="222" y="424" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;fast regression signals&lt;/text&gt;
+&lt;rect x="474" y="355" width="230" height="96" rx="14" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/&gt;
+&lt;text x="520" y="393" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#3730a3"&gt;Human evals&lt;/text&gt;
+&lt;text x="520" y="424" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;truth, policy, nuance&lt;/text&gt;
+&lt;rect x="772" y="355" width="230" height="96" rx="14" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/&gt;
+&lt;text x="818" y="393" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#991b1b"&gt;Production signals&lt;/text&gt;
+&lt;text x="818" y="424" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;corrections, retries, clicks&lt;/text&gt;
+&lt;path d="M417 272 C385 312,340 332,300 348" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;path d="M683 272 C650 312,612 332,590 348" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;path d="M950 272 C930 312,900 332,890 348" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;defs&gt;
+&lt;marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"&gt;&lt;path d="M0,0 L0,8 L9,4 z" fill="#64748b"/&gt;&lt;/marker&gt;
+&lt;/defs&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;RAG evals are most useful when they localize failure, not just produce one score.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Build a golden dataset the boring way&lt;span class="hx:absolute hx:-mt-20" id="build-a-golden-dataset-the-boring-way"&gt;&lt;/span&gt;
+&lt;a href="#build-a-golden-dataset-the-boring-way" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Your eval set should include:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;common user questions&lt;/li&gt;
+&lt;li&gt;rare but important questions&lt;/li&gt;
+&lt;li&gt;adversarial questions&lt;/li&gt;
+&lt;li&gt;permission-boundary questions&lt;/li&gt;
+&lt;li&gt;outdated-document traps&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;answer not found&amp;rdquo; cases&lt;/li&gt;
+&lt;li&gt;ambiguous questions requiring clarification&lt;/li&gt;
+&lt;li&gt;multi-hop questions&lt;/li&gt;
+&lt;li&gt;citation-required questions&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For each item, store:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;question
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;expected answer or rubric
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;gold supporting documents
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;forbidden documents
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;tenant / role scope
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;freshness expectation
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;known failure mode
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;human severity label&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The &amp;ldquo;answer not found&amp;rdquo; cases are critical. A RAG system that always answers is not helpful; it is confident in the way a broken smoke alarm is confident.&lt;/p&gt;
+&lt;h2&gt;Automated metrics: fast but calibrated&lt;span class="hx:absolute hx:-mt-20" id="automated-metrics-fast-but-calibrated"&gt;&lt;/span&gt;
+&lt;a href="#automated-metrics-fast-but-calibrated" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Use RAGAS or a similar framework to run frequent automated evals:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;every prompt change&lt;/li&gt;
+&lt;li&gt;every retrieval index change&lt;/li&gt;
+&lt;li&gt;every chunking change&lt;/li&gt;
+&lt;li&gt;every embedding model change&lt;/li&gt;
+&lt;li&gt;every reranker change&lt;/li&gt;
+&lt;li&gt;every generation model change&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;But calibrate the judge.&lt;/p&gt;
+&lt;p&gt;Take a sample of automated results and have humans label them. Compare:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;where the judge agrees&lt;/li&gt;
+&lt;li&gt;where the judge is too generous&lt;/li&gt;
+&lt;li&gt;where the judge is too harsh&lt;/li&gt;
+&lt;li&gt;which domains are noisy&lt;/li&gt;
+&lt;li&gt;which metrics correlate with user outcomes&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Do not hide this calibration. Put it in the dashboard.&lt;/p&gt;
+&lt;h2&gt;Human evals: expensive, indispensable&lt;span class="hx:absolute hx:-mt-20" id="human-evals-expensive-indispensable"&gt;&lt;/span&gt;
+&lt;a href="#human-evals-expensive-indispensable" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Humans are best at:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;policy nuance&lt;/li&gt;
+&lt;li&gt;domain truth&lt;/li&gt;
+&lt;li&gt;subtle missing context&lt;/li&gt;
+&lt;li&gt;citation trustworthiness&lt;/li&gt;
+&lt;li&gt;answer usefulness&lt;/li&gt;
+&lt;li&gt;hallucination severity&lt;/li&gt;
+&lt;li&gt;whether the system should have refused or clarified&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The rubric matters more than the rating scale.&lt;/p&gt;
+&lt;p&gt;Bad rubric:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Rate this answer 1-5.&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Better rubric:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Is the answer supported by the cited context?
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Did it answer the user&amp;#39;s actual question?
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Did it omit a critical caveat?
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Would this answer be safe for a customer to act on?
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;If wrong, is the severity low, medium, or high?&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 590" role="img" aria-labelledby="human-loop-title human-loop-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="human-loop-title"&gt;RAG evaluation feedback loop&lt;/title&gt;
+&lt;desc id="human-loop-desc"&gt;Automated RAG metrics and human evals feed into dataset updates, retriever tuning, and release gates.&lt;/desc&gt;
+&lt;rect width="1180" height="590" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="68" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;The eval loop should improve the system, not just grade it&lt;/text&gt;
+&lt;text x="56" y="106" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;RAGAS catches regressions. Humans decide what matters. Production logs reveal what you forgot to test.&lt;/text&gt;
+&lt;rect x="90" y="175" width="230" height="90" rx="14" fill="#ecfccb" stroke="#76B900" stroke-width="2"/&gt;
+&lt;text x="134" y="212" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;Automated evals&lt;/text&gt;
+&lt;text x="134" y="240" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;RAGAS + custom checks&lt;/text&gt;
+&lt;rect x="475" y="175" width="230" height="90" rx="14" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/&gt;
+&lt;text x="532" y="212" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#3730a3"&gt;Human review&lt;/text&gt;
+&lt;text x="532" y="240" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;rubrics + severity&lt;/text&gt;
+&lt;rect x="860" y="175" width="230" height="90" rx="14" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/&gt;
+&lt;text x="912" y="212" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#9a3412"&gt;Prod signals&lt;/text&gt;
+&lt;text x="912" y="240" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;clicks, retries, edits&lt;/text&gt;
+&lt;rect x="245" y="365" width="260" height="90" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/&gt;
+&lt;text x="300" y="402" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Golden dataset&lt;/text&gt;
+&lt;text x="300" y="430" font-size="14" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;new cases, better labels&lt;/text&gt;
+&lt;rect x="675" y="365" width="260" height="90" rx="14" fill="#111827"/&gt;
+&lt;text x="732" y="402" font-size="20" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#ffffff"&gt;Release gate&lt;/text&gt;
+&lt;text x="732" y="430" font-size="14" font-family="JetBrains Mono,monospace" fill="#bbf7d0"&gt;ship only if safe&lt;/text&gt;
+&lt;path d="M322 220 H462" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;path d="M707 220 H848" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;path d="M975 272 C920 340,850 360,810 360" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;path d="M590 272 C555 325,480 350,400 360" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;path d="M505 410 H662" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;path d="M805 365 C760 310,650 285,535 274" stroke="#76B900" stroke-width="3" fill="none" marker-end="url(#green-arrow)"/&gt;
+&lt;defs&gt;
+&lt;marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"&gt;&lt;path d="M0,0 L0,8 L9,4 z" fill="#64748b"/&gt;&lt;/marker&gt;
+&lt;marker id="green-arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"&gt;&lt;path d="M0,0 L0,8 L9,4 z" fill="#76B900"/&gt;&lt;/marker&gt;
+&lt;/defs&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;A RAG eval program is a learning loop: logs become labels, labels become tests, tests become release gates.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Production dashboard&lt;span class="hx:absolute hx:-mt-20" id="production-dashboard"&gt;&lt;/span&gt;
+&lt;a href="#production-dashboard" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Track:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;retrieval recall on gold docs&lt;/li&gt;
+&lt;li&gt;context precision&lt;/li&gt;
+&lt;li&gt;answer faithfulness&lt;/li&gt;
+&lt;li&gt;answer relevancy&lt;/li&gt;
+&lt;li&gt;citation coverage&lt;/li&gt;
+&lt;li&gt;unsupported claim rate&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;no answer&amp;rdquo; correctness&lt;/li&gt;
+&lt;li&gt;human severity-weighted pass rate&lt;/li&gt;
+&lt;li&gt;user correction rate&lt;/li&gt;
+&lt;li&gt;source freshness failures&lt;/li&gt;
+&lt;li&gt;permission-filter misses&lt;/li&gt;
+&lt;li&gt;latency and cost by query class&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The most important metric is not a single score. It is the breakdown:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;bad answer because retrieval failed
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;bad answer because context was noisy
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;bad answer because model ignored evidence
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;bad answer because policy was stale
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;bad answer because the question was ambiguous&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That breakdown tells you what to fix.&lt;/p&gt;
+&lt;h2&gt;Release gate&lt;span class="hx:absolute hx:-mt-20" id="release-gate"&gt;&lt;/span&gt;
+&lt;a href="#release-gate" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;For production RAG, I like a gate like this:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;no high-severity regressions on golden set&lt;/li&gt;
+&lt;li&gt;faithfulness above threshold&lt;/li&gt;
+&lt;li&gt;context recall above threshold for answerable questions&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;not found&amp;rdquo; behavior passes&lt;/li&gt;
+&lt;li&gt;human eval sample accepted&lt;/li&gt;
+&lt;li&gt;no permission-boundary failures&lt;/li&gt;
+&lt;li&gt;latency and cost inside budget&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If the system fails, do not just tweak the prompt. Inspect the layer that failed.&lt;/p&gt;
+&lt;h2&gt;Sources worth reading&lt;span class="hx:absolute hx:-mt-20" id="sources-worth-reading"&gt;&lt;/span&gt;
+&lt;a href="#sources-worth-reading" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://arxiv.org/abs/2309.15217"target="_blank" rel="noopener"&gt;RAGAS paper&lt;/a&gt; and &lt;a href="https://docs.ragas.io/"target="_blank" rel="noopener"&gt;RAGAS documentation&lt;/a&gt; for RAG-specific metrics.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/openai/evals"target="_blank" rel="noopener"&gt;OpenAI Evals&lt;/a&gt; for evaluation harness patterns.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.smith.langchain.com/evaluation"target="_blank" rel="noopener"&gt;LangSmith evaluation docs&lt;/a&gt; for dataset and evaluator workflows.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.llamaindex.ai/en/stable/module_guides/evaluating/"target="_blank" rel="noopener"&gt;LlamaIndex evaluation docs&lt;/a&gt; for retrieval and response evaluation patterns.&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>

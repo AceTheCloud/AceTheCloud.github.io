@@ -1,0 +1,229 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Quantization</title><link>https://acethecloud.com/tags/quantization/</link><description>Recent content in Quantization on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 06 May 2026 08:40:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/quantization/index.xml" rel="self" type="application/rss+xml"/><item><title>Draft Tokens or Smaller Numbers? Speculative Decoding vs Quantization in Production</title><link>https://acethecloud.com/blog/speculative-decoding-vs-quantization-production/</link><pubDate>Wed, 06 May 2026 08:40:00 +0530</pubDate><guid>https://acethecloud.com/blog/speculative-decoding-vs-quantization-production/</guid><description>
+&lt;p&gt;Speculative decoding and quantization both promise faster inference. They do it in completely different ways.&lt;/p&gt;
+&lt;p&gt;Speculative decoding tries to reduce the number of expensive target-model decode steps. Quantization tries to make each step cheaper by using smaller numerical formats and moving less memory.&lt;/p&gt;
+&lt;p&gt;One changes the algorithmic schedule. The other changes representation and kernels.&lt;/p&gt;
+&lt;p&gt;The best production systems often use both, but not because &amp;ldquo;more optimization&amp;rdquo; is automatically better. They use both when the workload, model, quality target, and serving runtime agree.&lt;/p&gt;
+&lt;h2&gt;What speculative decoding optimizes&lt;span class="hx:absolute hx:-mt-20" id="what-speculative-decoding-optimizes"&gt;&lt;/span&gt;
+&lt;a href="#what-speculative-decoding-optimizes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Autoregressive decoding is sequential. Generate a token, append it, generate the next token. Speculative decoding adds a draft path:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;A cheaper draft model or draft head predicts several tokens.&lt;/li&gt;
+&lt;li&gt;The target model verifies those tokens.&lt;/li&gt;
+&lt;li&gt;Accepted tokens are emitted.&lt;/li&gt;
+&lt;li&gt;Rejected tokens fall back safely.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The original speculative decoding work showed that, under the algorithm&amp;rsquo;s assumptions, this can preserve the target distribution while reducing target-model passes. That is the magic: speed without changing the answer distribution. Production still has to measure it carefully because implementation details, sampling, model mismatch, and workload shape matter.&lt;/p&gt;
+&lt;p&gt;Speculative decoding helps most when:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;decode dominates latency&lt;/li&gt;
+&lt;li&gt;output is long enough&lt;/li&gt;
+&lt;li&gt;draft model is cheap&lt;/li&gt;
+&lt;li&gt;acceptance rate is high&lt;/li&gt;
+&lt;li&gt;runtime verifies efficiently&lt;/li&gt;
+&lt;li&gt;memory overhead is acceptable&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It helps least when:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;prefill dominates&lt;/li&gt;
+&lt;li&gt;output is short&lt;/li&gt;
+&lt;li&gt;draft tokens are often rejected&lt;/li&gt;
+&lt;li&gt;draft model consumes scarce GPU memory&lt;/li&gt;
+&lt;li&gt;tool latency dominates the workflow&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;What quantization optimizes&lt;span class="hx:absolute hx:-mt-20" id="what-quantization-optimizes"&gt;&lt;/span&gt;
+&lt;a href="#what-quantization-optimizes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Quantization changes numeric precision. Instead of FP16/BF16 everywhere, you may use FP8, INT8, INT4, AWQ, GPTQ, SmoothQuant-style approaches, or runtime-specific formats.&lt;/p&gt;
+&lt;p&gt;The goals:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;reduce model memory footprint&lt;/li&gt;
+&lt;li&gt;reduce memory bandwidth pressure&lt;/li&gt;
+&lt;li&gt;increase effective throughput&lt;/li&gt;
+&lt;li&gt;fit larger models or longer contexts&lt;/li&gt;
+&lt;li&gt;lower cost per token&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The tradeoff is quality and compatibility. Some models tolerate lower precision well. Some tasks expose degradation quickly. Some kernels are fast only for certain shapes, GPUs, and batch sizes. NVIDIA&amp;rsquo;s TensorRT-LLM, vLLM, and SGLang all support quantization paths, but the practical win depends on the exact model, hardware, and runtime.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 560" role="img" aria-labelledby="spec-quant-title spec-quant-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="spec-quant-title"&gt;Speculative decoding versus quantization&lt;/title&gt;
+&lt;desc id="spec-quant-desc"&gt;A comparison showing speculative decoding reduces target decode passes while quantization makes each pass cheaper.&lt;/desc&gt;
+&lt;rect width="1180" height="560" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="68" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Two speedups, two different levers&lt;/text&gt;
+&lt;text x="56" y="106" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Speculation tries to need fewer target passes. Quantization tries to make each pass cheaper.&lt;/text&gt;
+&lt;rect x="86" y="165" width="460" height="290" rx="18" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/&gt;
+&lt;text x="132" y="216" font-size="26" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#3730a3"&gt;Speculative decoding&lt;/text&gt;
+&lt;rect x="138" y="260" width="110" height="58" rx="10" fill="#dbeafe"/&gt;
+&lt;text x="168" y="296" font-size="16" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#1e3a8a"&gt;Draft&lt;/text&gt;
+&lt;path d="M260 289 H332" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;rect x="346" y="260" width="120" height="58" rx="10" fill="#111827"/&gt;
+&lt;text x="374" y="296" font-size="16" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#ffffff"&gt;Verify&lt;/text&gt;
+&lt;text x="132" y="372" font-size="17" font-family="JetBrains Mono,monospace" fill="#334155"&gt;win = accepted draft tokens&lt;/text&gt;
+&lt;text x="132" y="406" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Risk: low acceptance or extra memory overhead.&lt;/text&gt;
+&lt;rect x="634" y="165" width="460" height="290" rx="18" fill="#ecfccb" stroke="#76B900" stroke-width="2"/&gt;
+&lt;text x="680" y="216" font-size="26" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;Quantization&lt;/text&gt;
+&lt;rect x="700" y="258" width="120" height="62" rx="10" fill="#111827"/&gt;
+&lt;text x="727" y="296" font-size="16" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#ffffff"&gt;FP16&lt;/text&gt;
+&lt;path d="M832 289 H905" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;rect x="918" y="258" width="120" height="62" rx="10" fill="#d9f99d"/&gt;
+&lt;text x="950" y="296" font-size="16" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;INT4&lt;/text&gt;
+&lt;text x="680" y="372" font-size="17" font-family="JetBrains Mono,monospace" fill="#334155"&gt;win = cheaper model step&lt;/text&gt;
+&lt;text x="680" y="406" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Risk: quality loss or kernel mismatch.&lt;/text&gt;
+&lt;defs&gt;
+&lt;marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"&gt;&lt;path d="M0,0 L0,8 L9,4 z" fill="#64748b"/&gt;&lt;/marker&gt;
+&lt;/defs&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Speculation changes how many target passes you need. Quantization changes the cost and quality of each pass.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;They fail differently&lt;span class="hx:absolute hx:-mt-20" id="they-fail-differently"&gt;&lt;/span&gt;
+&lt;a href="#they-fail-differently" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Speculative decoding failure looks like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;draft tokens proposed: 5 per step
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;accepted tokens: 1.1 per step
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;extra draft compute: non-trivial
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;result: complexity without much speedup&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Quantization failure looks like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;latency improved
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;quality on benchmark looked okay
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;tool-use JSON got worse
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;customer escalations increased
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;result: cheaper wrong answers&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The first is a performance disappointment. The second can be a product incident.&lt;/p&gt;
+&lt;h2&gt;What to measure&lt;span class="hx:absolute hx:-mt-20" id="what-to-measure"&gt;&lt;/span&gt;
+&lt;a href="#what-to-measure" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;For speculative decoding:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;draft tokens proposed&lt;/li&gt;
+&lt;li&gt;accepted tokens per verification&lt;/li&gt;
+&lt;li&gt;rejection rate by task type&lt;/li&gt;
+&lt;li&gt;target forward passes saved&lt;/li&gt;
+&lt;li&gt;TTFT and TPOT&lt;/li&gt;
+&lt;li&gt;memory overhead&lt;/li&gt;
+&lt;li&gt;quality parity&lt;/li&gt;
+&lt;li&gt;interaction with batching&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For quantization:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;quality on task-specific evals&lt;/li&gt;
+&lt;li&gt;exact match / pass rate / tool-call validity&lt;/li&gt;
+&lt;li&gt;calibration set coverage&lt;/li&gt;
+&lt;li&gt;throughput and latency by batch size&lt;/li&gt;
+&lt;li&gt;memory footprint&lt;/li&gt;
+&lt;li&gt;numerical stability&lt;/li&gt;
+&lt;li&gt;output drift&lt;/li&gt;
+&lt;li&gt;cost per useful token&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For both:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;p95 and p99 latency&lt;/li&gt;
+&lt;li&gt;cancellation behavior&lt;/li&gt;
+&lt;li&gt;retry rate&lt;/li&gt;
+&lt;li&gt;user correction rate&lt;/li&gt;
+&lt;li&gt;cost per accepted answer&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Which one should you try first?&lt;span class="hx:absolute hx:-mt-20" id="which-one-should-you-try-first"&gt;&lt;/span&gt;
+&lt;a href="#which-one-should-you-try-first" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If the model barely fits in memory, try quantization first.&lt;/p&gt;
+&lt;p&gt;If decode is your bottleneck and quality is already acceptable, try speculative decoding.&lt;/p&gt;
+&lt;p&gt;If long prompts dominate, neither may be the first move. You may need prefix caching, chunked prefill, RAG compression, or KV-aware routing before either optimization pays back.&lt;/p&gt;
+&lt;p&gt;If output quality is fragile, be conservative with quantization. Speculative decoding can preserve the target distribution under the right algorithm, while quantization changes numerical behavior. That does not make speculation risk-free; it just moves the risk to implementation and acceptance rate.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;svg viewBox="0 0 1180 600" role="img" aria-labelledby="decision-title decision-desc" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;title id="decision-title"&gt;Decision tree for speculative decoding and quantization&lt;/title&gt;
+&lt;desc id="decision-desc"&gt;A decision tree guiding whether to prioritize quantization, speculative decoding, caching, or evaluation.&lt;/desc&gt;
+&lt;rect width="1180" height="600" rx="18" fill="#f8fafc"/&gt;
+&lt;text x="56" y="68" font-size="34" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#0f172a"&gt;Pick the lever that matches the bottleneck&lt;/text&gt;
+&lt;text x="56" y="106" font-size="18" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;There is no universal winner. The workload decides.&lt;/text&gt;
+&lt;rect x="430" y="150" width="320" height="80" rx="14" fill="#111827"/&gt;
+&lt;text x="480" y="198" font-size="21" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#ffffff"&gt;What limits production?&lt;/text&gt;
+&lt;path d="M590 235 V285" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/&gt;
+&lt;rect x="80" y="310" width="250" height="98" rx="14" fill="#ecfccb" stroke="#76B900"/&gt;
+&lt;text x="124" y="348" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#365314"&gt;Memory fit&lt;/text&gt;
+&lt;text x="124" y="378" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Try quantization first.&lt;/text&gt;
+&lt;rect x="365" y="310" width="250" height="98" rx="14" fill="#eef2ff" stroke="#818cf8"/&gt;
+&lt;text x="409" y="348" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#3730a3"&gt;Decode speed&lt;/text&gt;
+&lt;text x="409" y="378" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Try speculation.&lt;/text&gt;
+&lt;rect x="650" y="310" width="250" height="98" rx="14" fill="#fff7ed" stroke="#f59e0b"/&gt;
+&lt;text x="694" y="348" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#9a3412"&gt;Long prefill&lt;/text&gt;
+&lt;text x="694" y="378" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Fix caching/routing.&lt;/text&gt;
+&lt;rect x="935" y="310" width="180" height="98" rx="14" fill="#fee2e2" stroke="#ef4444"/&gt;
+&lt;text x="966" y="348" font-size="19" font-family="Inter,Arial,sans-serif" font-weight="800" fill="#991b1b"&gt;Quality risk&lt;/text&gt;
+&lt;text x="966" y="378" font-size="15" font-family="Inter,Arial,sans-serif" fill="#475569"&gt;Build evals first.&lt;/text&gt;
+&lt;path d="M430 200 C270 235,170 265,205 300" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;path d="M520 232 C502 260,492 280,490 300" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;path d="M660 232 C710 260,750 280,775 300" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;path d="M750 200 C900 235,1000 265,1025 300" stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)"/&gt;
+&lt;rect x="262" y="485" width="656" height="48" rx="10" fill="#111827"/&gt;
+&lt;text x="306" y="516" font-size="18" font-family="JetBrains Mono,monospace" fill="#e5e7eb"&gt;measure useful-token cost, not just benchmark tokens/sec&lt;/text&gt;
+&lt;defs&gt;
+&lt;marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"&gt;&lt;path d="M0,0 L0,8 L9,4 z" fill="#64748b"/&gt;&lt;/marker&gt;
+&lt;/defs&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Optimization starts with bottleneck diagnosis. Otherwise you are turning knobs for entertainment.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Can you combine them?&lt;span class="hx:absolute hx:-mt-20" id="can-you-combine-them"&gt;&lt;/span&gt;
+&lt;a href="#can-you-combine-them" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Yes, but test the combined system, not each trick in isolation.&lt;/p&gt;
+&lt;p&gt;Common combinations:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;quantized target model plus speculative decoding&lt;/li&gt;
+&lt;li&gt;quantized draft model plus full-precision target&lt;/li&gt;
+&lt;li&gt;FP8 target with draft head&lt;/li&gt;
+&lt;li&gt;speculative decoding plus prefix caching&lt;/li&gt;
+&lt;li&gt;quantized KV cache plus quantized weights&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The combined risk is interaction. A lower-precision target may change acceptance behavior. A quantized draft may draft worse tokens. Batching may behave differently. Memory saved by quantization may be partly consumed by draft machinery.&lt;/p&gt;
+&lt;p&gt;The rollout plan should compare:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;baseline&lt;/li&gt;
+&lt;li&gt;quantization only&lt;/li&gt;
+&lt;li&gt;speculation only&lt;/li&gt;
+&lt;li&gt;both together&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Measure all four on the same traffic sample.&lt;/p&gt;
+&lt;h2&gt;The production recommendation&lt;span class="hx:absolute hx:-mt-20" id="the-production-recommendation"&gt;&lt;/span&gt;
+&lt;a href="#the-production-recommendation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Use speculative decoding when you can maintain high acceptance and your workload is decode-heavy.&lt;/p&gt;
+&lt;p&gt;Use quantization when memory footprint, bandwidth, or cost per token is the limiting factor and quality evals stay green.&lt;/p&gt;
+&lt;p&gt;Use both only when the combined eval shows real improvement in:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;cost per accepted answer
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;latency inside SLO
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;quality on product-specific tasks
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;operational complexity you can actually support&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The last line matters. A 20% speedup that creates a system nobody can debug at 2 AM is not a speedup. It is debt wearing running shoes.&lt;/p&gt;
+&lt;h2&gt;Sources worth reading&lt;span class="hx:absolute hx:-mt-20" id="sources-worth-reading"&gt;&lt;/span&gt;
+&lt;a href="#sources-worth-reading" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://arxiv.org/abs/2211.17192"target="_blank" rel="noopener"&gt;Speculative decoding paper&lt;/a&gt; for the distribution-preserving algorithmic idea.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.vllm.ai/en/latest/features/spec_decode.html"target="_blank" rel="noopener"&gt;vLLM speculative decoding docs&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://nvidia.github.io/TensorRT-LLM/features/speculative-decoding.html"target="_blank" rel="noopener"&gt;TensorRT-LLM speculative decoding docs&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.sglang.ai/advanced_features/speculative_decoding.html"target="_blank" rel="noopener"&gt;SGLang speculative decoding docs&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://nvidia.github.io/TensorRT-LLM/features/quantization.html"target="_blank" rel="noopener"&gt;TensorRT-LLM quantization docs&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://arxiv.org/abs/2306.00978"target="_blank" rel="noopener"&gt;AWQ paper&lt;/a&gt;, &lt;a href="https://arxiv.org/abs/2210.17323"target="_blank" rel="noopener"&gt;GPTQ paper&lt;/a&gt;, and &lt;a href="https://arxiv.org/abs/2211.10438"target="_blank" rel="noopener"&gt;SmoothQuant paper&lt;/a&gt; for quantization background.&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>
