@@ -1,4 +1,261 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Latency</title><link>https://acethecloud.com/tags/latency/</link><description>Recent content in Latency on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 02 Apr 2026 09:30:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/latency/index.xml" rel="self" type="application/rss+xml"/><item><title>The Cache Has Layers: Prompt Caching, Semantic Caching, and When Each One Betrays You</title><link>https://acethecloud.com/blog/prompt-caching-semantic-caching-tradeoffs/</link><pubDate>Thu, 02 Apr 2026 09:30:00 +0530</pubDate><guid>https://acethecloud.com/blog/prompt-caching-semantic-caching-tradeoffs/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Latency</title><link>https://acethecloud.com/tags/latency/</link><description>Recent content in Latency on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 09 May 2026 10:50:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/latency/index.xml" rel="self" type="application/rss+xml"/><item><title>Production LLM Systems Tutorial 2: Latency, Cost, and Quality</title><link>https://acethecloud.com/blog/production-llm-systems-latency-cost-quality/</link><pubDate>Sat, 09 May 2026 10:50:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-latency-cost-quality/</guid><description>
+&lt;p&gt;Every production LLM system lives inside a triangle:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; quality
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; /\
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; / \
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; / \
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; / \
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; latency -------- cost&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;You can improve one corner for free during a demo. At production scale, every improvement moves pressure somewhere else. A larger model improves answer quality but raises latency and cost. A semantic cache cuts cost but can serve stale answers. Quantization improves capacity but may damage hard reasoning. Prompt compression lowers token spend but can remove the detail the model needed.&lt;/p&gt;
+&lt;p&gt;This tutorial gives you the control panel.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/02-latency-cost-quality-triangle.svg" alt="Latency, cost, and quality triangle with optimization levers including routing, caching, batching, compression, quantization, and evaluation" loading="lazy" /&gt;
+&lt;figcaption&gt;Latency, cost, and quality are coupled. Every optimization needs a measurement plan.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Step 1: Measure the right latency&lt;span class="hx:absolute hx:-mt-20" id="step-1-measure-the-right-latency"&gt;&lt;/span&gt;
+&lt;a href="#step-1-measure-the-right-latency" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Do not use only &amp;ldquo;average latency.&amp;rdquo; It hides what users actually feel.&lt;/p&gt;
+&lt;p&gt;Use these metrics:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Metric&lt;/th&gt;
+&lt;th&gt;Meaning&lt;/th&gt;
+&lt;th&gt;Why it matters&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;TTFT&lt;/td&gt;
+&lt;td&gt;Time to first token&lt;/td&gt;
+&lt;td&gt;Dominates chat perceived responsiveness&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;TPOT&lt;/td&gt;
+&lt;td&gt;Time per output token&lt;/td&gt;
+&lt;td&gt;Determines streaming smoothness&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;p50&lt;/td&gt;
+&lt;td&gt;Median latency&lt;/td&gt;
+&lt;td&gt;Useful for baseline behavior&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;p95/p99&lt;/td&gt;
+&lt;td&gt;Tail latency&lt;/td&gt;
+&lt;td&gt;Shows queueing, cold starts, overload, and provider variance&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;End-to-end task time&lt;/td&gt;
+&lt;td&gt;Total time to useful outcome&lt;/td&gt;
+&lt;td&gt;Captures retrieval, tools, model calls, and retries&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;If a request calls tools, do not blame the model until you split the trace:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;request total: 8.2s
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; auth/rate limit: 12ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; retrieval: 420ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; rerank: 180ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; model TTFT: 760ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; model stream: 3.1s
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; tool call: 3.5s
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; validation: 90ms&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This trace says the tool is the bottleneck, not the model.&lt;/p&gt;
+&lt;h2&gt;Step 2: Route work by difficulty&lt;span class="hx:absolute hx:-mt-20" id="step-2-route-work-by-difficulty"&gt;&lt;/span&gt;
+&lt;a href="#step-2-route-work-by-difficulty" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The cheapest optimization is not using the expensive model for easy work.&lt;/p&gt;
+&lt;p&gt;Start with a router:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;request
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; classify difficulty and risk
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; easy factual task: small model
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; normal assistant task: mid model
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; complex reasoning or high-risk answer: large model
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; unsafe or unsupported: refuse or escalate&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Routing can be rules, a small classifier, or a cheap model. The router should look at task type, required tools, tenant policy, maximum budget, and confidence from previous attempts.&lt;/p&gt;
+&lt;p&gt;A common pattern:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Try a small model for extraction, classification, formatting, and simple summarization.&lt;/li&gt;
+&lt;li&gt;Use a mid-size model for most chat and RAG synthesis.&lt;/li&gt;
+&lt;li&gt;Reserve the strongest model for hard reasoning, ambiguous user intent, and high-value workflows.&lt;/li&gt;
+&lt;li&gt;Escalate only when evals prove escalation improves outcomes.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Routing without evals is just cost cutting with nicer words.&lt;/p&gt;
+&lt;h2&gt;Step 3: Cache only what is safe to cache&lt;span class="hx:absolute hx:-mt-20" id="step-3-cache-only-what-is-safe-to-cache"&gt;&lt;/span&gt;
+&lt;a href="#step-3-cache-only-what-is-safe-to-cache" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Use two cache layers:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Cache&lt;/th&gt;
+&lt;th&gt;Key&lt;/th&gt;
+&lt;th&gt;Best for&lt;/th&gt;
+&lt;th&gt;Main risk&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Exact cache&lt;/td&gt;
+&lt;td&gt;Prompt hash plus model and prompt version&lt;/td&gt;
+&lt;td&gt;Repeated deterministic requests&lt;/td&gt;
+&lt;td&gt;Misses paraphrases&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Semantic cache&lt;/td&gt;
+&lt;td&gt;Embedding similarity plus tenant and policy scope&lt;/td&gt;
+&lt;td&gt;Similar user questions&lt;/td&gt;
+&lt;td&gt;Stale or wrong reuse&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;For semantic cache, the threshold is a product decision. A threshold near &lt;code&gt;0.95&lt;/code&gt; may work for FAQ-style questions. Lower thresholds need stronger validation and narrower domains.&lt;/p&gt;
+&lt;p&gt;Never cache across tenants unless the answer is explicitly public and policy-approved. Cache keys should include:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;tenant id&lt;/li&gt;
+&lt;li&gt;user permission scope&lt;/li&gt;
+&lt;li&gt;prompt version&lt;/li&gt;
+&lt;li&gt;model version&lt;/li&gt;
+&lt;li&gt;retrieval corpus version&lt;/li&gt;
+&lt;li&gt;safety policy version&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If any of those change, the cache entry may be invalid.&lt;/p&gt;
+&lt;h2&gt;Step 4: Compress context carefully&lt;span class="hx:absolute hx:-mt-20" id="step-4-compress-context-carefully"&gt;&lt;/span&gt;
+&lt;a href="#step-4-compress-context-carefully" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Prompt compression is useful when long context dominates cost. Techniques like LLMLingua show that prompts can often be shortened substantially while preserving task performance, but compression is not free.&lt;/p&gt;
+&lt;p&gt;Use compression when:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;context is long and redundant&lt;/li&gt;
+&lt;li&gt;the answer only needs a few facts&lt;/li&gt;
+&lt;li&gt;latency or cost is constrained&lt;/li&gt;
+&lt;li&gt;the compression model is cheaper than the saved generation cost&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Avoid compression when:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;legal wording matters&lt;/li&gt;
+&lt;li&gt;code details matter&lt;/li&gt;
+&lt;li&gt;the task depends on edge cases&lt;/li&gt;
+&lt;li&gt;retrieval already produced tight context&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The safe pattern is &amp;ldquo;retrieve small, expand parent, then compress only if the packed context exceeds budget.&amp;rdquo;&lt;/p&gt;
+&lt;h2&gt;Step 5: Use batching for throughput, not magic&lt;span class="hx:absolute hx:-mt-20" id="step-5-use-batching-for-throughput-not-magic"&gt;&lt;/span&gt;
+&lt;a href="#step-5-use-batching-for-throughput-not-magic" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Self-hosted inference depends on batching. Static batching waits for a group and processes them together. Continuous batching, used by systems such as vLLM, keeps adding and removing requests as sequences progress.&lt;/p&gt;
+&lt;p&gt;Continuous batching helps because generation is uneven. One user may request 20 output tokens. Another may request 2,000. Static batches make fast requests wait behind slow ones.&lt;/p&gt;
+&lt;p&gt;Batching has a downside: queueing. If your system waits too long to build a large batch, TTFT suffers. That is why serving systems need a scheduler, not just a batch size.&lt;/p&gt;
+&lt;p&gt;Track:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;queue depth&lt;/li&gt;
+&lt;li&gt;waiting time before prefill&lt;/li&gt;
+&lt;li&gt;active sequences&lt;/li&gt;
+&lt;li&gt;KV cache pressure&lt;/li&gt;
+&lt;li&gt;tokens per second&lt;/li&gt;
+&lt;li&gt;TTFT and TPOT by route&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Step 6: Quantize with evals, not hope&lt;span class="hx:absolute hx:-mt-20" id="step-6-quantize-with-evals-not-hope"&gt;&lt;/span&gt;
+&lt;a href="#step-6-quantize-with-evals-not-hope" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Quantization reduces memory and often improves serving capacity. The path usually goes from FP16/BF16 to FP8, INT8, or INT4-style weight quantization.&lt;/p&gt;
+&lt;p&gt;The trade-off is task-dependent. A quantized larger model can outperform a smaller full-precision model, but the answer depends on model family, bit width, calibration, task difficulty, and serving engine.&lt;/p&gt;
+&lt;p&gt;Run evals for:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;instruction following&lt;/li&gt;
+&lt;li&gt;hallucination sensitivity&lt;/li&gt;
+&lt;li&gt;tool argument formatting&lt;/li&gt;
+&lt;li&gt;domain vocabulary&lt;/li&gt;
+&lt;li&gt;long-context retrieval&lt;/li&gt;
+&lt;li&gt;safety refusals&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Do not approve quantization because benchmark throughput improved. Approve it because the eval suite says the quality loss is acceptable for that route.&lt;/p&gt;
+&lt;h2&gt;Step 7: Try speculative decoding when decode dominates&lt;span class="hx:absolute hx:-mt-20" id="step-7-try-speculative-decoding-when-decode-dominates"&gt;&lt;/span&gt;
+&lt;a href="#step-7-try-speculative-decoding-when-decode-dominates" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Speculative decoding uses a cheaper draft model to propose tokens and a larger target model to verify them. It works best when decode is the bottleneck and the draft model&amp;rsquo;s predictions are frequently accepted.&lt;/p&gt;
+&lt;p&gt;It works poorly when:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;prompts are huge and prefill dominates&lt;/li&gt;
+&lt;li&gt;the draft model is too slow&lt;/li&gt;
+&lt;li&gt;acceptance rate is low&lt;/li&gt;
+&lt;li&gt;the workload is tool-latency-bound&lt;/li&gt;
+&lt;li&gt;memory pressure from the draft model reduces batch size&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Measure before and after:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;baseline:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; TTFT 820ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; TPOT 42ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; cost/request $0.018
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;with speculation:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; TTFT 910ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; TPOT 24ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; cost/request $0.020&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That may be worth it for long generations and not worth it for short answers.&lt;/p&gt;
+&lt;h2&gt;The optimization order&lt;span class="hx:absolute hx:-mt-20" id="the-optimization-order"&gt;&lt;/span&gt;
+&lt;a href="#the-optimization-order" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Use this order for most applications:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Reduce unnecessary calls with product flow changes.&lt;/li&gt;
+&lt;li&gt;Add exact cache for deterministic and repeated requests.&lt;/li&gt;
+&lt;li&gt;Add model routing.&lt;/li&gt;
+&lt;li&gt;Tighten retrieval and context packing.&lt;/li&gt;
+&lt;li&gt;Add semantic cache where freshness can be controlled.&lt;/li&gt;
+&lt;li&gt;Use batch processing for offline jobs.&lt;/li&gt;
+&lt;li&gt;Tune serving engine, batching, and KV cache.&lt;/li&gt;
+&lt;li&gt;Evaluate quantization.&lt;/li&gt;
+&lt;li&gt;Evaluate speculative decoding.&lt;/li&gt;
+&lt;li&gt;Revisit prompt compression for long-context routes.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Do not start with exotic serving tricks if half your traffic is duplicate retries.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/02-optimization-order.svg" alt="LLM optimization order from removing waste to caching, routing, context packing, and advanced serving techniques" loading="lazy" /&gt;
+&lt;figcaption&gt;Start with waste removal and caching before advanced serving techniques.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
+&lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;vLLM documentation: &lt;a href="https://docs.vllm.ai/"target="_blank" rel="noopener"&gt;https://docs.vllm.ai/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Kwon et al., &amp;ldquo;Efficient Memory Management for Large Language Model Serving with PagedAttention&amp;rdquo;: &lt;a href="https://arxiv.org/abs/2309.06180"target="_blank" rel="noopener"&gt;https://arxiv.org/abs/2309.06180&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;NVIDIA TensorRT-LLM documentation: &lt;a href="https://docs.nvidia.com/tensorrt-llm/"target="_blank" rel="noopener"&gt;https://docs.nvidia.com/tensorrt-llm/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;SGLang documentation: &lt;a href="https://docs.sglang.io/"target="_blank" rel="noopener"&gt;https://docs.sglang.io/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Jiang et al., &amp;ldquo;LLMLingua: Compressing Prompts for Accelerated Inference of Large Language Models&amp;rdquo;: &lt;a href="https://arxiv.org/abs/2310.05736"target="_blank" rel="noopener"&gt;https://arxiv.org/abs/2310.05736&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Leviathan et al., &amp;ldquo;Fast Inference from Transformers via Speculative Decoding&amp;rdquo;: &lt;a href="https://arxiv.org/abs/2211.17192"target="_blank" rel="noopener"&gt;https://arxiv.org/abs/2211.17192&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>The Cache Has Layers: Prompt Caching, Semantic Caching, and When Each One Betrays You</title><link>https://acethecloud.com/blog/prompt-caching-semantic-caching-tradeoffs/</link><pubDate>Thu, 02 Apr 2026 09:30:00 +0530</pubDate><guid>https://acethecloud.com/blog/prompt-caching-semantic-caching-tradeoffs/</guid><description>
 &lt;p&gt;The easiest way to make LLM caching confusing is to use the word &amp;ldquo;cache&amp;rdquo; without saying what is being cached.&lt;/p&gt;
 &lt;p&gt;Are we caching input tokens? A provider-side prompt prefix? A retrieved context bundle? A full answer? A vector match to an earlier question? A KV cache block sitting on a GPU? Those are different systems with different failure modes.&lt;/p&gt;
 &lt;p&gt;This matters because caching is not just a cost trick. It changes the product contract. The user expects a correct answer, not a museum exhibit of what the model said last Tuesday.&lt;/p&gt;

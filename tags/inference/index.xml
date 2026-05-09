@@ -1,4 +1,978 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Inference</title><link>https://acethecloud.com/tags/inference/</link><description>Recent content in Inference on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 06 May 2026 09:20:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/inference/index.xml" rel="self" type="application/rss+xml"/><item><title>Your Token Bill Has a Leak: Cost Monitoring for Hidden LLM Waste</title><link>https://acethecloud.com/blog/cost-monitoring-hidden-token-leaks/</link><pubDate>Wed, 06 May 2026 09:20:00 +0530</pubDate><guid>https://acethecloud.com/blog/cost-monitoring-hidden-token-leaks/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Inference</title><link>https://acethecloud.com/tags/inference/</link><description>Recent content in Inference on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 09 May 2026 11:00:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/inference/index.xml" rel="self" type="application/rss+xml"/><item><title>Production LLM Systems Tutorial 1: End-to-End Application Design</title><link>https://acethecloud.com/blog/production-llm-systems-end-to-end-application-design/</link><pubDate>Sat, 09 May 2026 11:00:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-end-to-end-application-design/</guid><description>
+&lt;p&gt;Most LLM applications fail in the gaps between components.&lt;/p&gt;
+&lt;p&gt;The model may be excellent. The prompt may look clean. The demo may answer one question beautifully. Then production arrives: users refresh, requests retry, providers throttle, tools time out, RAG returns stale evidence, streaming breaks halfway through a response, and your token bill records every mistake.&lt;/p&gt;
+&lt;p&gt;This tutorial builds the system shape that survives those conditions.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/01-end-to-end-architecture.svg" alt="End-to-end production LLM application architecture with client, gateway, orchestrator, retrieval, tools, LLM gateway, inference, streaming, and telemetry" loading="lazy" /&gt;
+&lt;figcaption&gt;A production LLM application is a request path with state, policy, retrieval, tools, model routing, and telemetry around the model call.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;The target architecture&lt;span class="hx:absolute hx:-mt-20" id="the-target-architecture"&gt;&lt;/span&gt;
+&lt;a href="#the-target-architecture" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Start with the full request path:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;client
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; API gateway
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; auth, rate limits, tenant identity, idempotency key
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; conversation service
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; session state, history compaction, policy context
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; orchestrator
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; prompt assembly, retrieval, tool planning, model routing
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; retrieval layer
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; query rewrite, hybrid search, rerank, context packing
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; tool layer
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; schemas, permissions, execution, retries
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; LLM gateway
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; provider abstraction, fallback, cost attribution
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; inference endpoint
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; hosted API or self-served model
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; response stream
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; SSE or WebSocket, partial events, final accounting
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; telemetry
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; traces, quality signals, cost, feedback&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Do not draw &amp;ldquo;app -&amp;gt; LLM -&amp;gt; answer.&amp;rdquo; That hides every decision that matters.&lt;/p&gt;
+&lt;h2&gt;Step 1: Choose the interaction contract&lt;span class="hx:absolute hx:-mt-20" id="step-1-choose-the-interaction-contract"&gt;&lt;/span&gt;
+&lt;a href="#step-1-choose-the-interaction-contract" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;For chat-like applications, streaming is usually the default. The user feels time to first token before they feel total latency. A 700 ms TTFT with a 6 second full answer often feels better than a silent 3 second request-response call.&lt;/p&gt;
+&lt;p&gt;Use Server-Sent Events when the server mostly streams tokens and status events to the browser. Use WebSocket when the client also needs low-latency bidirectional events, such as collaborative editing, voice turn-taking, or live tool state.&lt;/p&gt;
+&lt;p&gt;A good stream emits more than tokens:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;message.started&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;request_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;req_123&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;retrieval.completed&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;documents&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;output_text.delta&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;text&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;The&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;output_text.delta&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;text&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34; answer&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;usage.completed&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;input_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1840&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;output_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;322&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;message.completed&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That event model gives the UI progress, gives observability clean spans, and gives clients a reliable way to recover from partial output.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/01-streaming-events.svg" alt="Typed streaming event contract showing started, retrieval, token delta, tool, usage, and terminal events" loading="lazy" /&gt;
+&lt;figcaption&gt;Streaming should expose typed lifecycle events, not just raw token chunks.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Step 2: Treat conversation state as product data&lt;span class="hx:absolute hx:-mt-20" id="step-2-treat-conversation-state-as-product-data"&gt;&lt;/span&gt;
+&lt;a href="#step-2-treat-conversation-state-as-product-data" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There are three common state models:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Model&lt;/th&gt;
+&lt;th&gt;What it means&lt;/th&gt;
+&lt;th&gt;Use it when&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Client-held history&lt;/td&gt;
+&lt;td&gt;The browser sends prior messages each turn&lt;/td&gt;
+&lt;td&gt;Low-risk consumer apps, simple prototypes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Server session store&lt;/td&gt;
+&lt;td&gt;Backend stores messages and sends a compact window to the model&lt;/td&gt;
+&lt;td&gt;Most production apps&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Retrieved memory&lt;/td&gt;
+&lt;td&gt;Past turns are embedded and retrieved like documents&lt;/td&gt;
+&lt;td&gt;Long-lived assistants and workflow systems&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Do not blindly replay the full conversation. Context windows are larger now, but cost and attention quality still matter. Use a sliding window for recent turns, a summary for older turns, and retrieval for specific prior facts.&lt;/p&gt;
+&lt;p&gt;The dangerous part is tenant separation. Every session, prompt template, retrieved document, tool call, and cache entry needs a tenant boundary. If you share a semantic cache across tenants without strict namespacing, you have built a data leak with a nice latency profile.&lt;/p&gt;
+&lt;h2&gt;Step 3: Make the orchestrator explicit&lt;span class="hx:absolute hx:-mt-20" id="step-3-make-the-orchestrator-explicit"&gt;&lt;/span&gt;
+&lt;a href="#step-3-make-the-orchestrator-explicit" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The orchestrator is where the application becomes more than a prompt wrapper. It owns:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;prompt version selection&lt;/li&gt;
+&lt;li&gt;model routing&lt;/li&gt;
+&lt;li&gt;retrieval decisions&lt;/li&gt;
+&lt;li&gt;tool-call permissions&lt;/li&gt;
+&lt;li&gt;context budget allocation&lt;/li&gt;
+&lt;li&gt;retries and fallbacks&lt;/li&gt;
+&lt;li&gt;output validation&lt;/li&gt;
+&lt;li&gt;trace correlation&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Keep it boring. A deterministic state machine is easier to debug than a pile of hidden framework callbacks. For many systems, this is enough:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;classify request
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; decide route
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; retrieve evidence if needed
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; assemble prompt
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; call model
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; execute approved tool calls
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; validate output
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; stream final response
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; record trace and cost&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Agents can be useful, but do not make every request an agent loop. A password reset question, a refund policy lookup, and a code migration task do not need the same control flow.&lt;/p&gt;
+&lt;h2&gt;Step 4: Put a gateway between your app and model providers&lt;span class="hx:absolute hx:-mt-20" id="step-4-put-a-gateway-between-your-app-and-model-providers"&gt;&lt;/span&gt;
+&lt;a href="#step-4-put-a-gateway-between-your-app-and-model-providers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;An LLM gateway pays for itself quickly. It should handle:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;provider credentials&lt;/li&gt;
+&lt;li&gt;routing by model, tenant, feature, and region&lt;/li&gt;
+&lt;li&gt;retries with backoff&lt;/li&gt;
+&lt;li&gt;fallback models&lt;/li&gt;
+&lt;li&gt;timeout budgets&lt;/li&gt;
+&lt;li&gt;token accounting&lt;/li&gt;
+&lt;li&gt;per-tenant cost attribution&lt;/li&gt;
+&lt;li&gt;audit logs&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Do not let every service call model providers directly. That creates duplicate retry logic, inconsistent safety policy, and impossible cost attribution.&lt;/p&gt;
+&lt;p&gt;The gateway also owns idempotency. Token-charging APIs make duplicate retries expensive. If the client retries the same request after a timeout, the backend should be able to return the prior result or resume the stream instead of generating twice.&lt;/p&gt;
+&lt;h2&gt;Step 5: Add graceful degradation&lt;span class="hx:absolute hx:-mt-20" id="step-5-add-graceful-degradation"&gt;&lt;/span&gt;
+&lt;a href="#step-5-add-graceful-degradation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There are four failure modes worth designing on day one:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Failure&lt;/th&gt;
+&lt;th&gt;Good degradation&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Primary model unavailable&lt;/td&gt;
+&lt;td&gt;Route to a smaller or alternate provider model&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Retrieval unavailable&lt;/td&gt;
+&lt;td&gt;Answer only if the task is safe without retrieval, otherwise explain the limitation&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Tool unavailable&lt;/td&gt;
+&lt;td&gt;Continue with a partial answer only if the tool is optional&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Streaming interrupted&lt;/td&gt;
+&lt;td&gt;Let the client reconnect with request id and recover final state&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Graceful degradation is not fake confidence. If the answer needs fresh retrieved evidence, say the system cannot complete the task rather than producing a polished guess.&lt;/p&gt;
+&lt;h2&gt;Step 6: Define the minimum telemetry contract&lt;span class="hx:absolute hx:-mt-20" id="step-6-define-the-minimum-telemetry-contract"&gt;&lt;/span&gt;
+&lt;a href="#step-6-define-the-minimum-telemetry-contract" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Every request should produce a trace with:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;tenant id and feature name&lt;/li&gt;
+&lt;li&gt;prompt version&lt;/li&gt;
+&lt;li&gt;model route and provider&lt;/li&gt;
+&lt;li&gt;retrieval query, document ids, and rerank scores&lt;/li&gt;
+&lt;li&gt;tool calls, arguments, status, and latency&lt;/li&gt;
+&lt;li&gt;TTFT, TPOT, total latency&lt;/li&gt;
+&lt;li&gt;input tokens, output tokens, cached tokens&lt;/li&gt;
+&lt;li&gt;final status and user feedback&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Redact sensitive fields before storage. Observability that stores raw private prompts without a policy will eventually become the incident.&lt;/p&gt;
+&lt;h2&gt;A practical build order&lt;span class="hx:absolute hx:-mt-20" id="a-practical-build-order"&gt;&lt;/span&gt;
+&lt;a href="#a-practical-build-order" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Build in this order:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Gateway with auth, rate limits, and request ids.&lt;/li&gt;
+&lt;li&gt;Basic streaming model call.&lt;/li&gt;
+&lt;li&gt;Conversation session store.&lt;/li&gt;
+&lt;li&gt;Prompt registry with versioned templates.&lt;/li&gt;
+&lt;li&gt;Retrieval path.&lt;/li&gt;
+&lt;li&gt;Tool execution path.&lt;/li&gt;
+&lt;li&gt;Tracing and cost attribution.&lt;/li&gt;
+&lt;li&gt;Fallback model chain.&lt;/li&gt;
+&lt;li&gt;Eval set and release gate.&lt;/li&gt;
+&lt;li&gt;Human escalation for low-confidence or high-risk outputs.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The order matters. If you add retrieval and tools before request identity, tracing, and idempotency, debugging becomes guesswork.&lt;/p&gt;
+&lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
+&lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;OpenAI, &amp;ldquo;Streaming API responses&amp;rdquo;: &lt;a href="https://platform.openai.com/docs/guides/streaming-responses"target="_blank" rel="noopener"&gt;https://platform.openai.com/docs/guides/streaming-responses&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;OpenAI API Reference, &amp;ldquo;Streaming events&amp;rdquo;: &lt;a href="https://platform.openai.com/docs/api-reference/responses-streaming"target="_blank" rel="noopener"&gt;https://platform.openai.com/docs/api-reference/responses-streaming&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;MDN, &amp;ldquo;Using server-sent events&amp;rdquo;: &lt;a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events"target="_blank" rel="noopener"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;MDN, &amp;ldquo;WebSocket&amp;rdquo;: &lt;a href="https://developer.mozilla.org/docs/Web/API/WebSocket"target="_blank" rel="noopener"&gt;https://developer.mozilla.org/docs/Web/API/WebSocket&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;AWS Well-Architected, &amp;ldquo;Make all responses idempotent&amp;rdquo;: &lt;a href="https://docs.aws.amazon.com/wellarchitected/2023-04-10/framework/rel_prevent_interaction_failure_idempotent.html"target="_blank" rel="noopener"&gt;https://docs.aws.amazon.com/wellarchitected/2023-04-10/framework/rel_prevent_interaction_failure_idempotent.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Production LLM Systems Tutorial 2: Latency, Cost, and Quality</title><link>https://acethecloud.com/blog/production-llm-systems-latency-cost-quality/</link><pubDate>Sat, 09 May 2026 10:50:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-latency-cost-quality/</guid><description>
+&lt;p&gt;Every production LLM system lives inside a triangle:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; quality
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; /\
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; / \
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; / \
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; / \
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; latency -------- cost&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;You can improve one corner for free during a demo. At production scale, every improvement moves pressure somewhere else. A larger model improves answer quality but raises latency and cost. A semantic cache cuts cost but can serve stale answers. Quantization improves capacity but may damage hard reasoning. Prompt compression lowers token spend but can remove the detail the model needed.&lt;/p&gt;
+&lt;p&gt;This tutorial gives you the control panel.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/02-latency-cost-quality-triangle.svg" alt="Latency, cost, and quality triangle with optimization levers including routing, caching, batching, compression, quantization, and evaluation" loading="lazy" /&gt;
+&lt;figcaption&gt;Latency, cost, and quality are coupled. Every optimization needs a measurement plan.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Step 1: Measure the right latency&lt;span class="hx:absolute hx:-mt-20" id="step-1-measure-the-right-latency"&gt;&lt;/span&gt;
+&lt;a href="#step-1-measure-the-right-latency" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Do not use only &amp;ldquo;average latency.&amp;rdquo; It hides what users actually feel.&lt;/p&gt;
+&lt;p&gt;Use these metrics:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Metric&lt;/th&gt;
+&lt;th&gt;Meaning&lt;/th&gt;
+&lt;th&gt;Why it matters&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;TTFT&lt;/td&gt;
+&lt;td&gt;Time to first token&lt;/td&gt;
+&lt;td&gt;Dominates chat perceived responsiveness&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;TPOT&lt;/td&gt;
+&lt;td&gt;Time per output token&lt;/td&gt;
+&lt;td&gt;Determines streaming smoothness&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;p50&lt;/td&gt;
+&lt;td&gt;Median latency&lt;/td&gt;
+&lt;td&gt;Useful for baseline behavior&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;p95/p99&lt;/td&gt;
+&lt;td&gt;Tail latency&lt;/td&gt;
+&lt;td&gt;Shows queueing, cold starts, overload, and provider variance&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;End-to-end task time&lt;/td&gt;
+&lt;td&gt;Total time to useful outcome&lt;/td&gt;
+&lt;td&gt;Captures retrieval, tools, model calls, and retries&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;If a request calls tools, do not blame the model until you split the trace:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;request total: 8.2s
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; auth/rate limit: 12ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; retrieval: 420ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; rerank: 180ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; model TTFT: 760ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; model stream: 3.1s
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; tool call: 3.5s
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; validation: 90ms&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This trace says the tool is the bottleneck, not the model.&lt;/p&gt;
+&lt;h2&gt;Step 2: Route work by difficulty&lt;span class="hx:absolute hx:-mt-20" id="step-2-route-work-by-difficulty"&gt;&lt;/span&gt;
+&lt;a href="#step-2-route-work-by-difficulty" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The cheapest optimization is not using the expensive model for easy work.&lt;/p&gt;
+&lt;p&gt;Start with a router:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;request
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; classify difficulty and risk
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; easy factual task: small model
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; normal assistant task: mid model
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; complex reasoning or high-risk answer: large model
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; unsafe or unsupported: refuse or escalate&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Routing can be rules, a small classifier, or a cheap model. The router should look at task type, required tools, tenant policy, maximum budget, and confidence from previous attempts.&lt;/p&gt;
+&lt;p&gt;A common pattern:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Try a small model for extraction, classification, formatting, and simple summarization.&lt;/li&gt;
+&lt;li&gt;Use a mid-size model for most chat and RAG synthesis.&lt;/li&gt;
+&lt;li&gt;Reserve the strongest model for hard reasoning, ambiguous user intent, and high-value workflows.&lt;/li&gt;
+&lt;li&gt;Escalate only when evals prove escalation improves outcomes.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Routing without evals is just cost cutting with nicer words.&lt;/p&gt;
+&lt;h2&gt;Step 3: Cache only what is safe to cache&lt;span class="hx:absolute hx:-mt-20" id="step-3-cache-only-what-is-safe-to-cache"&gt;&lt;/span&gt;
+&lt;a href="#step-3-cache-only-what-is-safe-to-cache" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Use two cache layers:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Cache&lt;/th&gt;
+&lt;th&gt;Key&lt;/th&gt;
+&lt;th&gt;Best for&lt;/th&gt;
+&lt;th&gt;Main risk&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Exact cache&lt;/td&gt;
+&lt;td&gt;Prompt hash plus model and prompt version&lt;/td&gt;
+&lt;td&gt;Repeated deterministic requests&lt;/td&gt;
+&lt;td&gt;Misses paraphrases&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Semantic cache&lt;/td&gt;
+&lt;td&gt;Embedding similarity plus tenant and policy scope&lt;/td&gt;
+&lt;td&gt;Similar user questions&lt;/td&gt;
+&lt;td&gt;Stale or wrong reuse&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;For semantic cache, the threshold is a product decision. A threshold near &lt;code&gt;0.95&lt;/code&gt; may work for FAQ-style questions. Lower thresholds need stronger validation and narrower domains.&lt;/p&gt;
+&lt;p&gt;Never cache across tenants unless the answer is explicitly public and policy-approved. Cache keys should include:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;tenant id&lt;/li&gt;
+&lt;li&gt;user permission scope&lt;/li&gt;
+&lt;li&gt;prompt version&lt;/li&gt;
+&lt;li&gt;model version&lt;/li&gt;
+&lt;li&gt;retrieval corpus version&lt;/li&gt;
+&lt;li&gt;safety policy version&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If any of those change, the cache entry may be invalid.&lt;/p&gt;
+&lt;h2&gt;Step 4: Compress context carefully&lt;span class="hx:absolute hx:-mt-20" id="step-4-compress-context-carefully"&gt;&lt;/span&gt;
+&lt;a href="#step-4-compress-context-carefully" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Prompt compression is useful when long context dominates cost. Techniques like LLMLingua show that prompts can often be shortened substantially while preserving task performance, but compression is not free.&lt;/p&gt;
+&lt;p&gt;Use compression when:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;context is long and redundant&lt;/li&gt;
+&lt;li&gt;the answer only needs a few facts&lt;/li&gt;
+&lt;li&gt;latency or cost is constrained&lt;/li&gt;
+&lt;li&gt;the compression model is cheaper than the saved generation cost&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Avoid compression when:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;legal wording matters&lt;/li&gt;
+&lt;li&gt;code details matter&lt;/li&gt;
+&lt;li&gt;the task depends on edge cases&lt;/li&gt;
+&lt;li&gt;retrieval already produced tight context&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The safe pattern is &amp;ldquo;retrieve small, expand parent, then compress only if the packed context exceeds budget.&amp;rdquo;&lt;/p&gt;
+&lt;h2&gt;Step 5: Use batching for throughput, not magic&lt;span class="hx:absolute hx:-mt-20" id="step-5-use-batching-for-throughput-not-magic"&gt;&lt;/span&gt;
+&lt;a href="#step-5-use-batching-for-throughput-not-magic" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Self-hosted inference depends on batching. Static batching waits for a group and processes them together. Continuous batching, used by systems such as vLLM, keeps adding and removing requests as sequences progress.&lt;/p&gt;
+&lt;p&gt;Continuous batching helps because generation is uneven. One user may request 20 output tokens. Another may request 2,000. Static batches make fast requests wait behind slow ones.&lt;/p&gt;
+&lt;p&gt;Batching has a downside: queueing. If your system waits too long to build a large batch, TTFT suffers. That is why serving systems need a scheduler, not just a batch size.&lt;/p&gt;
+&lt;p&gt;Track:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;queue depth&lt;/li&gt;
+&lt;li&gt;waiting time before prefill&lt;/li&gt;
+&lt;li&gt;active sequences&lt;/li&gt;
+&lt;li&gt;KV cache pressure&lt;/li&gt;
+&lt;li&gt;tokens per second&lt;/li&gt;
+&lt;li&gt;TTFT and TPOT by route&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Step 6: Quantize with evals, not hope&lt;span class="hx:absolute hx:-mt-20" id="step-6-quantize-with-evals-not-hope"&gt;&lt;/span&gt;
+&lt;a href="#step-6-quantize-with-evals-not-hope" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Quantization reduces memory and often improves serving capacity. The path usually goes from FP16/BF16 to FP8, INT8, or INT4-style weight quantization.&lt;/p&gt;
+&lt;p&gt;The trade-off is task-dependent. A quantized larger model can outperform a smaller full-precision model, but the answer depends on model family, bit width, calibration, task difficulty, and serving engine.&lt;/p&gt;
+&lt;p&gt;Run evals for:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;instruction following&lt;/li&gt;
+&lt;li&gt;hallucination sensitivity&lt;/li&gt;
+&lt;li&gt;tool argument formatting&lt;/li&gt;
+&lt;li&gt;domain vocabulary&lt;/li&gt;
+&lt;li&gt;long-context retrieval&lt;/li&gt;
+&lt;li&gt;safety refusals&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Do not approve quantization because benchmark throughput improved. Approve it because the eval suite says the quality loss is acceptable for that route.&lt;/p&gt;
+&lt;h2&gt;Step 7: Try speculative decoding when decode dominates&lt;span class="hx:absolute hx:-mt-20" id="step-7-try-speculative-decoding-when-decode-dominates"&gt;&lt;/span&gt;
+&lt;a href="#step-7-try-speculative-decoding-when-decode-dominates" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Speculative decoding uses a cheaper draft model to propose tokens and a larger target model to verify them. It works best when decode is the bottleneck and the draft model&amp;rsquo;s predictions are frequently accepted.&lt;/p&gt;
+&lt;p&gt;It works poorly when:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;prompts are huge and prefill dominates&lt;/li&gt;
+&lt;li&gt;the draft model is too slow&lt;/li&gt;
+&lt;li&gt;acceptance rate is low&lt;/li&gt;
+&lt;li&gt;the workload is tool-latency-bound&lt;/li&gt;
+&lt;li&gt;memory pressure from the draft model reduces batch size&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Measure before and after:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;baseline:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; TTFT 820ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; TPOT 42ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; cost/request $0.018
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;with speculation:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; TTFT 910ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; TPOT 24ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; cost/request $0.020&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That may be worth it for long generations and not worth it for short answers.&lt;/p&gt;
+&lt;h2&gt;The optimization order&lt;span class="hx:absolute hx:-mt-20" id="the-optimization-order"&gt;&lt;/span&gt;
+&lt;a href="#the-optimization-order" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Use this order for most applications:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Reduce unnecessary calls with product flow changes.&lt;/li&gt;
+&lt;li&gt;Add exact cache for deterministic and repeated requests.&lt;/li&gt;
+&lt;li&gt;Add model routing.&lt;/li&gt;
+&lt;li&gt;Tighten retrieval and context packing.&lt;/li&gt;
+&lt;li&gt;Add semantic cache where freshness can be controlled.&lt;/li&gt;
+&lt;li&gt;Use batch processing for offline jobs.&lt;/li&gt;
+&lt;li&gt;Tune serving engine, batching, and KV cache.&lt;/li&gt;
+&lt;li&gt;Evaluate quantization.&lt;/li&gt;
+&lt;li&gt;Evaluate speculative decoding.&lt;/li&gt;
+&lt;li&gt;Revisit prompt compression for long-context routes.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Do not start with exotic serving tricks if half your traffic is duplicate retries.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/02-optimization-order.svg" alt="LLM optimization order from removing waste to caching, routing, context packing, and advanced serving techniques" loading="lazy" /&gt;
+&lt;figcaption&gt;Start with waste removal and caching before advanced serving techniques.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
+&lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;vLLM documentation: &lt;a href="https://docs.vllm.ai/"target="_blank" rel="noopener"&gt;https://docs.vllm.ai/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Kwon et al., &amp;ldquo;Efficient Memory Management for Large Language Model Serving with PagedAttention&amp;rdquo;: &lt;a href="https://arxiv.org/abs/2309.06180"target="_blank" rel="noopener"&gt;https://arxiv.org/abs/2309.06180&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;NVIDIA TensorRT-LLM documentation: &lt;a href="https://docs.nvidia.com/tensorrt-llm/"target="_blank" rel="noopener"&gt;https://docs.nvidia.com/tensorrt-llm/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;SGLang documentation: &lt;a href="https://docs.sglang.io/"target="_blank" rel="noopener"&gt;https://docs.sglang.io/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Jiang et al., &amp;ldquo;LLMLingua: Compressing Prompts for Accelerated Inference of Large Language Models&amp;rdquo;: &lt;a href="https://arxiv.org/abs/2310.05736"target="_blank" rel="noopener"&gt;https://arxiv.org/abs/2310.05736&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Leviathan et al., &amp;ldquo;Fast Inference from Transformers via Speculative Decoding&amp;rdquo;: &lt;a href="https://arxiv.org/abs/2211.17192"target="_blank" rel="noopener"&gt;https://arxiv.org/abs/2211.17192&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Production LLM Systems Tutorial 3: Scalable Inference Architecture</title><link>https://acethecloud.com/blog/production-llm-systems-scalable-inference-architecture/</link><pubDate>Sat, 09 May 2026 10:40:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-scalable-inference-architecture/</guid><description>
+&lt;p&gt;Scalable LLM inference is not &amp;ldquo;put a model behind an endpoint.&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;The hard parts are memory, queueing, routing, cold starts, and isolation. GPUs are expensive, but idle GPUs are worse. A serving architecture must keep accelerators busy without destroying TTFT, overflowing KV cache, or giving one tenant the whole cluster.&lt;/p&gt;
+&lt;p&gt;This tutorial builds the inference layer from the GPU up.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/03-scalable-inference-fleet.svg" alt="Scalable LLM inference fleet with gateway, router, scheduler, GPU workers, KV cache pressure, queue depth, and autoscaling signals" loading="lazy" /&gt;
+&lt;figcaption&gt;Scalable inference is a fleet problem: routing, scheduling, cache locality, and memory pressure determine service behavior.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;The serving stack&lt;span class="hx:absolute hx:-mt-20" id="the-serving-stack"&gt;&lt;/span&gt;
+&lt;a href="#the-serving-stack" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A practical stack looks like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;LLM gateway
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; router
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; route by model, tenant, prompt prefix, queue, KV locality
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; scheduler
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; admission control, batching, priorities
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; inference workers
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; vLLM, TensorRT-LLM, SGLang, TGI, Triton
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; GPU runtime
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; CUDA kernels, NCCL, memory manager
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; observability
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; tokens/sec, TTFT, TPOT, KV cache, queue depth&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The router and scheduler are as important as the model server. If you send requests randomly, you waste prefix cache, increase queueing, and make tail latency look mysterious.&lt;/p&gt;
+&lt;h2&gt;Choose the serving engine by workload&lt;span class="hx:absolute hx:-mt-20" id="choose-the-serving-engine-by-workload"&gt;&lt;/span&gt;
+&lt;a href="#choose-the-serving-engine-by-workload" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Engine&lt;/th&gt;
+&lt;th&gt;Good fit&lt;/th&gt;
+&lt;th&gt;Watch out for&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;vLLM&lt;/td&gt;
+&lt;td&gt;High-throughput serving, continuous batching, PagedAttention, broad model support&lt;/td&gt;
+&lt;td&gt;Feature compatibility varies by model and backend&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;TensorRT-LLM&lt;/td&gt;
+&lt;td&gt;Optimized NVIDIA GPU inference, engine-level performance tuning&lt;/td&gt;
+&lt;td&gt;Build and deployment workflow is more specialized&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;SGLang&lt;/td&gt;
+&lt;td&gt;Structured generation, prefix reuse, complex generation programs&lt;/td&gt;
+&lt;td&gt;Operational maturity depends on your stack and hardware&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;TGI&lt;/td&gt;
+&lt;td&gt;Hugging Face ecosystem integration&lt;/td&gt;
+&lt;td&gt;Throughput features vary by model and deployment&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Triton&lt;/td&gt;
+&lt;td&gt;Multi-model inference serving and custom backends&lt;/td&gt;
+&lt;td&gt;You still need model-specific optimization&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The right answer is usually workload-specific. Benchmark your prompt length distribution, output length distribution, concurrency, and model family. A leaderboard result without your traffic shape is a weak signal.&lt;/p&gt;
+&lt;h2&gt;Understand KV cache pressure&lt;span class="hx:absolute hx:-mt-20" id="understand-kv-cache-pressure"&gt;&lt;/span&gt;
+&lt;a href="#understand-kv-cache-pressure" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;During generation, each request accumulates key and value tensors for prior tokens. That KV cache grows with:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;batch size&lt;/li&gt;
+&lt;li&gt;sequence length&lt;/li&gt;
+&lt;li&gt;number of layers&lt;/li&gt;
+&lt;li&gt;hidden size and heads&lt;/li&gt;
+&lt;li&gt;precision&lt;/li&gt;
+&lt;li&gt;number of active sessions&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A rough mental model:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;KV cache memory ~= tokens * layers * kv_heads * head_dim * 2 * bytes&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The exact formula depends on model architecture, but the lesson is stable: long-context serving is often memory-bound before it is compute-bound.&lt;/p&gt;
+&lt;p&gt;PagedAttention, used by vLLM, treats KV cache more like paged virtual memory. Instead of reserving one large contiguous block per request, it manages blocks to reduce fragmentation and improve batching.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/03-kv-cache-pressure.svg" alt="KV cache pressure diagram showing memory growth with tokens, layers, KV heads, head dimension, precision, and active sessions" loading="lazy" /&gt;
+&lt;figcaption&gt;Long-context serving often becomes memory-bound through KV cache growth before compute is fully saturated.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Pick the parallelism pattern&lt;span class="hx:absolute hx:-mt-20" id="pick-the-parallelism-pattern"&gt;&lt;/span&gt;
+&lt;a href="#pick-the-parallelism-pattern" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Large models need parallelism. Use the smallest parallelism that fits the model and throughput target.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Pattern&lt;/th&gt;
+&lt;th&gt;What it splits&lt;/th&gt;
+&lt;th&gt;Use it when&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Tensor parallelism&lt;/td&gt;
+&lt;td&gt;Matrix operations across GPUs&lt;/td&gt;
+&lt;td&gt;Model fits across GPUs in one node or tightly connected nodes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Pipeline parallelism&lt;/td&gt;
+&lt;td&gt;Layers across stages&lt;/td&gt;
+&lt;td&gt;Model is too deep or large for tensor parallel alone&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Expert parallelism&lt;/td&gt;
+&lt;td&gt;MoE experts across devices&lt;/td&gt;
+&lt;td&gt;Serving mixture-of-experts models&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Sequence parallelism&lt;/td&gt;
+&lt;td&gt;Sequence dimension work&lt;/td&gt;
+&lt;td&gt;Long-context workloads and specialized kernels&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Tensor parallelism within a node is common because NVLink/NVSwitch bandwidth helps. Pipeline parallelism across nodes can work, but bubbles and network latency matter. Expert parallelism is relevant for MoE models where only a subset of experts activates per token.&lt;/p&gt;
+&lt;h2&gt;Autoscale on the right signal&lt;span class="hx:absolute hx:-mt-20" id="autoscale-on-the-right-signal"&gt;&lt;/span&gt;
+&lt;a href="#autoscale-on-the-right-signal" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;CPU utilization is the wrong primary signal for LLM serving.&lt;/p&gt;
+&lt;p&gt;Use:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;queue depth by model route&lt;/li&gt;
+&lt;li&gt;waiting time before prefill&lt;/li&gt;
+&lt;li&gt;TTFT p95&lt;/li&gt;
+&lt;li&gt;TPOT p95&lt;/li&gt;
+&lt;li&gt;GPU memory headroom&lt;/li&gt;
+&lt;li&gt;KV cache utilization&lt;/li&gt;
+&lt;li&gt;active sequences&lt;/li&gt;
+&lt;li&gt;tokens per second&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Cold start is brutal for large models. Loading 70B-class weights can take tens of seconds depending on storage, network, framework, quantization, and engine build. Scale from zero is usually not acceptable for interactive routes.&lt;/p&gt;
+&lt;p&gt;Use warm pools:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;min replicas: enough for baseline traffic
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;warm standby: loaded model, not fully saturated
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;scale out: based on queue and TTFT
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;scale in: slow, with drain period&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;For self-hosted fleets, model loading is part of capacity planning. A pod that exists but has not loaded weights is not capacity.&lt;/p&gt;
+&lt;h2&gt;Route with KV locality&lt;span class="hx:absolute hx:-mt-20" id="route-with-kv-locality"&gt;&lt;/span&gt;
+&lt;a href="#route-with-kv-locality" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Round-robin is simple. It is also often wrong for chat.&lt;/p&gt;
+&lt;p&gt;If turn one of a conversation lands on worker A, worker A may hold useful prefix cache for turn two. Sending turn two to worker B forces a cold prefill. KV-aware routing scores workers by:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;prompt prefix overlap&lt;/li&gt;
+&lt;li&gt;session affinity&lt;/li&gt;
+&lt;li&gt;current queue&lt;/li&gt;
+&lt;li&gt;memory pressure&lt;/li&gt;
+&lt;li&gt;expected output length&lt;/li&gt;
+&lt;li&gt;tenant priority&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A basic scoring function:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;score(worker) =
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; 0.45 * prefix_cache_match
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; - 0.25 * queue_delay
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; - 0.20 * kv_pressure
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + 0.10 * tenant_priority&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The weights will vary, but the principle is the same: cache locality is a serving signal.&lt;/p&gt;
+&lt;h2&gt;Multi-tenant serving&lt;span class="hx:absolute hx:-mt-20" id="multi-tenant-serving"&gt;&lt;/span&gt;
+&lt;a href="#multi-tenant-serving" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Tenant isolation needs more than auth.&lt;/p&gt;
+&lt;p&gt;At inference time, enforce:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;per-tenant rate limits&lt;/li&gt;
+&lt;li&gt;max input tokens&lt;/li&gt;
+&lt;li&gt;max output tokens&lt;/li&gt;
+&lt;li&gt;max concurrent requests&lt;/li&gt;
+&lt;li&gt;model allowlists&lt;/li&gt;
+&lt;li&gt;LoRA adapter allowlists&lt;/li&gt;
+&lt;li&gt;prompt namespace isolation&lt;/li&gt;
+&lt;li&gt;cache namespace isolation&lt;/li&gt;
+&lt;li&gt;trace and cost separation&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For fine-tuned tenant adapters, multi-LoRA serving can improve utilization by serving many adapters on shared base weights. But adapter routing must be strict. One tenant should never receive another tenant&amp;rsquo;s adapter or cached output.&lt;/p&gt;
+&lt;h2&gt;Failure modes to test&lt;span class="hx:absolute hx:-mt-20" id="failure-modes-to-test"&gt;&lt;/span&gt;
+&lt;a href="#failure-modes-to-test" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Failure&lt;/th&gt;
+&lt;th&gt;Test&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;One worker OOMs under long context&lt;/td&gt;
+&lt;td&gt;Verify admission control rejects or routes before OOM&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Provider route slows down&lt;/td&gt;
+&lt;td&gt;Verify fallback and circuit breaker&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;KV cache fills&lt;/td&gt;
+&lt;td&gt;Verify scheduler sheds low-priority or long-output traffic&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;New model rollout regresses TPOT&lt;/td&gt;
+&lt;td&gt;Canary by route and compare token metrics&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Tenant spikes traffic&lt;/td&gt;
+&lt;td&gt;Verify quota protects other tenants&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The serving layer is successful when overload is boring. Requests should queue, degrade, or fail intentionally instead of taking the fleet down.&lt;/p&gt;
+&lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
+&lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;vLLM documentation: &lt;a href="https://docs.vllm.ai/"target="_blank" rel="noopener"&gt;https://docs.vllm.ai/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Kwon et al., &amp;ldquo;Efficient Memory Management for Large Language Model Serving with PagedAttention&amp;rdquo;: &lt;a href="https://arxiv.org/abs/2309.06180"target="_blank" rel="noopener"&gt;https://arxiv.org/abs/2309.06180&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;NVIDIA TensorRT-LLM documentation: &lt;a href="https://docs.nvidia.com/tensorrt-llm/"target="_blank" rel="noopener"&gt;https://docs.nvidia.com/tensorrt-llm/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;NVIDIA Triton TensorRT-LLM backend guide: &lt;a href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/getting_started/trtllm_user_guide.html"target="_blank" rel="noopener"&gt;https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/getting_started/trtllm_user_guide.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;SGLang documentation: &lt;a href="https://docs.sglang.io/"target="_blank" rel="noopener"&gt;https://docs.sglang.io/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Production LLM Systems Tutorial 9: Cost Optimization</title><link>https://acethecloud.com/blog/production-llm-systems-cost-optimization/</link><pubDate>Sat, 09 May 2026 09:40:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-cost-optimization/</guid><description>
+&lt;p&gt;LLM cost optimization is not one trick. It is a stack.&lt;/p&gt;
+&lt;p&gt;The biggest savings usually come from removing waste before tuning inference. Duplicate retries, oversized context, no routing, missing cache keys, and unbounded output tokens can cost more than the model choice itself.&lt;/p&gt;
+&lt;p&gt;This tutorial builds a cost-control system.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/09-cost-optimization-stack.svg" alt="LLM cost optimization stack with attribution, request guardrails, cache, routing, context budgeting, batch processing, and quantization" loading="lazy" /&gt;
+&lt;figcaption&gt;Cost optimization compounds when every request has attribution and every savings layer is measured.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Step 1: Attribute cost&lt;span class="hx:absolute hx:-mt-20" id="step-1-attribute-cost"&gt;&lt;/span&gt;
+&lt;a href="#step-1-attribute-cost" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Before optimizing, tag every request:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;tenant_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;tenant_a&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;feature&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;support_answer&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;route&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;rag_mid_model&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;prompt_version&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;support_v14&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;model&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;model_route_mid&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;input_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1840&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;output_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;322&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cached_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cost_usd&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.0142&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;success&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Dashboards should show:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;cost by tenant&lt;/li&gt;
+&lt;li&gt;cost by feature&lt;/li&gt;
+&lt;li&gt;cost by route&lt;/li&gt;
+&lt;li&gt;cost by prompt version&lt;/li&gt;
+&lt;li&gt;cost by model&lt;/li&gt;
+&lt;li&gt;cost per successful task&lt;/li&gt;
+&lt;li&gt;retry cost&lt;/li&gt;
+&lt;li&gt;cache savings&lt;/li&gt;
+&lt;li&gt;token budget violations&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you cannot answer &amp;ldquo;which feature spent the money,&amp;rdquo; you do not have FinOps. You have a bill.&lt;/p&gt;
+&lt;h2&gt;Step 2: Stop duplicate generation&lt;span class="hx:absolute hx:-mt-20" id="step-2-stop-duplicate-generation"&gt;&lt;/span&gt;
+&lt;a href="#step-2-stop-duplicate-generation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Duplicate retries are silent cost leaks.&lt;/p&gt;
+&lt;p&gt;Use:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;idempotency keys&lt;/li&gt;
+&lt;li&gt;request deduplication&lt;/li&gt;
+&lt;li&gt;stream resume where possible&lt;/li&gt;
+&lt;li&gt;retry budgets&lt;/li&gt;
+&lt;li&gt;circuit breakers&lt;/li&gt;
+&lt;li&gt;cached final result by request id&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;When a client times out after 15 seconds and retries, the backend should not blindly generate again. It should check whether the first request is still running or already completed.&lt;/p&gt;
+&lt;h2&gt;Step 3: Route easy work to cheaper models&lt;span class="hx:absolute hx:-mt-20" id="step-3-route-easy-work-to-cheaper-models"&gt;&lt;/span&gt;
+&lt;a href="#step-3-route-easy-work-to-cheaper-models" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Model routing often saves more than prompt tuning.&lt;/p&gt;
+&lt;p&gt;Routes:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Workload&lt;/th&gt;
+&lt;th&gt;Candidate route&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Classification&lt;/td&gt;
+&lt;td&gt;small model or embedding classifier&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Extraction&lt;/td&gt;
+&lt;td&gt;small or mid model with schema validation&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Simple FAQ&lt;/td&gt;
+&lt;td&gt;cache or small model&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;RAG synthesis&lt;/td&gt;
+&lt;td&gt;mid model&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Complex reasoning&lt;/td&gt;
+&lt;td&gt;large model&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;High-risk final answer&lt;/td&gt;
+&lt;td&gt;large model plus review&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Measure cost per successful task, not only cost per request.&lt;/p&gt;
+&lt;h2&gt;Step 4: Use cache layers&lt;span class="hx:absolute hx:-mt-20" id="step-4-use-cache-layers"&gt;&lt;/span&gt;
+&lt;a href="#step-4-use-cache-layers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Use exact cache first:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;cache_key = hash(
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; tenant_id,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; user_scope,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; prompt_version,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; model_version,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; normalized_input,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; corpus_version
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Then add semantic cache only for domains where freshness is controlled. A semantic cache should store:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;original query&lt;/li&gt;
+&lt;li&gt;normalized query&lt;/li&gt;
+&lt;li&gt;embedding model&lt;/li&gt;
+&lt;li&gt;answer&lt;/li&gt;
+&lt;li&gt;evidence ids&lt;/li&gt;
+&lt;li&gt;corpus version&lt;/li&gt;
+&lt;li&gt;expiration&lt;/li&gt;
+&lt;li&gt;safety policy version&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Cache invalidation is a product policy. Pricing answers, legal policies, inventory, and incident status need different TTLs.&lt;/p&gt;
+&lt;h2&gt;Step 5: Budget context&lt;span class="hx:absolute hx:-mt-20" id="step-5-budget-context"&gt;&lt;/span&gt;
+&lt;a href="#step-5-budget-context" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Long prompts are often self-inflicted.&lt;/p&gt;
+&lt;p&gt;Set budgets:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;system prompt: 400 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;developer policy: 500 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;conversation window: 1500 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;retrieved context: 3500 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;tool results: 1000 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;output max: 800 tokens&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Then enforce them. Retrieval should return the best evidence that fits, not every chunk that matched. Tool results should be summarized or structured. Conversation history should be compacted.&lt;/p&gt;
+&lt;h2&gt;Step 6: Use batch APIs for offline jobs&lt;span class="hx:absolute hx:-mt-20" id="step-6-use-batch-apis-for-offline-jobs"&gt;&lt;/span&gt;
+&lt;a href="#step-6-use-batch-apis-for-offline-jobs" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Not all work is interactive.&lt;/p&gt;
+&lt;p&gt;Good batch candidates:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;offline evals&lt;/li&gt;
+&lt;li&gt;document classification&lt;/li&gt;
+&lt;li&gt;embedding corpus jobs&lt;/li&gt;
+&lt;li&gt;nightly summarization&lt;/li&gt;
+&lt;li&gt;backfills&lt;/li&gt;
+&lt;li&gt;report generation&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;OpenAI&amp;rsquo;s Batch API, for example, is designed for asynchronous jobs with lower cost and a 24-hour completion window. That is not suitable for chat UX, but it is ideal for evals and corpus processing.&lt;/p&gt;
+&lt;h2&gt;Step 7: Quantize self-hosted models&lt;span class="hx:absolute hx:-mt-20" id="step-7-quantize-self-hosted-models"&gt;&lt;/span&gt;
+&lt;a href="#step-7-quantize-self-hosted-models" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;For self-hosting, quantization can reduce memory footprint and increase serving density. It can also change quality. Treat quantization as a route-specific release:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Pick target model and quantization method.&lt;/li&gt;
+&lt;li&gt;Run golden evals.&lt;/li&gt;
+&lt;li&gt;Run safety evals.&lt;/li&gt;
+&lt;li&gt;Run latency and throughput benchmarks.&lt;/li&gt;
+&lt;li&gt;Canary low-risk traffic.&lt;/li&gt;
+&lt;li&gt;Compare cost per successful task.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Do not approve quantization from throughput alone.&lt;/p&gt;
+&lt;h2&gt;Step 8: Add guardrails&lt;span class="hx:absolute hx:-mt-20" id="step-8-add-guardrails"&gt;&lt;/span&gt;
+&lt;a href="#step-8-add-guardrails" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Cost guardrails:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;max input tokens per route&lt;/li&gt;
+&lt;li&gt;max output tokens per route&lt;/li&gt;
+&lt;li&gt;max tool steps&lt;/li&gt;
+&lt;li&gt;max retries&lt;/li&gt;
+&lt;li&gt;max cost per request&lt;/li&gt;
+&lt;li&gt;daily tenant budget&lt;/li&gt;
+&lt;li&gt;feature-level budget&lt;/li&gt;
+&lt;li&gt;alert on cost anomaly&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If a user asks for a 200-page answer, the system should negotiate scope instead of obeying.&lt;/p&gt;
+&lt;h2&gt;A sample savings stack&lt;span class="hx:absolute hx:-mt-20" id="a-sample-savings-stack"&gt;&lt;/span&gt;
+&lt;a href="#a-sample-savings-stack" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Example starting point:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;100,000 requests/day
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;average cost: $0.020
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;daily cost: $2,000&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;After changes:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Change&lt;/th&gt;
+&lt;th style="text-align: right"&gt;Savings&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Deduplicate retries&lt;/td&gt;
+&lt;td style="text-align: right"&gt;8%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Route easy work&lt;/td&gt;
+&lt;td style="text-align: right"&gt;45%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Exact cache&lt;/td&gt;
+&lt;td style="text-align: right"&gt;12%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Semantic cache on FAQ route&lt;/td&gt;
+&lt;td style="text-align: right"&gt;18%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Context budget&lt;/td&gt;
+&lt;td style="text-align: right"&gt;20%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Batch offline jobs&lt;/td&gt;
+&lt;td style="text-align: right"&gt;50% on eligible work&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Savings compound, but not perfectly. Measure each layer with attribution.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/09-savings-waterfall.svg" alt="LLM cost savings waterfall from baseline cost through deduplication, routing, caching, context budgeting, and serving efficiency" loading="lazy" /&gt;
+&lt;figcaption&gt;A savings waterfall keeps the conversation tied to measured cost per successful task.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
+&lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;OpenAI Batch API guide: &lt;a href="https://platform.openai.com/docs/guides/batch"target="_blank" rel="noopener"&gt;https://platform.openai.com/docs/guides/batch&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;OpenAI API pricing: &lt;a href="https://openai.com/api/pricing/"target="_blank" rel="noopener"&gt;https://openai.com/api/pricing/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;vLLM documentation: &lt;a href="https://docs.vllm.ai/"target="_blank" rel="noopener"&gt;https://docs.vllm.ai/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;NVIDIA TensorRT-LLM documentation: &lt;a href="https://docs.nvidia.com/tensorrt-llm/"target="_blank" rel="noopener"&gt;https://docs.nvidia.com/tensorrt-llm/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;LiteLLM documentation: &lt;a href="https://docs.litellm.ai/"target="_blank" rel="noopener"&gt;https://docs.litellm.ai/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Your Token Bill Has a Leak: Cost Monitoring for Hidden LLM Waste</title><link>https://acethecloud.com/blog/cost-monitoring-hidden-token-leaks/</link><pubDate>Wed, 06 May 2026 09:20:00 +0530</pubDate><guid>https://acethecloud.com/blog/cost-monitoring-hidden-token-leaks/</guid><description>
 &lt;p&gt;LLM cost leaks rarely announce themselves.&lt;/p&gt;
 &lt;p&gt;They hide in places that feel harmless:&lt;/p&gt;
 &lt;ul&gt;

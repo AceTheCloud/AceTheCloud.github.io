@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Scalable inference fleet</title>
+  <desc id="desc">A scalable inference service routes requests through admission control and scheduling into GPU workers while tracking KV cache, queues, and autoscaling signals.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eff6ff"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="70" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Inference is a fleet problem</text>
+  <text x="70" y="120" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">The serving layer balances memory, queues, cache locality, and GPU utilization.</text>
+
+  <rect x="70" y="185" width="200" height="105" rx="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="170" y="228" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" fill="#0f172a">LLM Gateway</text>
+  <text x="170" y="258" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" fill="#64748b">tenant, model, SLO</text>
+
+  <rect x="355" y="170" width="245" height="135" rx="20" fill="#0f172a"/>
+  <text x="477" y="220" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#ffffff">Router</text>
+  <text x="477" y="253" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="17" fill="#cbd5e1">prefix, queue, capacity</text>
+  <text x="477" y="282" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="16" fill="#bbf7d0">pick cheapest safe worker</text>
+
+  <rect x="690" y="170" width="235" height="135" rx="20" fill="#ffffff" stroke="#93c5fd" stroke-width="3"/>
+  <text x="807" y="220" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#0f172a">Scheduler</text>
+  <text x="807" y="253" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="17" fill="#475569">admission + batching</text>
+  <text x="807" y="282" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="16" fill="#1d4ed8">protect TTFT</text>
+
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="1010" y="150" width="180" height="90" rx="16" fill="#2563eb"/>
+    <text x="1100" y="190" text-anchor="middle" font-size="24" font-weight="800" fill="#ffffff">GPU A</text>
+    <text x="1100" y="217" text-anchor="middle" font-size="14" fill="#dbeafe">vLLM worker</text>
+    <rect x="1010" y="270" width="180" height="90" rx="16" fill="#16a34a"/>
+    <text x="1100" y="310" text-anchor="middle" font-size="24" font-weight="800" fill="#ffffff">GPU B</text>
+    <text x="1100" y="337" text-anchor="middle" font-size="14" fill="#dcfce7">SGLang worker</text>
+    <rect x="1010" y="390" width="180" height="90" rx="16" fill="#7c3aed"/>
+    <text x="1100" y="430" text-anchor="middle" font-size="24" font-weight="800" fill="#ffffff">GPU C</text>
+    <text x="1100" y="457" text-anchor="middle" font-size="14" fill="#ede9fe">TensorRT-LLM</text>
+  </g>
+
+  <path d="M272 237 H347" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M602 237 H682" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M927 237 H1000" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M927 237 C970 252 970 314 1000 315" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M927 237 C965 292 960 426 1000 435" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+  <rect x="120" y="430" width="760" height="150" rx="22" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="155" y="475" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="800" fill="#0f172a">Autoscale on inference signals</text>
+  <g font-family="Inter, Arial, sans-serif" font-size="18" fill="#334155">
+    <circle cx="160" cy="520" r="8" fill="#2563eb"/><text x="182" y="527">queue depth by model and priority</text>
+    <circle cx="455" cy="520" r="8" fill="#16a34a"/><text x="477" y="527">KV cache pressure</text>
+    <circle cx="660" cy="520" r="8" fill="#f59e0b"/><text x="682" y="527">TTFT and TPOT SLOs</text>
+    <circle cx="160" cy="555" r="8" fill="#7c3aed"/><text x="182" y="562">loaded model replicas</text>
+    <circle cx="455" cy="555" r="8" fill="#ef4444"/><text x="477" y="562">cold-start budget</text>
+  </g>
+  <text x="640" y="650" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="19" fill="#334155">CPU utilization alone is the wrong control signal for token services.</text>
+</svg>

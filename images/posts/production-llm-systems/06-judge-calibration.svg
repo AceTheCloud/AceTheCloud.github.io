@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 540" role="img" aria-labelledby="title desc">
+  <title id="title">Judge calibration for LLM evaluation</title>
+  <desc id="desc">LLM judges should be calibrated against human labels, pairwise comparisons, bias checks, and regression gates before controlling releases.</desc>
+  <defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" fill="#334155"/></marker></defs>
+  <rect width="1280" height="540" rx="28" fill="#f8fafc"/>
+  <text x="70" y="72" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="800" fill="#0f172a">LLM judges need calibration</text>
+  <text x="70" y="110" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">A judge is a measurement instrument. Validate it before using it as a release gate.</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="80" y="230" width="190" height="88" rx="15" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/><text x="175" y="264" text-anchor="middle" font-size="21" font-weight="800" fill="#0f172a">Human labels</text><text x="175" y="291" text-anchor="middle" font-size="14" fill="#64748b">small, trusted set</text>
+    <rect x="335" y="230" width="190" height="88" rx="15" fill="#ffffff" stroke="#bfdbfe" stroke-width="2"/><text x="430" y="264" text-anchor="middle" font-size="21" font-weight="800" fill="#0f172a">Judge prompt</text><text x="430" y="291" text-anchor="middle" font-size="14" fill="#64748b">rubric + examples</text>
+    <rect x="590" y="230" width="190" height="88" rx="15" fill="#0f172a"/><text x="685" y="264" text-anchor="middle" font-size="21" font-weight="800" fill="#ffffff">Bias checks</text><text x="685" y="291" text-anchor="middle" font-size="14" fill="#cbd5e1">position, length</text>
+    <rect x="845" y="230" width="190" height="88" rx="15" fill="#ffffff" stroke="#bbf7d0" stroke-width="2"/><text x="940" y="264" text-anchor="middle" font-size="21" font-weight="800" fill="#0f172a">Agreement</text><text x="940" y="291" text-anchor="middle" font-size="14" fill="#64748b">judge vs human</text>
+  </g>
+  <path d="M272 274 H327" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/><path d="M527 274 H582" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/><path d="M782 274 H837" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <rect x="380" y="390" width="520" height="56" rx="14" fill="#0f172a"/>
+  <text x="640" y="425" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="18" fill="#f8fafc">use pairwise preference when absolute scores are unstable</text>
+</svg>

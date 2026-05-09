@@ -1,4 +1,219 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Rag</title><link>https://acethecloud.com/tags/rag/</link><description>Recent content in Rag on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 23 Apr 2026 09:30:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/rag/index.xml" rel="self" type="application/rss+xml"/><item><title>Your RAG Demo Passed. Your RAG System Needs a Judge: RAGAS, Humans, and Evidence</title><link>https://acethecloud.com/blog/rag-evaluation-ragas-human-evals/</link><pubDate>Thu, 23 Apr 2026 09:30:00 +0530</pubDate><guid>https://acethecloud.com/blog/rag-evaluation-ragas-human-evals/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Rag</title><link>https://acethecloud.com/tags/rag/</link><description>Recent content in Rag on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 09 May 2026 10:30:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/rag/index.xml" rel="self" type="application/rss+xml"/><item><title>Production LLM Systems Tutorial 4: RAG and Data Pipelines</title><link>https://acethecloud.com/blog/production-llm-systems-rag-data-pipeline/</link><pubDate>Sat, 09 May 2026 10:30:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-rag-data-pipeline/</guid><description>
+&lt;p&gt;RAG is not a vector database.&lt;/p&gt;
+&lt;p&gt;RAG is a data system that happens to use vectors. The retrieval result is only as good as ingestion, chunking, metadata, freshness, permissions, reranking, and context packing. If those pieces are weak, the model will produce confident answers from weak evidence.&lt;/p&gt;
+&lt;p&gt;This tutorial builds a production RAG pipeline.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/04-rag-data-pipeline.svg" alt="Production RAG data pipeline from source systems through ingestion, chunking, embedding, indexing, retrieval, reranking, and context packing" loading="lazy" /&gt;
+&lt;figcaption&gt;RAG quality comes from the whole data pipeline, not from vector search alone.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;The pipeline&lt;span class="hx:absolute hx:-mt-20" id="the-pipeline"&gt;&lt;/span&gt;
+&lt;a href="#the-pipeline" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;source systems
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; ingestion
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; connectors, ACLs, metadata, document ids
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; normalization
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; text extraction, tables, OCR, cleanup
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; chunking
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; parent docs, child chunks, overlap
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; embedding
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; model version, dimension, batching
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; indexing
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; vector index, BM25 index, metadata indexes
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; retrieval
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; query rewrite, filters, dense search, sparse search
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; fusion and rerank
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; reciprocal rank fusion, cross-encoder reranker
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; context packing
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; dedupe, cite, budget, order
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; generation
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; answer with evidence&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The retrieval step is in the middle, not the beginning.&lt;/p&gt;
+&lt;h2&gt;Step 1: Preserve document identity&lt;span class="hx:absolute hx:-mt-20" id="step-1-preserve-document-identity"&gt;&lt;/span&gt;
+&lt;a href="#step-1-preserve-document-identity" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Every document needs stable identifiers:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;document_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;policy_2026_042&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;source_system&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;sharepoint&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;source_url&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;https://...&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;tenant_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;tenant_a&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;acl_hash&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;acl_98d2&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;version&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;2026-05-01T10:15:00Z&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;deleted&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Do not index anonymous text chunks. You need to trace every answer back to the original document, permission scope, and corpus version.&lt;/p&gt;
+&lt;h2&gt;Step 2: Chunk for retrieval and context separately&lt;span class="hx:absolute hx:-mt-20" id="step-2-chunk-for-retrieval-and-context-separately"&gt;&lt;/span&gt;
+&lt;a href="#step-2-chunk-for-retrieval-and-context-separately" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Fixed-size chunking is easy. It is rarely best.&lt;/p&gt;
+&lt;p&gt;Use recursive chunking as the baseline because it tries to keep paragraphs, sentences, and words together. For long documents, use parent-document retrieval:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;small child chunks for vector search&lt;/li&gt;
+&lt;li&gt;larger parent section for context&lt;/li&gt;
+&lt;li&gt;original document for citation and audit&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Parent: &amp;#34;Refund Policy, Section 4: Enterprise Exceptions&amp;#34; 1800 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; child chunk 1: 300 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; child chunk 2: 300 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; child chunk 3: 300 tokens&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The small chunks find the relevant area. The parent gives the model enough context to avoid answering from a sentence fragment.&lt;/p&gt;
+&lt;h2&gt;Step 3: Treat embeddings as schema&lt;span class="hx:absolute hx:-mt-20" id="step-3-treat-embeddings-as-schema"&gt;&lt;/span&gt;
+&lt;a href="#step-3-treat-embeddings-as-schema" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Embedding choices affect storage, recall, latency, and migration cost.&lt;/p&gt;
+&lt;p&gt;Track:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;embedding model name&lt;/li&gt;
+&lt;li&gt;embedding model version&lt;/li&gt;
+&lt;li&gt;dimension&lt;/li&gt;
+&lt;li&gt;normalization&lt;/li&gt;
+&lt;li&gt;distance metric&lt;/li&gt;
+&lt;li&gt;language coverage&lt;/li&gt;
+&lt;li&gt;corpus version&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Changing embedding model is a schema migration. You usually need a full corpus re-embed and a blue/green index swap.&lt;/p&gt;
+&lt;p&gt;Matryoshka-style embeddings are useful when you want one embedding model that can support multiple dimensions. The trade-off is still empirical: test recall and rerank quality at each dimension you plan to use.&lt;/p&gt;
+&lt;h2&gt;Step 4: Use hybrid search by default&lt;span class="hx:absolute hx:-mt-20" id="step-4-use-hybrid-search-by-default"&gt;&lt;/span&gt;
+&lt;a href="#step-4-use-hybrid-search-by-default" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Dense vectors are good at semantic similarity. BM25 is good at exact terms, codes, product names, error messages, IDs, and rare words.&lt;/p&gt;
+&lt;p&gt;Use both:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;query
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; dense retrieval top 50
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; BM25 retrieval top 50
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; reciprocal rank fusion
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; rerank top 50 to top 5&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Reciprocal rank fusion is simple and robust. It lets exact keyword matches and semantic matches compete without forcing you to calibrate raw scores across different retrieval systems.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/04-hybrid-rerank.svg" alt="Hybrid RAG retrieval path with dense retrieval, BM25 retrieval, reciprocal rank fusion, reranking, and context packing" loading="lazy" /&gt;
+&lt;figcaption&gt;Hybrid search retrieves broadly; reranking narrows the evidence before generation.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Step 5: Rerank before generation&lt;span class="hx:absolute hx:-mt-20" id="step-5-rerank-before-generation"&gt;&lt;/span&gt;
+&lt;a href="#step-5-rerank-before-generation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Vector search is candidate generation. Reranking is precision.&lt;/p&gt;
+&lt;p&gt;A cross-encoder reranker compares query and document directly. This costs extra latency, but it usually improves the quality of the final context. A common pattern:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Retrieve 50 candidates.&lt;/li&gt;
+&lt;li&gt;Rerank to 5 to 10.&lt;/li&gt;
+&lt;li&gt;Deduplicate near-identical chunks.&lt;/li&gt;
+&lt;li&gt;Pack context with citation ids.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Do not feed top 50 directly into the model unless you want higher cost and more distraction.&lt;/p&gt;
+&lt;h2&gt;Step 6: Filter permissions before retrieval when possible&lt;span class="hx:absolute hx:-mt-20" id="step-6-filter-permissions-before-retrieval-when-possible"&gt;&lt;/span&gt;
+&lt;a href="#step-6-filter-permissions-before-retrieval-when-possible" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If the user can only access 1 percent of the corpus, do not retrieve from 100 percent and filter afterward.&lt;/p&gt;
+&lt;p&gt;Use metadata filters for:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;tenant&lt;/li&gt;
+&lt;li&gt;user or group ACL&lt;/li&gt;
+&lt;li&gt;region&lt;/li&gt;
+&lt;li&gt;product&lt;/li&gt;
+&lt;li&gt;document type&lt;/li&gt;
+&lt;li&gt;effective date&lt;/li&gt;
+&lt;li&gt;deletion status&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Pre-filtering improves safety but can reduce recall if the vector database handles filters poorly. Post-filtering can improve recall but risks retrieving inaccessible chunks and then throwing away too many results. For sensitive data, safety wins. Tune the index and metadata strategy around that constraint.&lt;/p&gt;
+&lt;h2&gt;Step 7: Build for updates&lt;span class="hx:absolute hx:-mt-20" id="step-7-build-for-updates"&gt;&lt;/span&gt;
+&lt;a href="#step-7-build-for-updates" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;RAG systems go stale quietly.&lt;/p&gt;
+&lt;p&gt;Use an update pipeline:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;source change event
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; fetch document
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; extract text
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; compare version
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; mark old chunks inactive
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; write new chunks
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; embed new chunks
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; update search indexes
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; publish corpus version&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;For large migrations, use blue/green indexes:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;index_v17 active
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;index_v18 building
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;index_v18 eval
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;index_v18 shadow traffic
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;index_v18 active
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;index_v17 retained for rollback&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Never rebuild the only index in place.&lt;/p&gt;
+&lt;h2&gt;Step 8: Evaluate retrieval separately&lt;span class="hx:absolute hx:-mt-20" id="step-8-evaluate-retrieval-separately"&gt;&lt;/span&gt;
+&lt;a href="#step-8-evaluate-retrieval-separately" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Answer quality can hide retrieval failures. Measure retrieval directly:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;context recall: did we retrieve the needed evidence?&lt;/li&gt;
+&lt;li&gt;context precision: was retrieved context useful?&lt;/li&gt;
+&lt;li&gt;citation accuracy: did citations support the answer?&lt;/li&gt;
+&lt;li&gt;permission correctness: did retrieval respect access control?&lt;/li&gt;
+&lt;li&gt;freshness: did the answer use current document versions?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If retrieval recall is bad, prompt tuning will not fix it.&lt;/p&gt;
+&lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
+&lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;LangChain, &amp;ldquo;Recursive text splitter&amp;rdquo;: &lt;a href="https://docs.langchain.com/oss/python/integrations/splitters/recursive_text_splitter"target="_blank" rel="noopener"&gt;https://docs.langchain.com/oss/python/integrations/splitters/recursive_text_splitter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;LangChain, &amp;ldquo;ParentDocumentRetriever&amp;rdquo;: &lt;a href="https://api.python.langchain.com/en/latest/langchain/retrievers/langchain.retrievers.parent_document_retriever.ParentDocumentRetriever.html"target="_blank" rel="noopener"&gt;https://api.python.langchain.com/en/latest/langchain/retrievers/langchain.retrievers.parent_document_retriever.ParentDocumentRetriever.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Cohere Rerank documentation: &lt;a href="https://docs.cohere.com/v2/docs/rerank"target="_blank" rel="noopener"&gt;https://docs.cohere.com/v2/docs/rerank&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Qdrant documentation, vector search and filtering: &lt;a href="https://qdrant.tech/documentation/"target="_blank" rel="noopener"&gt;https://qdrant.tech/documentation/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Weaviate documentation, vector indexing: &lt;a href="https://docs.weaviate.io/weaviate/concepts/vector-index"target="_blank" rel="noopener"&gt;https://docs.weaviate.io/weaviate/concepts/vector-index&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;pgvector documentation: &lt;a href="https://github.com/pgvector/pgvector"target="_blank" rel="noopener"&gt;https://github.com/pgvector/pgvector&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Your RAG Demo Passed. Your RAG System Needs a Judge: RAGAS, Humans, and Evidence</title><link>https://acethecloud.com/blog/rag-evaluation-ragas-human-evals/</link><pubDate>Thu, 23 Apr 2026 09:30:00 +0530</pubDate><guid>https://acethecloud.com/blog/rag-evaluation-ragas-human-evals/</guid><description>
 &lt;p&gt;RAG demos are forgiving. Production RAG is not.&lt;/p&gt;
 &lt;p&gt;A demo needs one good answer on stage. A production RAG system needs thousands of correct answers across stale documents, ambiguous questions, bad retrieval, missing permissions, partial context, and users who ask &amp;ldquo;same thing as yesterday&amp;rdquo; while changing the noun that matters.&lt;/p&gt;
 &lt;p&gt;RAG evaluation is hard because failures hide in different layers:&lt;/p&gt;

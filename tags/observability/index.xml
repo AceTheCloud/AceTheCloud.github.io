@@ -1,4 +1,258 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Observability</title><link>https://acethecloud.com/tags/observability/</link><description>Recent content in Observability on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 06 May 2026 09:40:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/observability/index.xml" rel="self" type="application/rss+xml"/><item><title>Agents Need Seatbelts: Guardrails and Infinite-Loop Detection for Tool-Using AI</title><link>https://acethecloud.com/blog/agent-guardrails-infinite-loop-detection/</link><pubDate>Wed, 06 May 2026 09:40:00 +0530</pubDate><guid>https://acethecloud.com/blog/agent-guardrails-infinite-loop-detection/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Observability</title><link>https://acethecloud.com/tags/observability/</link><description>Recent content in Observability on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 09 May 2026 10:20:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/observability/index.xml" rel="self" type="application/rss+xml"/><item><title>Production LLM Systems Tutorial 5: Monitoring and Observability</title><link>https://acethecloud.com/blog/production-llm-systems-monitoring-observability/</link><pubDate>Sat, 09 May 2026 10:20:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-monitoring-observability/</guid><description>
+&lt;p&gt;LLM observability is not a dashboard with token counts.&lt;/p&gt;
+&lt;p&gt;A production LLM system is a distributed workflow. One user request can include retrieval, reranking, prompt assembly, one or more model calls, tool execution, output validation, policy checks, streaming, and feedback capture. If you only log the final answer, you cannot debug the system.&lt;/p&gt;
+&lt;p&gt;This tutorial builds an observability model with three layers: system, quality, and drift.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/05-observability-layers.svg" alt="LLM observability layers for system metrics, answer quality, drift, privacy, and request tracing" loading="lazy" /&gt;
+&lt;figcaption&gt;LLM observability needs system health, quality signals, drift detection, privacy controls, and trace correlation.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Layer 1: System observability&lt;span class="hx:absolute hx:-mt-20" id="layer-1-system-observability"&gt;&lt;/span&gt;
+&lt;a href="#layer-1-system-observability" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;System metrics answer: &amp;ldquo;Is the service healthy?&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;Track:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Metric&lt;/th&gt;
+&lt;th&gt;Why it matters&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;TTFT&lt;/td&gt;
+&lt;td&gt;User-perceived responsiveness&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;TPOT&lt;/td&gt;
+&lt;td&gt;Streaming smoothness and decode health&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;p50/p95/p99 latency&lt;/td&gt;
+&lt;td&gt;Normal and tail behavior&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;tokens/sec&lt;/td&gt;
+&lt;td&gt;Serving throughput&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;queue depth&lt;/td&gt;
+&lt;td&gt;Saturation and under-provisioning&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;error rate&lt;/td&gt;
+&lt;td&gt;Provider, tool, validation, and policy failures&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;retry count&lt;/td&gt;
+&lt;td&gt;Hidden cost and latency multiplier&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GPU utilization&lt;/td&gt;
+&lt;td&gt;Whether accelerators are doing useful work&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;KV cache hit rate&lt;/td&gt;
+&lt;td&gt;Prefix reuse and routing quality&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;cache hit rate&lt;/td&gt;
+&lt;td&gt;Exact and semantic cache efficiency&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;cost per request&lt;/td&gt;
+&lt;td&gt;Unit economics&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Split latency by span. A single &amp;ldquo;latency_ms&amp;rdquo; metric is not enough.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;request
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; retrieval: 430ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; rerank: 170ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; model prefill: 620ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; first token: 790ms
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; tool call: 2.4s
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; final stream: 4.8s&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That trace tells you what to fix.&lt;/p&gt;
+&lt;h2&gt;Layer 2: Quality observability&lt;span class="hx:absolute hx:-mt-20" id="layer-2-quality-observability"&gt;&lt;/span&gt;
+&lt;a href="#layer-2-quality-observability" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Quality metrics answer: &amp;ldquo;Is the system useful and safe?&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;Track:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Signal&lt;/th&gt;
+&lt;th&gt;Example measurement&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Groundedness&lt;/td&gt;
+&lt;td&gt;Does the answer stay within retrieved evidence?&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Answer relevance&lt;/td&gt;
+&lt;td&gt;Does it answer the user question?&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Refusal quality&lt;/td&gt;
+&lt;td&gt;Does it refuse only when appropriate?&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Tool success&lt;/td&gt;
+&lt;td&gt;Did tool calls complete with valid arguments?&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Citation accuracy&lt;/td&gt;
+&lt;td&gt;Do citations support the claims?&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;User feedback&lt;/td&gt;
+&lt;td&gt;Thumbs, edits, re-asks, escalation&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Human review outcome&lt;/td&gt;
+&lt;td&gt;Accepted, corrected, rejected&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;LLM-as-judge can help, but do not treat it as truth. Judges have bias. They can prefer longer answers, familiar wording, and their own model family&amp;rsquo;s style. Calibrate judges against human-labeled examples and use pairwise comparisons when subjective quality matters.&lt;/p&gt;
+&lt;h2&gt;Layer 3: Drift observability&lt;span class="hx:absolute hx:-mt-20" id="layer-3-drift-observability"&gt;&lt;/span&gt;
+&lt;a href="#layer-3-drift-observability" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Drift metrics answer: &amp;ldquo;Is the input or output distribution changing?&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;Watch:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;input topic distribution&lt;/li&gt;
+&lt;li&gt;language mix&lt;/li&gt;
+&lt;li&gt;document corpus changes&lt;/li&gt;
+&lt;li&gt;embedding distribution&lt;/li&gt;
+&lt;li&gt;retrieval score distribution&lt;/li&gt;
+&lt;li&gt;output length&lt;/li&gt;
+&lt;li&gt;refusal rate&lt;/li&gt;
+&lt;li&gt;tool-call frequency&lt;/li&gt;
+&lt;li&gt;cost per task&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Example: if retrieval scores drop after a document migration, the model may still answer fluently, but evidence quality has degraded. That is a RAG incident, even if uptime is perfect.&lt;/p&gt;
+&lt;h2&gt;Trace schema&lt;span class="hx:absolute hx:-mt-20" id="trace-schema"&gt;&lt;/span&gt;
+&lt;a href="#trace-schema" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Use one trace per user request and child spans for each operation:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;trace: request_id=req_123
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: gateway.auth
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: gateway.rate_limit
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: orchestrator.route
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: retrieval.query_rewrite
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: retrieval.vector_search
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: retrieval.bm25_search
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: retrieval.rerank
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: prompt.assemble
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: model.call
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: tool.execute
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: output.validate
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; span: stream.send&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Each span should include enough metadata to debug behavior without storing raw secrets:&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/05-trace-anatomy.svg" alt="LLM trace anatomy with spans for gateway, retrieval, reranking, model call, tool execution, safety checks, and usage metadata" loading="lazy" /&gt;
+&lt;figcaption&gt;A useful trace shows every step that contributed to the final answer.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;tenant_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;tenant_a&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;feature&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;support_answer&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;prompt_version&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;support_v14&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;model&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;model_route_mid&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;input_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1840&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;output_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;322&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cache_hit&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;retrieved_documents&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;tool_count&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Privacy rules&lt;span class="hx:absolute hx:-mt-20" id="privacy-rules"&gt;&lt;/span&gt;
+&lt;a href="#privacy-rules" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Prompt and response capture is sensitive. Before storing traces:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;redact PII&lt;/li&gt;
+&lt;li&gt;hash user identifiers where possible&lt;/li&gt;
+&lt;li&gt;separate raw payload storage from metrics&lt;/li&gt;
+&lt;li&gt;apply retention limits&lt;/li&gt;
+&lt;li&gt;restrict trace access by tenant and environment&lt;/li&gt;
+&lt;li&gt;avoid logging secrets in tool arguments&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For high-risk domains, store structured summaries and references instead of raw prompts by default.&lt;/p&gt;
+&lt;h2&gt;Alerting&lt;span class="hx:absolute hx:-mt-20" id="alerting"&gt;&lt;/span&gt;
+&lt;a href="#alerting" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Useful alerts are tied to user impact:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Alert&lt;/th&gt;
+&lt;th&gt;Likely issue&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;TTFT p95 doubled&lt;/td&gt;
+&lt;td&gt;Queueing, provider degradation, prefill overload&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;TPOT p95 increased&lt;/td&gt;
+&lt;td&gt;Decode saturation, KV pressure, model route regression&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Retrieval recall eval dropped&lt;/td&gt;
+&lt;td&gt;Corpus or embedding issue&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Refusal rate spiked&lt;/td&gt;
+&lt;td&gt;Safety policy or classifier regression&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Cost per task rose&lt;/td&gt;
+&lt;td&gt;Retry loop, prompt bloat, routing regression&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Tool failures rose&lt;/td&gt;
+&lt;td&gt;Downstream dependency or schema drift&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Do not alert on every odd model answer. Use sampling, eval thresholds, and aggregate trends.&lt;/p&gt;
+&lt;h2&gt;Tooling&lt;span class="hx:absolute hx:-mt-20" id="tooling"&gt;&lt;/span&gt;
+&lt;a href="#tooling" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Common tools include Langfuse, LangSmith, Arize Phoenix, Helicone, Weights &amp;amp; Biases, and OpenTelemetry-based pipelines. The exact vendor matters less than the trace model. If your trace does not show retrieval, prompt version, model route, tool calls, token usage, and cost, you will still be debugging blind.&lt;/p&gt;
+&lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
+&lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;OpenTelemetry, &amp;ldquo;Semantic conventions for generative AI systems&amp;rdquo;: &lt;a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/"target="_blank" rel="noopener"&gt;https://opentelemetry.io/docs/specs/semconv/gen-ai/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Langfuse, &amp;ldquo;LLM Observability and Application Tracing&amp;rdquo;: &lt;a href="https://langfuse.com/docs/observability/overview"target="_blank" rel="noopener"&gt;https://langfuse.com/docs/observability/overview&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Arize Phoenix documentation: &lt;a href="https://arize.com/docs/phoenix"target="_blank" rel="noopener"&gt;https://arize.com/docs/phoenix&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Helicone documentation: &lt;a href="https://docs.helicone.ai/getting-started/platform-overview"target="_blank" rel="noopener"&gt;https://docs.helicone.ai/getting-started/platform-overview&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Agents Need Seatbelts: Guardrails and Infinite-Loop Detection for Tool-Using AI</title><link>https://acethecloud.com/blog/agent-guardrails-infinite-loop-detection/</link><pubDate>Wed, 06 May 2026 09:40:00 +0530</pubDate><guid>https://acethecloud.com/blog/agent-guardrails-infinite-loop-detection/</guid><description>
 &lt;p&gt;An agent without guardrails is just a while loop with a credit card.&lt;/p&gt;
 &lt;p&gt;Tool-using agents are powerful because they can observe, plan, call tools, inspect results, and try again. That same loop is the source of the most boring and expensive failure mode in agent systems:&lt;/p&gt;
 &lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;

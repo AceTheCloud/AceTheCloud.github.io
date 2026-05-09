@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 540" role="img" aria-labelledby="title desc">
+  <title id="title">Hybrid retrieval and reranking</title>
+  <desc id="desc">Hybrid RAG combines dense retrieval and BM25, fuses ranked candidates, reranks them, deduplicates chunks, and packs the strongest evidence.</desc>
+  <defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" fill="#334155"/></marker></defs>
+  <rect width="1280" height="540" rx="28" fill="#f8fafc"/>
+  <text x="70" y="72" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="800" fill="#0f172a">Hybrid search is the default RAG path</text>
+  <text x="70" y="110" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">Vectors catch meaning. BM25 catches exact terms. Reranking chooses evidence.</text>
+  <rect x="90" y="225" width="155" height="80" rx="15" fill="#0f172a"/><text x="167" y="273" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800" fill="#ffffff">Query</text>
+  <rect x="335" y="165" width="200" height="80" rx="15" fill="#ffffff" stroke="#bfdbfe" stroke-width="3"/><text x="435" y="213" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800" fill="#0f172a">Dense top 50</text>
+  <rect x="335" y="315" width="200" height="80" rx="15" fill="#ffffff" stroke="#fde68a" stroke-width="3"/><text x="435" y="363" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800" fill="#0f172a">BM25 top 50</text>
+  <rect x="640" y="225" width="190" height="80" rx="15" fill="#ffffff" stroke="#bbf7d0" stroke-width="3"/><text x="735" y="273" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800" fill="#0f172a">RRF fuse</text>
+  <rect x="925" y="225" width="190" height="80" rx="15" fill="#ffffff" stroke="#c4b5fd" stroke-width="3"/><text x="1020" y="273" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800" fill="#0f172a">Rerank top 5</text>
+  <path d="M247 265 C285 205 300 205 327 205" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/><path d="M247 265 C285 355 300 355 327 355" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M537 205 C585 205 590 265 632 265" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/><path d="M537 355 C585 355 590 265 632 265" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/><path d="M832 265 H917" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="640" y="450" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="18" fill="#334155">Retrieve broadly, rerank precisely, then pack only evidence worth paying for.</text>
+</svg>

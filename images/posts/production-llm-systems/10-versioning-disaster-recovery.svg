@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">LLM versioning and disaster recovery</title>
+  <desc id="desc">Reliable LLM systems version models, prompts, policies, tools, embeddings, retrieval indexes, routers, and cache policy, then support canary, failover, rollback, and graceful degradation.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#fefce8"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="70" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Version every behavior-changing artifact</text>
+  <text x="70" y="120" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">Rollback only works when you know exactly what changed.</text>
+
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="80" y="185" width="190" height="82" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="175" y="236" text-anchor="middle" font-size="22" font-weight="800" fill="#0f172a">Model</text>
+    <rect x="300" y="185" width="190" height="82" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="395" y="236" text-anchor="middle" font-size="22" font-weight="800" fill="#0f172a">Prompt</text>
+    <rect x="520" y="185" width="190" height="82" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="615" y="236" text-anchor="middle" font-size="22" font-weight="800" fill="#0f172a">Policy</text>
+    <rect x="740" y="185" width="190" height="82" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="835" y="236" text-anchor="middle" font-size="22" font-weight="800" fill="#0f172a">Tool schema</text>
+    <rect x="960" y="185" width="190" height="82" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="1055" y="236" text-anchor="middle" font-size="22" font-weight="800" fill="#0f172a">Index</text>
+  </g>
+
+  <rect x="300" y="340" width="680" height="98" rx="20" fill="#0f172a"/>
+  <text x="640" y="380" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#ffffff">Release manifest</text>
+  <text x="640" y="414" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="17" fill="#bbf7d0">model + prompt + policy + tools + embeddings + router + cache</text>
+
+  <path d="M175 268 V320 H640 V333" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M395 268 V320 H640 V333" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M615 268 V333" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M835 268 V320 H640 V333" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M1055 268 V320 H640 V333" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="105" y="520" width="230" height="92" rx="18" fill="#ffffff" stroke="#bbf7d0" stroke-width="3"/>
+    <text x="220" y="557" text-anchor="middle" font-size="23" font-weight="800" fill="#166534">Canary</text>
+    <text x="220" y="585" text-anchor="middle" font-size="15" fill="#166534">small traffic, watched</text>
+    <rect x="405" y="520" width="230" height="92" rx="18" fill="#ffffff" stroke="#bfdbfe" stroke-width="3"/>
+    <text x="520" y="557" text-anchor="middle" font-size="23" font-weight="800" fill="#1d4ed8">Failover</text>
+    <text x="520" y="585" text-anchor="middle" font-size="15" fill="#1d4ed8">provider or model route</text>
+    <rect x="705" y="520" width="230" height="92" rx="18" fill="#ffffff" stroke="#fecaca" stroke-width="3"/>
+    <text x="820" y="557" text-anchor="middle" font-size="23" font-weight="800" fill="#991b1b">Rollback</text>
+    <text x="820" y="585" text-anchor="middle" font-size="15" fill="#991b1b">smallest artifact first</text>
+    <rect x="1005" y="520" width="230" height="92" rx="18" fill="#ffffff" stroke="#fde68a" stroke-width="3"/>
+    <text x="1120" y="557" text-anchor="middle" font-size="23" font-weight="800" fill="#92400e">Degrade</text>
+    <text x="1120" y="585" text-anchor="middle" font-size="15" fill="#92400e">cached, queued, human</text>
+  </g>
+
+  <path d="M640 439 V485 H220 V512" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M640 439 V485 H520 V512" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M640 439 V485 H820 V512" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M640 439 V485 H1120 V512" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <text x="640" y="670" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="19" fill="#334155">A production answer should be reproducible from its manifest.</text>
+</svg>

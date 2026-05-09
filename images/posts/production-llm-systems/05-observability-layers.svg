@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">LLM observability layers</title>
+  <desc id="desc">LLM observability tracks system health, answer quality, drift, privacy controls, and per-request traces across the workflow.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#f5f3ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="70" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Observe the workflow, not just tokens</text>
+  <text x="70" y="120" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">System health, answer quality, drift, privacy, and cost need one request trace.</text>
+
+  <rect x="130" y="180" width="1020" height="110" rx="20" fill="#0f172a"/>
+  <text x="165" y="230" font-family="Inter, Arial, sans-serif" font-size="27" font-weight="800" fill="#ffffff">System layer</text>
+  <text x="165" y="263" font-family="Inter, Arial, sans-serif" font-size="18" fill="#cbd5e1">TTFT, TPOT, p95, p99, queue depth, GPU utilization, KV cache hit rate, errors</text>
+
+  <rect x="130" y="320" width="1020" height="110" rx="20" fill="#ffffff" stroke="#c4b5fd" stroke-width="3"/>
+  <text x="165" y="370" font-family="Inter, Arial, sans-serif" font-size="27" font-weight="800" fill="#0f172a">Quality layer</text>
+  <text x="165" y="403" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">groundedness, relevance, refusal rate, tool accuracy, user feedback, judge scores</text>
+
+  <rect x="130" y="460" width="1020" height="110" rx="20" fill="#ffffff" stroke="#bbf7d0" stroke-width="3"/>
+  <text x="165" y="510" font-family="Inter, Arial, sans-serif" font-size="27" font-weight="800" fill="#0f172a">Drift layer</text>
+  <text x="165" y="543" font-family="Inter, Arial, sans-serif" font-size="18" fill="#475569">input distribution, retrieved corpus, embedding space, output shape, cost per success</text>
+
+  <rect x="210" y="610" width="860" height="56" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="640" y="646" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="19" fill="#334155">trace_id connects retrieval, tools, model calls, safety checks, and feedback</text>
+
+  <circle cx="1070" cy="220" r="34" fill="#2563eb" opacity=".16"/>
+  <circle cx="1070" cy="360" r="34" fill="#7c3aed" opacity=".16"/>
+  <circle cx="1070" cy="500" r="34" fill="#16a34a" opacity=".16"/>
+  <text x="1070" y="226" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="800" fill="#1e40af">SLO</text>
+  <text x="1070" y="366" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="800" fill="#6d28d9">Eval</text>
+  <text x="1070" y="506" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="800" fill="#166534">Drift</text>
+</svg>

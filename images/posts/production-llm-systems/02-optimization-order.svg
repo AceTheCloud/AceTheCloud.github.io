@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 540" role="img" aria-labelledby="title desc">
+  <title id="title">LLM optimization order</title>
+  <desc id="desc">Start with product waste and caching before model routing, context packing, serving tuning, quantization, and speculative decoding.</desc>
+  <defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" fill="#334155"/></marker></defs>
+  <rect width="1280" height="540" rx="28" fill="#f8fafc"/>
+  <text x="70" y="72" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="800" fill="#0f172a">Optimize from obvious waste to advanced serving</text>
+  <text x="70" y="110" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">The later steps are powerful, but they should not mask duplicate work.</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="75" y="210" width="175" height="86" rx="15" fill="#ffffff" stroke="#fecaca" stroke-width="2"/><text x="162" y="244" text-anchor="middle" font-size="20" font-weight="800" fill="#0f172a">Remove waste</text><text x="162" y="271" text-anchor="middle" font-size="14" fill="#64748b">retries, loops</text>
+    <rect x="300" y="210" width="175" height="86" rx="15" fill="#ffffff" stroke="#bbf7d0" stroke-width="2"/><text x="387" y="244" text-anchor="middle" font-size="20" font-weight="800" fill="#0f172a">Cache</text><text x="387" y="271" text-anchor="middle" font-size="14" fill="#64748b">exact, semantic</text>
+    <rect x="525" y="210" width="175" height="86" rx="15" fill="#ffffff" stroke="#bfdbfe" stroke-width="2"/><text x="612" y="244" text-anchor="middle" font-size="20" font-weight="800" fill="#0f172a">Route models</text><text x="612" y="271" text-anchor="middle" font-size="14" fill="#64748b">small to large</text>
+    <rect x="750" y="210" width="175" height="86" rx="15" fill="#ffffff" stroke="#fde68a" stroke-width="2"/><text x="837" y="244" text-anchor="middle" font-size="20" font-weight="800" fill="#0f172a">Pack context</text><text x="837" y="271" text-anchor="middle" font-size="14" fill="#64748b">retrieve less</text>
+    <rect x="975" y="210" width="205" height="86" rx="15" fill="#0f172a"/><text x="1077" y="244" text-anchor="middle" font-size="20" font-weight="800" fill="#ffffff">Serving tricks</text><text x="1077" y="271" text-anchor="middle" font-size="14" fill="#cbd5e1">batch, quantize, speculate</text>
+  </g>
+  <path d="M252 253 H292" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/><path d="M477 253 H517" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/><path d="M702 253 H742" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/><path d="M927 253 H967" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <text x="640" y="420" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="18" fill="#334155">Measure TTFT, TPOT, cost per task, and quality after each step.</text>
+</svg>

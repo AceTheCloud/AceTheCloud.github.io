@@ -1,4 +1,279 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Worfflow</title><link>https://acethecloud.com/tags/worfflow/</link><description>Recent content in Worfflow on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 09 Sep 2023 17:38:27 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/worfflow/index.xml" rel="self" type="application/rss+xml"/><item><title>A Comprehensive Guide to Workflow as a Service System Design</title><link>https://acethecloud.com/blog/a-comprehensive-guide-to-workflow-system-design/</link><pubDate>Sat, 09 Sep 2023 17:38:27 +0530</pubDate><guid>https://acethecloud.com/blog/a-comprehensive-guide-to-workflow-system-design/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Workflow</title><link>https://acethecloud.com/tags/workflow/</link><description>Recent content in Workflow on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 09 May 2026 09:50:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/workflow/index.xml" rel="self" type="application/rss+xml"/><item><title>Production LLM Systems Tutorial 8: Human-in-the-Loop Workflows</title><link>https://acethecloud.com/blog/production-llm-systems-human-in-the-loop/</link><pubDate>Sat, 09 May 2026 09:50:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-human-in-the-loop/</guid><description>
+&lt;p&gt;Human-in-the-loop is not a button that says &amp;ldquo;send to human.&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;It is a workflow system. It needs routing, queues, ownership, context, SLAs, review tools, feedback capture, and a way to turn corrections into better software. Without that, human review becomes a slow inbox attached to a fast model.&lt;/p&gt;
+&lt;p&gt;This tutorial designs a real HITL workflow.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/08-human-in-the-loop.svg" alt="Human-in-the-loop workflow routing LLM results through a risk router into auto completion, assisted review, human approval, and feedback capture" loading="lazy" /&gt;
+&lt;figcaption&gt;Human review is a workflow with routing, ownership, SLA, decisions, and feedback loops.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Step 1: Decide when humans enter&lt;span class="hx:absolute hx:-mt-20" id="step-1-decide-when-humans-enter"&gt;&lt;/span&gt;
+&lt;a href="#step-1-decide-when-humans-enter" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Use humans for risk, uncertainty, and accountability.&lt;/p&gt;
+&lt;p&gt;Common routing triggers:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Trigger&lt;/th&gt;
+&lt;th&gt;Example&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Low confidence&lt;/td&gt;
+&lt;td&gt;Model or evaluator reports insufficient evidence&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;High stakes&lt;/td&gt;
+&lt;td&gt;Medical, legal, financial, safety, employment, security&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Policy boundary&lt;/td&gt;
+&lt;td&gt;User requests something near restricted behavior&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Tool risk&lt;/td&gt;
+&lt;td&gt;Action changes money, permissions, data, or external state&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;User escalation&lt;/td&gt;
+&lt;td&gt;User explicitly asks for a person&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Quality failure&lt;/td&gt;
+&lt;td&gt;Judge score or user feedback falls below threshold&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Do not route every hard question to a human. Route the questions where human judgment changes the outcome.&lt;/p&gt;
+&lt;h2&gt;Step 2: Define confidence as a system signal&lt;span class="hx:absolute hx:-mt-20" id="step-2-define-confidence-as-a-system-signal"&gt;&lt;/span&gt;
+&lt;a href="#step-2-define-confidence-as-a-system-signal" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Self-reported model confidence is weak by itself. Combine signals:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;confidence =
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; retrieval_score
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + rerank_margin
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + answer_groundedness
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + tool_success
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + policy_classifier_score
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; + historical route quality&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Signal&lt;/th&gt;
+&lt;th style="text-align: right"&gt;Value&lt;/th&gt;
+&lt;th&gt;Interpretation&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;top rerank score&lt;/td&gt;
+&lt;td style="text-align: right"&gt;0.83&lt;/td&gt;
+&lt;td&gt;Good&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;score gap top1-top2&lt;/td&gt;
+&lt;td style="text-align: right"&gt;0.04&lt;/td&gt;
+&lt;td&gt;Ambiguous&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;groundedness judge&lt;/td&gt;
+&lt;td style="text-align: right"&gt;0.61&lt;/td&gt;
+&lt;td&gt;Weak&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;user risk level&lt;/td&gt;
+&lt;td style="text-align: right"&gt;high&lt;/td&gt;
+&lt;td&gt;Needs care&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;tool status&lt;/td&gt;
+&lt;td style="text-align: right"&gt;unavailable&lt;/td&gt;
+&lt;td&gt;Cannot verify&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;This should route to a human or produce a limited answer.&lt;/p&gt;
+&lt;h2&gt;Step 3: Build an escalation object&lt;span class="hx:absolute hx:-mt-20" id="step-3-build-an-escalation-object"&gt;&lt;/span&gt;
+&lt;a href="#step-3-build-an-escalation-object" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;When the system escalates, create a structured task:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;case_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;case_123&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;tenant_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;tenant_a&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;user_question&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;...&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;model_draft&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;...&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;evidence&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;document_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;policy_7&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;&amp;#34;quote&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;...&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;&amp;#34;score&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.91&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;],&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;tool_results&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[],&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;risk_level&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;high&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;reason_for_escalation&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;low groundedness and high-risk domain&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;sla_deadline&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;2026-05-09T18:00:00Z&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Do not ask reviewers to reconstruct the trace from logs. Give them the draft, evidence, policy, and reason.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/08-escalation-queue.svg" alt="Escalation object containing request id, tenant, draft answer, evidence, confidence, risk reason, SLA, owner, and correction labels" loading="lazy" /&gt;
+&lt;figcaption&gt;Escalation tasks should carry enough structured context for fast review and useful correction capture.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Step 4: Design queues by skill and SLA&lt;span class="hx:absolute hx:-mt-20" id="step-4-design-queues-by-skill-and-sla"&gt;&lt;/span&gt;
+&lt;a href="#step-4-design-queues-by-skill-and-sla" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;One queue is not enough.&lt;/p&gt;
+&lt;p&gt;Route by:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;domain expertise&lt;/li&gt;
+&lt;li&gt;language&lt;/li&gt;
+&lt;li&gt;tenant&lt;/li&gt;
+&lt;li&gt;risk level&lt;/li&gt;
+&lt;li&gt;SLA&lt;/li&gt;
+&lt;li&gt;required approval authority&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Example queues:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Queue&lt;/th&gt;
+&lt;th&gt;SLA&lt;/th&gt;
+&lt;th&gt;Reviewer&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Low-risk correction&lt;/td&gt;
+&lt;td&gt;24h&lt;/td&gt;
+&lt;td&gt;Content ops&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Billing dispute&lt;/td&gt;
+&lt;td&gt;4h&lt;/td&gt;
+&lt;td&gt;Support specialist&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Legal policy question&lt;/td&gt;
+&lt;td&gt;1 business day&lt;/td&gt;
+&lt;td&gt;Legal reviewer&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Security action&lt;/td&gt;
+&lt;td&gt;30m&lt;/td&gt;
+&lt;td&gt;Security operator&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The model should not decide final approval authority. The workflow system should.&lt;/p&gt;
+&lt;h2&gt;Step 5: Capture corrections as training data&lt;span class="hx:absolute hx:-mt-20" id="step-5-capture-corrections-as-training-data"&gt;&lt;/span&gt;
+&lt;a href="#step-5-capture-corrections-as-training-data" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A good review UI captures:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;accepted answer&lt;/li&gt;
+&lt;li&gt;edited answer&lt;/li&gt;
+&lt;li&gt;rejected answer&lt;/li&gt;
+&lt;li&gt;missing evidence&lt;/li&gt;
+&lt;li&gt;incorrect evidence&lt;/li&gt;
+&lt;li&gt;better retrieval query&lt;/li&gt;
+&lt;li&gt;policy reason&lt;/li&gt;
+&lt;li&gt;reviewer notes&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Convert that into datasets:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;reviewed_cases
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; golden eval examples
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; retrieval hard negatives
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; prompt regression tests
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; fine-tuning candidates
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; policy classifier examples&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Do not fine-tune on every correction blindly. Some corrections reflect temporary policy, bad retrieval, or one-off user context. Label first.&lt;/p&gt;
+&lt;h2&gt;Step 6: Use approval gates for actions&lt;span class="hx:absolute hx:-mt-20" id="step-6-use-approval-gates-for-actions"&gt;&lt;/span&gt;
+&lt;a href="#step-6-use-approval-gates-for-actions" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;For high-impact tools, use approval before execution:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;model proposes action
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; policy engine classifies impact
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; dry-run tool produces preview
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; human approves or edits
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; system executes with idempotency key
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; audit log records approver&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;proposed_action&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;issue_refund&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;amount&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;4200&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;currency&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;USD&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;customer_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;cust_981&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;policy_basis&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;enterprise exception&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;requires_approval&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The human approves a structured action, not a paragraph.&lt;/p&gt;
+&lt;h2&gt;Step 7: Measure the workflow&lt;span class="hx:absolute hx:-mt-20" id="step-7-measure-the-workflow"&gt;&lt;/span&gt;
+&lt;a href="#step-7-measure-the-workflow" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Track:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;escalation rate&lt;/li&gt;
+&lt;li&gt;approval rate&lt;/li&gt;
+&lt;li&gt;rejection rate&lt;/li&gt;
+&lt;li&gt;average handling time&lt;/li&gt;
+&lt;li&gt;SLA miss rate&lt;/li&gt;
+&lt;li&gt;model draft acceptance rate&lt;/li&gt;
+&lt;li&gt;reviewer edit distance&lt;/li&gt;
+&lt;li&gt;repeat escalation reasons&lt;/li&gt;
+&lt;li&gt;downstream user satisfaction&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If escalation rate rises after a release, something changed. It may be model quality, retrieval quality, policy strictness, or traffic mix.&lt;/p&gt;
+&lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
+&lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;NIST AI Risk Management Framework: &lt;a href="https://www.nist.gov/itl/ai-risk-management-framework"target="_blank" rel="noopener"&gt;https://www.nist.gov/itl/ai-risk-management-framework&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;NIST AI RMF 1.0 publication: &lt;a href="https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10"target="_blank" rel="noopener"&gt;https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Arize Phoenix evaluation documentation: &lt;a href="https://arize.com/docs/phoenix/evaluation/llm-evals"target="_blank" rel="noopener"&gt;https://arize.com/docs/phoenix/evaluation/llm-evals&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Langfuse annotation and evaluation documentation: &lt;a href="https://langfuse.com/docs/"target="_blank" rel="noopener"&gt;https://langfuse.com/docs/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>A Comprehensive Guide to Workflow as a Service System Design</title><link>https://acethecloud.com/blog/a-comprehensive-guide-to-workflow-system-design/</link><pubDate>Sat, 09 Sep 2023 17:38:27 +0530</pubDate><guid>https://acethecloud.com/blog/a-comprehensive-guide-to-workflow-system-design/</guid><description>
 &lt;p&gt;Alright, let&amp;rsquo;s design a Workflow as a Service (WaaS) system. Designing a system like this is a broad topic, and a detailed design could span many pages. Here&amp;rsquo;s a high-level overview to get you started.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;1. Overview:&lt;/strong&gt;
 Workflow as a Service (WaaS) is a cloud-based solution that allows businesses to create, manage, and optimize workflows without the need for on-premises infrastructure. It provides a way to automate repetitive tasks and processes, ensuring they are executed consistently.&lt;/p&gt;

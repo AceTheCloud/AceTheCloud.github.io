@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Latency cost quality triangle</title>
+  <desc id="desc">Production LLM optimization balances latency, cost, and quality using routing, caching, batching, compression, quantization, and evals.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="70" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">The LLM optimization triangle</text>
+  <text x="70" y="120" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">Every lever moves latency, cost, and quality together.</text>
+
+  <path d="M640 165 L315 555 H965 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="4"/>
+  <path d="M640 165 L315 555" stroke="#2563eb" stroke-width="8"/>
+  <path d="M315 555 H965" stroke="#16a34a" stroke-width="8"/>
+  <path d="M965 555 L640 165" stroke="#f59e0b" stroke-width="8"/>
+
+  <circle cx="640" cy="165" r="58" fill="#2563eb"/>
+  <text x="640" y="158" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#ffffff">Quality</text>
+  <text x="640" y="186" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" fill="#dbeafe">eval score</text>
+
+  <circle cx="315" cy="555" r="58" fill="#0f172a"/>
+  <text x="315" y="548" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#ffffff">Latency</text>
+  <text x="315" y="576" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" fill="#cbd5e1">TTFT, TPOT</text>
+
+  <circle cx="965" cy="555" r="58" fill="#16a34a"/>
+  <text x="965" y="548" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#ffffff">Cost</text>
+  <text x="965" y="576" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" fill="#dcfce7">$/task</text>
+
+  <g font-family="Inter, Arial, sans-serif" font-size="18" fill="#0f172a">
+    <rect x="490" y="300" width="300" height="64" rx="14" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text x="640" y="339" text-anchor="middle" font-weight="800">Model routing</text>
+    <rect x="395" y="390" width="220" height="56" rx="14" fill="#ecfdf5" stroke="#bbf7d0"/>
+    <text x="505" y="425" text-anchor="middle" font-weight="800">Cache safely</text>
+    <rect x="665" y="390" width="220" height="56" rx="14" fill="#fffbeb" stroke="#fde68a"/>
+    <text x="775" y="425" text-anchor="middle" font-weight="800">Batch offline</text>
+    <rect x="515" y="475" width="250" height="56" rx="14" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="640" y="510" text-anchor="middle" font-weight="800">Compress, quantize, test</text>
+  </g>
+
+  <path d="M640 365 V450" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="640" y="642" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="19" fill="#334155">Optimize in measured steps, not by changing every lever at once.</text>
+</svg>

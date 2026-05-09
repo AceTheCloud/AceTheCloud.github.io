@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 540" role="img" aria-labelledby="title desc">
+  <title id="title">LLM cost savings waterfall</title>
+  <desc id="desc">A savings waterfall shows baseline cost reduced by duplicate-call removal, routing, cache, context budget, batch processing, and serving efficiency.</desc>
+  <rect width="1280" height="540" rx="28" fill="#f8fafc"/>
+  <text x="70" y="72" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="800" fill="#0f172a">Savings compound when each layer is measured</text>
+  <text x="70" y="110" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">Use real traffic numbers. The pattern is more important than sample percentages.</text>
+  <line x1="120" y1="405" x2="1160" y2="405" stroke="#cbd5e1" stroke-width="3"/>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="130" y="180" width="120" height="225" fill="#0f172a" rx="10"/><text x="190" y="435" text-anchor="middle" font-size="15" fill="#334155">baseline</text><text x="190" y="163" text-anchor="middle" font-size="17" font-weight="800" fill="#0f172a">$1.00</text>
+    <rect x="315" y="235" width="120" height="170" fill="#fecaca" rx="10"/><text x="375" y="435" text-anchor="middle" font-size="15" fill="#334155">dedupe</text>
+    <rect x="500" y="270" width="120" height="135" fill="#fde68a" rx="10"/><text x="560" y="435" text-anchor="middle" font-size="15" fill="#334155">route</text>
+    <rect x="685" y="305" width="120" height="100" fill="#bbf7d0" rx="10"/><text x="745" y="435" text-anchor="middle" font-size="15" fill="#334155">cache</text>
+    <rect x="870" y="330" width="120" height="75" fill="#bfdbfe" rx="10"/><text x="930" y="435" text-anchor="middle" font-size="15" fill="#334155">context</text>
+    <rect x="1055" y="350" width="120" height="55" fill="#c4b5fd" rx="10"/><text x="1115" y="435" text-anchor="middle" font-size="15" fill="#334155">serve</text><text x="1115" y="335" text-anchor="middle" font-size="17" font-weight="800" fill="#0f172a">$0.24</text>
+  </g>
+  <text x="640" y="500" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="17" fill="#334155">report both cost saved and quality retained</text>
+</svg>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">LLM cost optimization stack</title>
+  <desc id="desc">LLM cost optimization stacks attribution, request guardrails, caching, routing, context budgeting, batch APIs, and self-hosting optimizations.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#f0fdf4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="70" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Cost control is a stack</text>
+  <text x="70" y="120" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">Remove waste first. Then optimize model choice and serving efficiency.</text>
+
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="250" y="540" width="780" height="66" rx="14" fill="#0f172a"/>
+    <text x="640" y="581" text-anchor="middle" font-size="23" font-weight="800" fill="#ffffff">Attribution: tenant, feature, prompt, model, tokens, success</text>
+
+    <rect x="290" y="455" width="700" height="66" rx="14" fill="#ffffff" stroke="#bbf7d0" stroke-width="3"/>
+    <text x="640" y="496" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">Request guardrails: max tokens, budget caps, retries, timeouts</text>
+
+    <rect x="330" y="370" width="620" height="66" rx="14" fill="#ffffff" stroke="#bfdbfe" stroke-width="3"/>
+    <text x="640" y="411" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">Cache: exact, semantic, retrieval, provider prefix cache</text>
+
+    <rect x="370" y="285" width="540" height="66" rx="14" fill="#ffffff" stroke="#fde68a" stroke-width="3"/>
+    <text x="640" y="326" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">Route: small, medium, large, fallback</text>
+
+    <rect x="410" y="200" width="460" height="66" rx="14" fill="#ffffff" stroke="#c4b5fd" stroke-width="3"/>
+    <text x="640" y="241" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">Context budget: retrieve less, pack better</text>
+
+    <rect x="450" y="115" width="380" height="66" rx="14" fill="#ffffff" stroke="#fed7aa" stroke-width="3"/>
+    <text x="640" y="156" text-anchor="middle" font-size="23" font-weight="800" fill="#0f172a">Batch and quantize where suitable</text>
+  </g>
+
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="75" y="265" width="175" height="130" rx="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="162" y="309" text-anchor="middle" font-size="25" font-weight="800" fill="#0f172a">Waste</text>
+    <text x="162" y="342" text-anchor="middle" font-size="16" fill="#475569">duplicate calls</text>
+    <text x="162" y="368" text-anchor="middle" font-size="16" fill="#475569">oversized context</text>
+    <rect x="1030" y="265" width="175" height="130" rx="18" fill="#ffffff" stroke="#bbf7d0" stroke-width="2"/>
+    <text x="1117" y="309" text-anchor="middle" font-size="25" font-weight="800" fill="#166534">Savings</text>
+    <text x="1117" y="342" text-anchor="middle" font-size="16" fill="#475569">lower $/task</text>
+    <text x="1117" y="368" text-anchor="middle" font-size="16" fill="#475569">same quality</text>
+  </g>
+
+  <text x="640" y="660" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="19" fill="#334155">Optimize cost per successful task, not just cost per token.</text>
+</svg>

@@ -1,0 +1,254 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Finops</title><link>https://acethecloud.com/tags/finops/</link><description>Recent content in Finops on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 09 May 2026 09:40:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/finops/index.xml" rel="self" type="application/rss+xml"/><item><title>Production LLM Systems Tutorial 9: Cost Optimization</title><link>https://acethecloud.com/blog/production-llm-systems-cost-optimization/</link><pubDate>Sat, 09 May 2026 09:40:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-cost-optimization/</guid><description>
+&lt;p&gt;LLM cost optimization is not one trick. It is a stack.&lt;/p&gt;
+&lt;p&gt;The biggest savings usually come from removing waste before tuning inference. Duplicate retries, oversized context, no routing, missing cache keys, and unbounded output tokens can cost more than the model choice itself.&lt;/p&gt;
+&lt;p&gt;This tutorial builds a cost-control system.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/09-cost-optimization-stack.svg" alt="LLM cost optimization stack with attribution, request guardrails, cache, routing, context budgeting, batch processing, and quantization" loading="lazy" /&gt;
+&lt;figcaption&gt;Cost optimization compounds when every request has attribution and every savings layer is measured.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Step 1: Attribute cost&lt;span class="hx:absolute hx:-mt-20" id="step-1-attribute-cost"&gt;&lt;/span&gt;
+&lt;a href="#step-1-attribute-cost" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Before optimizing, tag every request:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;tenant_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;tenant_a&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;feature&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;support_answer&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;route&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;rag_mid_model&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;prompt_version&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;support_v14&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;model&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;model_route_mid&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;input_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1840&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;output_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;322&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cached_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;cost_usd&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.0142&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;#34;success&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Dashboards should show:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;cost by tenant&lt;/li&gt;
+&lt;li&gt;cost by feature&lt;/li&gt;
+&lt;li&gt;cost by route&lt;/li&gt;
+&lt;li&gt;cost by prompt version&lt;/li&gt;
+&lt;li&gt;cost by model&lt;/li&gt;
+&lt;li&gt;cost per successful task&lt;/li&gt;
+&lt;li&gt;retry cost&lt;/li&gt;
+&lt;li&gt;cache savings&lt;/li&gt;
+&lt;li&gt;token budget violations&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you cannot answer &amp;ldquo;which feature spent the money,&amp;rdquo; you do not have FinOps. You have a bill.&lt;/p&gt;
+&lt;h2&gt;Step 2: Stop duplicate generation&lt;span class="hx:absolute hx:-mt-20" id="step-2-stop-duplicate-generation"&gt;&lt;/span&gt;
+&lt;a href="#step-2-stop-duplicate-generation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Duplicate retries are silent cost leaks.&lt;/p&gt;
+&lt;p&gt;Use:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;idempotency keys&lt;/li&gt;
+&lt;li&gt;request deduplication&lt;/li&gt;
+&lt;li&gt;stream resume where possible&lt;/li&gt;
+&lt;li&gt;retry budgets&lt;/li&gt;
+&lt;li&gt;circuit breakers&lt;/li&gt;
+&lt;li&gt;cached final result by request id&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;When a client times out after 15 seconds and retries, the backend should not blindly generate again. It should check whether the first request is still running or already completed.&lt;/p&gt;
+&lt;h2&gt;Step 3: Route easy work to cheaper models&lt;span class="hx:absolute hx:-mt-20" id="step-3-route-easy-work-to-cheaper-models"&gt;&lt;/span&gt;
+&lt;a href="#step-3-route-easy-work-to-cheaper-models" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Model routing often saves more than prompt tuning.&lt;/p&gt;
+&lt;p&gt;Routes:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Workload&lt;/th&gt;
+&lt;th&gt;Candidate route&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Classification&lt;/td&gt;
+&lt;td&gt;small model or embedding classifier&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Extraction&lt;/td&gt;
+&lt;td&gt;small or mid model with schema validation&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Simple FAQ&lt;/td&gt;
+&lt;td&gt;cache or small model&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;RAG synthesis&lt;/td&gt;
+&lt;td&gt;mid model&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Complex reasoning&lt;/td&gt;
+&lt;td&gt;large model&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;High-risk final answer&lt;/td&gt;
+&lt;td&gt;large model plus review&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Measure cost per successful task, not only cost per request.&lt;/p&gt;
+&lt;h2&gt;Step 4: Use cache layers&lt;span class="hx:absolute hx:-mt-20" id="step-4-use-cache-layers"&gt;&lt;/span&gt;
+&lt;a href="#step-4-use-cache-layers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Use exact cache first:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;cache_key = hash(
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; tenant_id,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; user_scope,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; prompt_version,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; model_version,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; normalized_input,
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; corpus_version
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Then add semantic cache only for domains where freshness is controlled. A semantic cache should store:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;original query&lt;/li&gt;
+&lt;li&gt;normalized query&lt;/li&gt;
+&lt;li&gt;embedding model&lt;/li&gt;
+&lt;li&gt;answer&lt;/li&gt;
+&lt;li&gt;evidence ids&lt;/li&gt;
+&lt;li&gt;corpus version&lt;/li&gt;
+&lt;li&gt;expiration&lt;/li&gt;
+&lt;li&gt;safety policy version&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Cache invalidation is a product policy. Pricing answers, legal policies, inventory, and incident status need different TTLs.&lt;/p&gt;
+&lt;h2&gt;Step 5: Budget context&lt;span class="hx:absolute hx:-mt-20" id="step-5-budget-context"&gt;&lt;/span&gt;
+&lt;a href="#step-5-budget-context" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Long prompts are often self-inflicted.&lt;/p&gt;
+&lt;p&gt;Set budgets:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;system prompt: 400 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;developer policy: 500 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;conversation window: 1500 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;retrieved context: 3500 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;tool results: 1000 tokens
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;output max: 800 tokens&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Then enforce them. Retrieval should return the best evidence that fits, not every chunk that matched. Tool results should be summarized or structured. Conversation history should be compacted.&lt;/p&gt;
+&lt;h2&gt;Step 6: Use batch APIs for offline jobs&lt;span class="hx:absolute hx:-mt-20" id="step-6-use-batch-apis-for-offline-jobs"&gt;&lt;/span&gt;
+&lt;a href="#step-6-use-batch-apis-for-offline-jobs" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Not all work is interactive.&lt;/p&gt;
+&lt;p&gt;Good batch candidates:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;offline evals&lt;/li&gt;
+&lt;li&gt;document classification&lt;/li&gt;
+&lt;li&gt;embedding corpus jobs&lt;/li&gt;
+&lt;li&gt;nightly summarization&lt;/li&gt;
+&lt;li&gt;backfills&lt;/li&gt;
+&lt;li&gt;report generation&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;OpenAI&amp;rsquo;s Batch API, for example, is designed for asynchronous jobs with lower cost and a 24-hour completion window. That is not suitable for chat UX, but it is ideal for evals and corpus processing.&lt;/p&gt;
+&lt;h2&gt;Step 7: Quantize self-hosted models&lt;span class="hx:absolute hx:-mt-20" id="step-7-quantize-self-hosted-models"&gt;&lt;/span&gt;
+&lt;a href="#step-7-quantize-self-hosted-models" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;For self-hosting, quantization can reduce memory footprint and increase serving density. It can also change quality. Treat quantization as a route-specific release:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Pick target model and quantization method.&lt;/li&gt;
+&lt;li&gt;Run golden evals.&lt;/li&gt;
+&lt;li&gt;Run safety evals.&lt;/li&gt;
+&lt;li&gt;Run latency and throughput benchmarks.&lt;/li&gt;
+&lt;li&gt;Canary low-risk traffic.&lt;/li&gt;
+&lt;li&gt;Compare cost per successful task.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Do not approve quantization from throughput alone.&lt;/p&gt;
+&lt;h2&gt;Step 8: Add guardrails&lt;span class="hx:absolute hx:-mt-20" id="step-8-add-guardrails"&gt;&lt;/span&gt;
+&lt;a href="#step-8-add-guardrails" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Cost guardrails:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;max input tokens per route&lt;/li&gt;
+&lt;li&gt;max output tokens per route&lt;/li&gt;
+&lt;li&gt;max tool steps&lt;/li&gt;
+&lt;li&gt;max retries&lt;/li&gt;
+&lt;li&gt;max cost per request&lt;/li&gt;
+&lt;li&gt;daily tenant budget&lt;/li&gt;
+&lt;li&gt;feature-level budget&lt;/li&gt;
+&lt;li&gt;alert on cost anomaly&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If a user asks for a 200-page answer, the system should negotiate scope instead of obeying.&lt;/p&gt;
+&lt;h2&gt;A sample savings stack&lt;span class="hx:absolute hx:-mt-20" id="a-sample-savings-stack"&gt;&lt;/span&gt;
+&lt;a href="#a-sample-savings-stack" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Example starting point:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;100,000 requests/day
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;average cost: $0.020
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;daily cost: $2,000&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;After changes:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Change&lt;/th&gt;
+&lt;th style="text-align: right"&gt;Savings&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Deduplicate retries&lt;/td&gt;
+&lt;td style="text-align: right"&gt;8%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Route easy work&lt;/td&gt;
+&lt;td style="text-align: right"&gt;45%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Exact cache&lt;/td&gt;
+&lt;td style="text-align: right"&gt;12%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Semantic cache on FAQ route&lt;/td&gt;
+&lt;td style="text-align: right"&gt;18%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Context budget&lt;/td&gt;
+&lt;td style="text-align: right"&gt;20%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Batch offline jobs&lt;/td&gt;
+&lt;td style="text-align: right"&gt;50% on eligible work&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Savings compound, but not perfectly. Measure each layer with attribution.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/09-savings-waterfall.svg" alt="LLM cost savings waterfall from baseline cost through deduplication, routing, caching, context budgeting, and serving efficiency" loading="lazy" /&gt;
+&lt;figcaption&gt;A savings waterfall keeps the conversation tied to measured cost per successful task.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
+&lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;OpenAI Batch API guide: &lt;a href="https://platform.openai.com/docs/guides/batch"target="_blank" rel="noopener"&gt;https://platform.openai.com/docs/guides/batch&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;OpenAI API pricing: &lt;a href="https://openai.com/api/pricing/"target="_blank" rel="noopener"&gt;https://openai.com/api/pricing/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;vLLM documentation: &lt;a href="https://docs.vllm.ai/"target="_blank" rel="noopener"&gt;https://docs.vllm.ai/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;NVIDIA TensorRT-LLM documentation: &lt;a href="https://docs.nvidia.com/tensorrt-llm/"target="_blank" rel="noopener"&gt;https://docs.nvidia.com/tensorrt-llm/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;LiteLLM documentation: &lt;a href="https://docs.litellm.ai/"target="_blank" rel="noopener"&gt;https://docs.litellm.ai/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>

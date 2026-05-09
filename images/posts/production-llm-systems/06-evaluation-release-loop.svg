@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">LLM evaluation and release loop</title>
+  <desc id="desc">A release loop moves changes through golden sets, offline evals, CI gates, shadow testing, canaries, online experiments, and feedback capture.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#fff7ed"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="70" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Evaluation is the release gate</text>
+  <text x="70" y="120" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">Prompt, retrieval, tool, model, and policy changes should move through measured stages.</text>
+
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="80" y="255" width="180" height="92" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="170" y="292" text-anchor="middle" font-size="22" font-weight="800" fill="#0f172a">Change</text>
+    <text x="170" y="320" text-anchor="middle" font-size="14" fill="#64748b">prompt, model, RAG</text>
+    <rect x="320" y="255" width="180" height="92" rx="16" fill="#ffffff" stroke="#bfdbfe" stroke-width="2"/>
+    <text x="410" y="292" text-anchor="middle" font-size="22" font-weight="800" fill="#0f172a">Golden set</text>
+    <text x="410" y="320" text-anchor="middle" font-size="14" fill="#64748b">curated tasks</text>
+    <rect x="560" y="255" width="180" height="92" rx="16" fill="#ffffff" stroke="#bbf7d0" stroke-width="2"/>
+    <text x="650" y="292" text-anchor="middle" font-size="22" font-weight="800" fill="#0f172a">Offline eval</text>
+    <text x="650" y="320" text-anchor="middle" font-size="14" fill="#64748b">layer + final</text>
+    <rect x="800" y="255" width="180" height="92" rx="16" fill="#0f172a"/>
+    <text x="890" y="292" text-anchor="middle" font-size="22" font-weight="800" fill="#ffffff">CI gate</text>
+    <text x="890" y="320" text-anchor="middle" font-size="14" fill="#cbd5e1">block regressions</text>
+    <rect x="1040" y="255" width="180" height="92" rx="16" fill="#ffffff" stroke="#fde68a" stroke-width="2"/>
+    <text x="1130" y="292" text-anchor="middle" font-size="22" font-weight="800" fill="#0f172a">Canary</text>
+    <text x="1130" y="320" text-anchor="middle" font-size="14" fill="#64748b">small traffic</text>
+  </g>
+
+  <path d="M262 301 H312" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M502 301 H552" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M742 301 H792" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M982 301 H1032" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="245" y="455" width="270" height="115" rx="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="380" y="499" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" fill="#0f172a">Online experiment</text>
+  <text x="380" y="530" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" fill="#475569">A/B, bandit, holdout</text>
+
+  <rect x="765" y="455" width="270" height="115" rx="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="900" y="499" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" fill="#0f172a">Feedback store</text>
+  <text x="900" y="530" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" fill="#475569">labels, failures, fixes</text>
+
+  <path d="M1130 348 V405 H900 V447" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M765 512 H525" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M380 455 V390 H410 V355" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <text x="640" y="646" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="19" fill="#334155">Prefer pairwise comparisons and layer-specific failure analysis.</text>
+</svg>

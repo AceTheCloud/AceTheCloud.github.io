@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Prompt injection defense in depth</title>
+  <desc id="desc">A secure LLM system treats user text, retrieved content, and tool output as untrusted data, then enforces permissions, policies, tool allowlists, and output sanitization outside the model.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#fff1f2"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <text x="70" y="80" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#0f172a">Prompt injection is a security boundary problem</text>
+  <text x="70" y="120" font-family="Inter, Arial, sans-serif" font-size="21" fill="#475569">Untrusted content must not become authority.</text>
+
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="75" y="205" width="210" height="105" rx="18" fill="#ffffff" stroke="#fecaca" stroke-width="3"/>
+    <text x="180" y="245" text-anchor="middle" font-size="23" font-weight="800" fill="#991b1b">Untrusted text</text>
+    <text x="180" y="274" text-anchor="middle" font-size="15" fill="#7f1d1d">user, RAG, tool output</text>
+
+    <rect x="365" y="185" width="235" height="145" rx="20" fill="#0f172a"/>
+    <text x="482" y="235" text-anchor="middle" font-size="27" font-weight="800" fill="#ffffff">Policy layer</text>
+    <text x="482" y="268" text-anchor="middle" font-size="16" fill="#cbd5e1">classify, redact, scope</text>
+    <text x="482" y="296" text-anchor="middle" font-size="15" fill="#fecaca">outside the model</text>
+
+    <rect x="685" y="185" width="235" height="145" rx="20" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="802" y="235" text-anchor="middle" font-size="27" font-weight="800" fill="#0f172a">Model</text>
+    <text x="802" y="268" text-anchor="middle" font-size="16" fill="#475569">instructions + data</text>
+    <text x="802" y="296" text-anchor="middle" font-size="15" fill="#64748b">not an access-control system</text>
+
+    <rect x="1005" y="205" width="205" height="105" rx="18" fill="#ffffff" stroke="#bbf7d0" stroke-width="3"/>
+    <text x="1107" y="245" text-anchor="middle" font-size="23" font-weight="800" fill="#166534">Safe output</text>
+    <text x="1107" y="274" text-anchor="middle" font-size="15" fill="#166534">sanitized, audited</text>
+  </g>
+
+  <path d="M287 257 H357" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M602 257 H677" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M922 257 H997" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="235" y="430" width="250" height="120" rx="18" fill="#ffffff" stroke="#fed7aa" stroke-width="2"/>
+  <text x="360" y="473" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#0f172a">Tool gateway</text>
+  <text x="360" y="504" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" fill="#475569">allowlist, RBAC, approval</text>
+
+  <rect x="515" y="430" width="250" height="120" rx="18" fill="#ffffff" stroke="#bfdbfe" stroke-width="2"/>
+  <text x="640" y="473" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#0f172a">Data boundary</text>
+  <text x="640" y="504" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" fill="#475569">quote evidence, do not obey it</text>
+
+  <rect x="795" y="430" width="250" height="120" rx="18" fill="#ffffff" stroke="#bbf7d0" stroke-width="2"/>
+  <text x="920" y="473" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#0f172a">Renderer</text>
+  <text x="920" y="504" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" fill="#475569">strip HTML, block remote fetch</text>
+
+  <path d="M802 331 V388 H360 V422" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M802 331 V388 H640 V422" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <path d="M802 331 V388 H920 V422" stroke="#334155" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <text x="640" y="642" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="19" fill="#334155">Tools are capabilities. Treat tool calls like privileged operations.</text>
+</svg>

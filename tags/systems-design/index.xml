@@ -1,0 +1,213 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Systems-Design</title><link>https://acethecloud.com/tags/systems-design/</link><description>Recent content in Systems-Design on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 09 May 2026 11:00:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/systems-design/index.xml" rel="self" type="application/rss+xml"/><item><title>Production LLM Systems Tutorial 1: End-to-End Application Design</title><link>https://acethecloud.com/blog/production-llm-systems-end-to-end-application-design/</link><pubDate>Sat, 09 May 2026 11:00:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-end-to-end-application-design/</guid><description>
+&lt;p&gt;Most LLM applications fail in the gaps between components.&lt;/p&gt;
+&lt;p&gt;The model may be excellent. The prompt may look clean. The demo may answer one question beautifully. Then production arrives: users refresh, requests retry, providers throttle, tools time out, RAG returns stale evidence, streaming breaks halfway through a response, and your token bill records every mistake.&lt;/p&gt;
+&lt;p&gt;This tutorial builds the system shape that survives those conditions.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/01-end-to-end-architecture.svg" alt="End-to-end production LLM application architecture with client, gateway, orchestrator, retrieval, tools, LLM gateway, inference, streaming, and telemetry" loading="lazy" /&gt;
+&lt;figcaption&gt;A production LLM application is a request path with state, policy, retrieval, tools, model routing, and telemetry around the model call.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;The target architecture&lt;span class="hx:absolute hx:-mt-20" id="the-target-architecture"&gt;&lt;/span&gt;
+&lt;a href="#the-target-architecture" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Start with the full request path:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;client
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; API gateway
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; auth, rate limits, tenant identity, idempotency key
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; conversation service
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; session state, history compaction, policy context
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; orchestrator
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; prompt assembly, retrieval, tool planning, model routing
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; retrieval layer
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; query rewrite, hybrid search, rerank, context packing
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; tool layer
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; schemas, permissions, execution, retries
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; LLM gateway
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; provider abstraction, fallback, cost attribution
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; inference endpoint
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; hosted API or self-served model
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; response stream
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; SSE or WebSocket, partial events, final accounting
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; telemetry
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; traces, quality signals, cost, feedback&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Do not draw &amp;ldquo;app -&amp;gt; LLM -&amp;gt; answer.&amp;rdquo; That hides every decision that matters.&lt;/p&gt;
+&lt;h2&gt;Step 1: Choose the interaction contract&lt;span class="hx:absolute hx:-mt-20" id="step-1-choose-the-interaction-contract"&gt;&lt;/span&gt;
+&lt;a href="#step-1-choose-the-interaction-contract" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;For chat-like applications, streaming is usually the default. The user feels time to first token before they feel total latency. A 700 ms TTFT with a 6 second full answer often feels better than a silent 3 second request-response call.&lt;/p&gt;
+&lt;p&gt;Use Server-Sent Events when the server mostly streams tokens and status events to the browser. Use WebSocket when the client also needs low-latency bidirectional events, such as collaborative editing, voice turn-taking, or live tool state.&lt;/p&gt;
+&lt;p&gt;A good stream emits more than tokens:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-json" data-lang="json"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;message.started&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;request_id&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;req_123&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;retrieval.completed&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;documents&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;output_text.delta&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;text&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;The&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;output_text.delta&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;text&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34; answer&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;usage.completed&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;input_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1840&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;output_tokens&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;322&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;#34;type&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;message.completed&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That event model gives the UI progress, gives observability clean spans, and gives clients a reliable way to recover from partial output.&lt;/p&gt;
+&lt;figure class="ace-fig"&gt;
+&lt;img src="https://acethecloud.com/images/posts/production-llm-systems/01-streaming-events.svg" alt="Typed streaming event contract showing started, retrieval, token delta, tool, usage, and terminal events" loading="lazy" /&gt;
+&lt;figcaption&gt;Streaming should expose typed lifecycle events, not just raw token chunks.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;h2&gt;Step 2: Treat conversation state as product data&lt;span class="hx:absolute hx:-mt-20" id="step-2-treat-conversation-state-as-product-data"&gt;&lt;/span&gt;
+&lt;a href="#step-2-treat-conversation-state-as-product-data" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There are three common state models:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Model&lt;/th&gt;
+&lt;th&gt;What it means&lt;/th&gt;
+&lt;th&gt;Use it when&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Client-held history&lt;/td&gt;
+&lt;td&gt;The browser sends prior messages each turn&lt;/td&gt;
+&lt;td&gt;Low-risk consumer apps, simple prototypes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Server session store&lt;/td&gt;
+&lt;td&gt;Backend stores messages and sends a compact window to the model&lt;/td&gt;
+&lt;td&gt;Most production apps&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Retrieved memory&lt;/td&gt;
+&lt;td&gt;Past turns are embedded and retrieved like documents&lt;/td&gt;
+&lt;td&gt;Long-lived assistants and workflow systems&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Do not blindly replay the full conversation. Context windows are larger now, but cost and attention quality still matter. Use a sliding window for recent turns, a summary for older turns, and retrieval for specific prior facts.&lt;/p&gt;
+&lt;p&gt;The dangerous part is tenant separation. Every session, prompt template, retrieved document, tool call, and cache entry needs a tenant boundary. If you share a semantic cache across tenants without strict namespacing, you have built a data leak with a nice latency profile.&lt;/p&gt;
+&lt;h2&gt;Step 3: Make the orchestrator explicit&lt;span class="hx:absolute hx:-mt-20" id="step-3-make-the-orchestrator-explicit"&gt;&lt;/span&gt;
+&lt;a href="#step-3-make-the-orchestrator-explicit" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The orchestrator is where the application becomes more than a prompt wrapper. It owns:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;prompt version selection&lt;/li&gt;
+&lt;li&gt;model routing&lt;/li&gt;
+&lt;li&gt;retrieval decisions&lt;/li&gt;
+&lt;li&gt;tool-call permissions&lt;/li&gt;
+&lt;li&gt;context budget allocation&lt;/li&gt;
+&lt;li&gt;retries and fallbacks&lt;/li&gt;
+&lt;li&gt;output validation&lt;/li&gt;
+&lt;li&gt;trace correlation&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Keep it boring. A deterministic state machine is easier to debug than a pile of hidden framework callbacks. For many systems, this is enough:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;classify request
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; decide route
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; retrieve evidence if needed
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; assemble prompt
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; call model
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; execute approved tool calls
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; validate output
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; stream final response
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; -&amp;gt; record trace and cost&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+aria-label="Copy code"
+data-copied-label="Copied!"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Agents can be useful, but do not make every request an agent loop. A password reset question, a refund policy lookup, and a code migration task do not need the same control flow.&lt;/p&gt;
+&lt;h2&gt;Step 4: Put a gateway between your app and model providers&lt;span class="hx:absolute hx:-mt-20" id="step-4-put-a-gateway-between-your-app-and-model-providers"&gt;&lt;/span&gt;
+&lt;a href="#step-4-put-a-gateway-between-your-app-and-model-providers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;An LLM gateway pays for itself quickly. It should handle:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;provider credentials&lt;/li&gt;
+&lt;li&gt;routing by model, tenant, feature, and region&lt;/li&gt;
+&lt;li&gt;retries with backoff&lt;/li&gt;
+&lt;li&gt;fallback models&lt;/li&gt;
+&lt;li&gt;timeout budgets&lt;/li&gt;
+&lt;li&gt;token accounting&lt;/li&gt;
+&lt;li&gt;per-tenant cost attribution&lt;/li&gt;
+&lt;li&gt;audit logs&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Do not let every service call model providers directly. That creates duplicate retry logic, inconsistent safety policy, and impossible cost attribution.&lt;/p&gt;
+&lt;p&gt;The gateway also owns idempotency. Token-charging APIs make duplicate retries expensive. If the client retries the same request after a timeout, the backend should be able to return the prior result or resume the stream instead of generating twice.&lt;/p&gt;
+&lt;h2&gt;Step 5: Add graceful degradation&lt;span class="hx:absolute hx:-mt-20" id="step-5-add-graceful-degradation"&gt;&lt;/span&gt;
+&lt;a href="#step-5-add-graceful-degradation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There are four failure modes worth designing on day one:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Failure&lt;/th&gt;
+&lt;th&gt;Good degradation&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Primary model unavailable&lt;/td&gt;
+&lt;td&gt;Route to a smaller or alternate provider model&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Retrieval unavailable&lt;/td&gt;
+&lt;td&gt;Answer only if the task is safe without retrieval, otherwise explain the limitation&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Tool unavailable&lt;/td&gt;
+&lt;td&gt;Continue with a partial answer only if the tool is optional&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Streaming interrupted&lt;/td&gt;
+&lt;td&gt;Let the client reconnect with request id and recover final state&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Graceful degradation is not fake confidence. If the answer needs fresh retrieved evidence, say the system cannot complete the task rather than producing a polished guess.&lt;/p&gt;
+&lt;h2&gt;Step 6: Define the minimum telemetry contract&lt;span class="hx:absolute hx:-mt-20" id="step-6-define-the-minimum-telemetry-contract"&gt;&lt;/span&gt;
+&lt;a href="#step-6-define-the-minimum-telemetry-contract" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Every request should produce a trace with:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;tenant id and feature name&lt;/li&gt;
+&lt;li&gt;prompt version&lt;/li&gt;
+&lt;li&gt;model route and provider&lt;/li&gt;
+&lt;li&gt;retrieval query, document ids, and rerank scores&lt;/li&gt;
+&lt;li&gt;tool calls, arguments, status, and latency&lt;/li&gt;
+&lt;li&gt;TTFT, TPOT, total latency&lt;/li&gt;
+&lt;li&gt;input tokens, output tokens, cached tokens&lt;/li&gt;
+&lt;li&gt;final status and user feedback&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Redact sensitive fields before storage. Observability that stores raw private prompts without a policy will eventually become the incident.&lt;/p&gt;
+&lt;h2&gt;A practical build order&lt;span class="hx:absolute hx:-mt-20" id="a-practical-build-order"&gt;&lt;/span&gt;
+&lt;a href="#a-practical-build-order" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Build in this order:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Gateway with auth, rate limits, and request ids.&lt;/li&gt;
+&lt;li&gt;Basic streaming model call.&lt;/li&gt;
+&lt;li&gt;Conversation session store.&lt;/li&gt;
+&lt;li&gt;Prompt registry with versioned templates.&lt;/li&gt;
+&lt;li&gt;Retrieval path.&lt;/li&gt;
+&lt;li&gt;Tool execution path.&lt;/li&gt;
+&lt;li&gt;Tracing and cost attribution.&lt;/li&gt;
+&lt;li&gt;Fallback model chain.&lt;/li&gt;
+&lt;li&gt;Eval set and release gate.&lt;/li&gt;
+&lt;li&gt;Human escalation for low-confidence or high-risk outputs.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The order matters. If you add retrieval and tools before request identity, tracing, and idempotency, debugging becomes guesswork.&lt;/p&gt;
+&lt;h2&gt;Sources and receipts&lt;span class="hx:absolute hx:-mt-20" id="sources-and-receipts"&gt;&lt;/span&gt;
+&lt;a href="#sources-and-receipts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;OpenAI, &amp;ldquo;Streaming API responses&amp;rdquo;: &lt;a href="https://platform.openai.com/docs/guides/streaming-responses"target="_blank" rel="noopener"&gt;https://platform.openai.com/docs/guides/streaming-responses&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;OpenAI API Reference, &amp;ldquo;Streaming events&amp;rdquo;: &lt;a href="https://platform.openai.com/docs/api-reference/responses-streaming"target="_blank" rel="noopener"&gt;https://platform.openai.com/docs/api-reference/responses-streaming&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;MDN, &amp;ldquo;Using server-sent events&amp;rdquo;: &lt;a href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events"target="_blank" rel="noopener"&gt;https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;MDN, &amp;ldquo;WebSocket&amp;rdquo;: &lt;a href="https://developer.mozilla.org/docs/Web/API/WebSocket"target="_blank" rel="noopener"&gt;https://developer.mozilla.org/docs/Web/API/WebSocket&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;AWS Well-Architected, &amp;ldquo;Make all responses idempotent&amp;rdquo;: &lt;a href="https://docs.aws.amazon.com/wellarchitected/2023-04-10/framework/rel_prevent_interaction_failure_idempotent.html"target="_blank" rel="noopener"&gt;https://docs.aws.amazon.com/wellarchitected/2023-04-10/framework/rel_prevent_interaction_failure_idempotent.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>

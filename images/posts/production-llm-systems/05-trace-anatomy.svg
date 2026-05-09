@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 540" role="img" aria-labelledby="title desc">
+  <title id="title">LLM trace anatomy</title>
+  <desc id="desc">A single trace should include spans for gateway, retrieval, reranking, prompt assembly, tool calls, model generation, safety checks, streaming, usage, and feedback.</desc>
+  <rect width="1280" height="540" rx="28" fill="#f8fafc"/>
+  <text x="70" y="72" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="800" fill="#0f172a">One request, many spans</text>
+  <text x="70" y="110" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">The final answer is not enough. Trace the workflow that produced it.</text>
+  <line x1="120" y1="220" x2="1160" y2="220" stroke="#cbd5e1" stroke-width="5"/>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="130" y="170" width="120" height="100" rx="14" fill="#0f172a"/><text x="190" y="214" text-anchor="middle" font-size="18" font-weight="800" fill="#ffffff">Gateway</text><text x="190" y="239" text-anchor="middle" font-size="13" fill="#cbd5e1">auth</text>
+    <rect x="285" y="150" width="150" height="140" rx="14" fill="#ffffff" stroke="#bfdbfe" stroke-width="2"/><text x="360" y="202" text-anchor="middle" font-size="18" font-weight="800" fill="#0f172a">Retrieval</text><text x="360" y="229" text-anchor="middle" font-size="13" fill="#64748b">docs, scores</text>
+    <rect x="470" y="180" width="130" height="80" rx="14" fill="#ffffff" stroke="#bbf7d0" stroke-width="2"/><text x="535" y="227" text-anchor="middle" font-size="18" font-weight="800" fill="#0f172a">Rerank</text>
+    <rect x="635" y="135" width="170" height="170" rx="14" fill="#ffffff" stroke="#fde68a" stroke-width="2"/><text x="720" y="211" text-anchor="middle" font-size="18" font-weight="800" fill="#0f172a">Model call</text><text x="720" y="238" text-anchor="middle" font-size="13" fill="#64748b">TTFT, TPOT</text>
+    <rect x="840" y="180" width="130" height="80" rx="14" fill="#ffffff" stroke="#fed7aa" stroke-width="2"/><text x="905" y="227" text-anchor="middle" font-size="18" font-weight="800" fill="#0f172a">Tool</text>
+    <rect x="1005" y="165" width="145" height="110" rx="14" fill="#ffffff" stroke="#fecaca" stroke-width="2"/><text x="1077" y="211" text-anchor="middle" font-size="18" font-weight="800" fill="#0f172a">Safety</text><text x="1077" y="238" text-anchor="middle" font-size="13" fill="#64748b">filter</text>
+  </g>
+  <rect x="245" y="380" width="790" height="56" rx="14" fill="#0f172a"/>
+  <text x="640" y="415" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="18" fill="#f8fafc">trace_id + tenant + prompt_version + model_route + token_usage + feedback</text>
+</svg>

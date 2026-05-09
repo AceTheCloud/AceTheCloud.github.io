@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 540" role="img" aria-labelledby="title desc">
+  <title id="title">Failover and rollback runbook</title>
+  <desc id="desc">Incident response for LLM systems should identify the changed artifact, route traffic to fallback, roll back the smallest artifact, clear unsafe caches, and re-run targeted evals.</desc>
+  <defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" fill="#334155"/></marker></defs>
+  <rect width="1280" height="540" rx="28" fill="#f8fafc"/>
+  <text x="70" y="72" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="800" fill="#0f172a">Incident response should be executable</text>
+  <text x="70" y="110" font-family="Inter, Arial, sans-serif" font-size="20" fill="#475569">The runbook starts from symptoms and ends with a verified rollback or fallback.</text>
+  <g font-family="Inter, Arial, sans-serif">
+    <rect x="70" y="230" width="160" height="82" rx="15" fill="#ffffff" stroke="#fecaca" stroke-width="2"/><text x="150" y="263" text-anchor="middle" font-size="20" font-weight="800" fill="#0f172a">Detect</text><text x="150" y="289" text-anchor="middle" font-size="13" fill="#64748b">SLO, eval, cost</text>
+    <rect x="290" y="230" width="160" height="82" rx="15" fill="#ffffff" stroke="#fde68a" stroke-width="2"/><text x="370" y="263" text-anchor="middle" font-size="20" font-weight="800" fill="#0f172a">Identify</text><text x="370" y="289" text-anchor="middle" font-size="13" fill="#64748b">changed artifact</text>
+    <rect x="510" y="230" width="160" height="82" rx="15" fill="#0f172a"/><text x="590" y="263" text-anchor="middle" font-size="20" font-weight="800" fill="#ffffff">Fallback</text><text x="590" y="289" text-anchor="middle" font-size="13" fill="#cbd5e1">provider, model</text>
+    <rect x="730" y="230" width="160" height="82" rx="15" fill="#ffffff" stroke="#bfdbfe" stroke-width="2"/><text x="810" y="263" text-anchor="middle" font-size="20" font-weight="800" fill="#0f172a">Rollback</text><text x="810" y="289" text-anchor="middle" font-size="13" fill="#64748b">smallest change</text>
+    <rect x="950" y="230" width="200" height="82" rx="15" fill="#ffffff" stroke="#bbf7d0" stroke-width="2"/><text x="1050" y="263" text-anchor="middle" font-size="20" font-weight="800" fill="#0f172a">Verify</text><text x="1050" y="289" text-anchor="middle" font-size="13" fill="#64748b">evals and canary</text>
+  </g>
+  <path d="M232 271 H282" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/><path d="M452 271 H502" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/><path d="M672 271 H722" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/><path d="M892 271 H942" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+  <rect x="330" y="395" width="620" height="56" rx="14" fill="#0f172a"/>
+  <text x="640" y="430" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="18" fill="#f8fafc">clear or namespace unsafe cache entries after rollback</text>
+</svg>
