@@ -1,4 +1,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ace The Cloud – Cost</title><link>https://acethecloud.com/tags/cost/</link><description>Recent content in Cost on Ace The Cloud</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 09 May 2026 10:50:00 +0530</lastBuildDate><atom:link href="https://acethecloud.com/tags/cost/index.xml" rel="self" type="application/rss+xml"/><item><title>Production LLM Systems Tutorial 2: Latency, Cost, and Quality</title><link>https://acethecloud.com/blog/production-llm-systems-latency-cost-quality/</link><pubDate>Sat, 09 May 2026 10:50:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-latency-cost-quality/</guid><description>
+&lt;h2&gt;Tutorial Series&lt;span class="hx:absolute hx:-mt-20" id="tutorial-series"&gt;&lt;/span&gt;
+&lt;a href="#tutorial-series" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-end-to-end-application-design/"&gt;End-to-End Application Design&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-latency-cost-quality/"&gt;Latency, Cost, and Quality&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-scalable-inference-architecture/"&gt;Scalable Inference Architecture&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-rag-data-pipeline/"&gt;RAG and Data Pipelines&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-monitoring-observability/"&gt;Monitoring and Observability&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-evaluation-ab-testing/"&gt;Evaluation and A/B Testing&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-security-prompt-injection/"&gt;Security and Prompt Injection&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-human-in-the-loop/"&gt;Human-in-the-Loop Workflows&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-cost-optimization/"&gt;Cost Optimization&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-versioning-disaster-recovery/"&gt;Versioning and Disaster Recovery&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
 &lt;p&gt;Every production LLM system lives inside a triangle:&lt;/p&gt;
 &lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
 &lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; quality
@@ -256,6 +269,19 @@ data-copied-label="Copied!"
 &lt;li&gt;Jiang et al., &amp;ldquo;LLMLingua: Compressing Prompts for Accelerated Inference of Large Language Models&amp;rdquo;: &lt;a href="https://arxiv.org/abs/2310.05736"target="_blank" rel="noopener"&gt;https://arxiv.org/abs/2310.05736&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Leviathan et al., &amp;ldquo;Fast Inference from Transformers via Speculative Decoding&amp;rdquo;: &lt;a href="https://arxiv.org/abs/2211.17192"target="_blank" rel="noopener"&gt;https://arxiv.org/abs/2211.17192&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</description></item><item><title>Production LLM Systems Tutorial 9: Cost Optimization</title><link>https://acethecloud.com/blog/production-llm-systems-cost-optimization/</link><pubDate>Sat, 09 May 2026 09:40:00 +0530</pubDate><guid>https://acethecloud.com/blog/production-llm-systems-cost-optimization/</guid><description>
+&lt;h2&gt;Tutorial Series&lt;span class="hx:absolute hx:-mt-20" id="tutorial-series"&gt;&lt;/span&gt;
+&lt;a href="#tutorial-series" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-end-to-end-application-design/"&gt;End-to-End Application Design&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-latency-cost-quality/"&gt;Latency, Cost, and Quality&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-scalable-inference-architecture/"&gt;Scalable Inference Architecture&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-rag-data-pipeline/"&gt;RAG and Data Pipelines&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-monitoring-observability/"&gt;Monitoring and Observability&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-evaluation-ab-testing/"&gt;Evaluation and A/B Testing&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-security-prompt-injection/"&gt;Security and Prompt Injection&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-human-in-the-loop/"&gt;Human-in-the-Loop Workflows&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-cost-optimization/"&gt;Cost Optimization&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://acethecloud.com/blog/production-llm-systems-versioning-disaster-recovery/"&gt;Versioning and Disaster Recovery&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
 &lt;p&gt;LLM cost optimization is not one trick. It is a stack.&lt;/p&gt;
 &lt;p&gt;The biggest savings usually come from removing waste before tuning inference. Duplicate retries, oversized context, no routing, missing cache keys, and unbounded output tokens can cost more than the model choice itself.&lt;/p&gt;
 &lt;p&gt;This tutorial builds a cost-control system.&lt;/p&gt;
