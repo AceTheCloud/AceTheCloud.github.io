@@ -164,6 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Exported graph&lt;/strong&gt;, where infer shapes. The middle stage, &lt;strong&gt;Graph optimizer&lt;/strong&gt;, fuse patterns. The final stage, &lt;strong&gt;Engine plan&lt;/strong&gt;, shows the observable result: select kernels. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Basic rewrites remove identities, unused nodes, redundant casts, and constant subgraphs. Extended passes recognize patterns such as MatMul plus bias plus GELU, attention blocks, or skip-layer normalization and replace them with fused implementations.&lt;/p&gt;
 &lt;p&gt;ONNX Runtime can optimize online when a session starts or serialize an offline-optimized model. TensorRT builds an engine for target hardware, shapes, and precision constraints, timing candidate tactics before selecting implementations.&lt;/p&gt;
@@ -172,6 +173,28 @@
 &lt;a href="#a-worked-example" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Suppose a transformer MLP appears as MatMul, Add, GELU, MatMul, Add. Five launches materialize intermediates. A supported fusion can combine bias and activation work into fewer kernels, reducing launch overhead and HBM round trips while preserving semantics.&lt;/p&gt;
 &lt;h2&gt;The performance model&lt;span class="hx:absolute hx:-mt-20" id="the-performance-model"&gt;&lt;/span&gt;
 &lt;a href="#the-performance-model" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A useful model is optimized latency = kernel work plus launches plus memory traffic plus device transitions. Graph rewrites attack all four, but engine build time and hardware specificity move cost to deployment.&lt;/p&gt;
+&lt;figure class="ace-fig fast-path-figure"&gt;
+&lt;svg viewBox="0 0 960 430" role="img" aria-label="Where Graph optimization affects prefill and decode" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
+&lt;rect x="0" y="0" width="8" height="430" rx="4" fill="#06b6d4"/&gt;
+&lt;text x="42" y="35" font-family="JetBrains Mono,monospace" font-size="11" font-weight="800" letter-spacing="1.4" fill="#0e7490"&gt;PHASE FIT&lt;/text&gt;
+&lt;text x="42" y="68" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="800" fill="#0f172a"&gt;Where Graph optimization changes inference&lt;/text&gt;
+&lt;g font-family="Inter,Arial,sans-serif"&gt;
+&lt;rect x="42" y="104" width="405" height="188" rx="14" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/&gt;
+&lt;rect x="62" y="122" width="84" height="27" rx="13" fill="#dbeafe"/&gt;&lt;text x="104" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#1d4ed8"&gt;PREFILL&lt;/text&gt;
+&lt;text x="62" y="178" font-size="16" font-weight="800" fill="#1e40af"&gt;Many prompt tokens in parallel&lt;/text&gt;
+&lt;text x="62" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="62"&gt;High arithmetic intensity&lt;/tspan&gt;&lt;tspan x="62" dy="25"&gt;Fuses large-shape execution paths&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="513" y="104" width="405" height="188" rx="14" fill="#f5f3ff" stroke="#a78bfa" stroke-width="2"/&gt;
+&lt;rect x="533" y="122" width="82" height="27" rx="13" fill="#ede9fe"/&gt;&lt;text x="574" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#6d28d9"&gt;DECODE&lt;/text&gt;
+&lt;text x="533" y="178" font-size="16" font-weight="800" fill="#5b21b6"&gt;One new token per iteration&lt;/text&gt;
+&lt;text x="533" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="533"&gt;Weight and KV bandwidth pressure&lt;/tspan&gt;&lt;tspan x="533" dy="25"&gt;Specializes repeated small-step paths&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="42" y="320" width="416" height="64" rx="11" fill="#fff7ed" stroke="#fdba74"/&gt;&lt;text x="62" y="346" font-size="12" font-weight="800" fill="#9a3412"&gt;PROVE IT WITH&lt;/text&gt;&lt;text x="62" y="370" font-size="14" fill="#334155"&gt;Profile-specific TTFT and TPOT&lt;/text&gt;
+&lt;rect x="480" y="320" width="438" height="64" rx="11" fill="#ecfdf5" stroke="#6ee7b7"/&gt;&lt;text x="500" y="346" font-size="12" font-weight="800" fill="#047857"&gt;DEPLOYMENT DECISION&lt;/text&gt;&lt;text x="500" y="370" font-size="14" fill="#334155"&gt;Certify every deployed shape profile&lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Graph optimization&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Dynamic shapes widen tactic choices but can prevent specialization. Production engines often define optimization profiles with minimum, typical, and maximum shapes. Profiles should reflect real prompt and batch distributions, not arbitrary extremes.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -197,6 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Framework graph&lt;/strong&gt;, characterized by operator-by-operator execution and generic layouts. The right panel applies &lt;strong&gt;Optimized engine&lt;/strong&gt;, changing the cost profile to constant folding and fusion and hardware-selected tactics. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Stable production models and shape ranges&lt;/li&gt;
@@ -297,6 +321,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Export&lt;/strong&gt; to &lt;strong&gt;Build&lt;/strong&gt;, then &lt;strong&gt;Inspect&lt;/strong&gt; and &lt;strong&gt;Publish&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Graph optimization converts framework-level operations into an execution plan for known shapes, dtypes, and hardware. Constant folding removes fixed work, algebraic simplification collapses redundant paths, fusion reduces launches and intermediate tensors, and memory planning reuses buffers whose lifetimes do not overlap.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -314,6 +339,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Optimization is a chain of semantic rewrites followed by hardware specialization.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Export&lt;/strong&gt; through &lt;strong&gt;Rewrite&lt;/strong&gt; and &lt;strong&gt;Compile&lt;/strong&gt; to &lt;strong&gt;Validate&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the engine is valid only for its model, profiles, plugins, and hardware target. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Dynamic shapes are bounded contracts, not unlimited flexibility. TensorRT profiles define minimum, optimum, and maximum shapes; tactics selected near the optimum may perform poorly at extremes. Multiple profiles can preserve performance but increase build time and engine size. Route requests to an explicit profile and observe fallback or reformat layers.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Fusion removes launch and memory boundaries" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -328,6 +354,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Graph speedup depends on actual fusion coverage and profile selection.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Unfused graph&lt;/strong&gt; with &lt;strong&gt;Fused engine&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Less launch overhead and intermediate memory traffic.”, remains larger than the risk, “A shape outside profiles may fail or take a fallback path.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Custom plugins extend unsupported operators but become part of the trusted runtime. Version their ABI, numerical contract, workspace requirements, and supported formats. A plugin that silently accepts an unsupported dtype can produce plausible but incorrect output.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Compiled artifact lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -344,6 +371,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat engines as immutable release artifacts with provenance.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Exported&lt;/strong&gt; to &lt;strong&gt;Optimized&lt;/strong&gt;, &lt;strong&gt;Compiled&lt;/strong&gt;, and finally &lt;strong&gt;Certified&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Any dependency, GPU, profile, or plugin change requires compatibility review. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four validation layers" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -358,6 +386,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Optimization is production-ready only when every supported profile is certified.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Semantic&lt;/strong&gt;, &lt;strong&gt;Coverage&lt;/strong&gt;, &lt;strong&gt;Performance&lt;/strong&gt;, and &lt;strong&gt;Operations&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: A successful engine build is the start of validation, not the end.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="An out-of-profile production request" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -373,6 +402,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Shape governance prevents dynamic inputs from bypassing compile-time assumptions.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Shape arrives&lt;/strong&gt; triggers &lt;strong&gt;Runtime adapts&lt;/strong&gt;, which creates &lt;strong&gt;SLO breaks&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://onnxruntime.ai/docs/performance/model-optimizations/graph-optimizations.html"target="_blank" rel="noopener"&gt;ONNX Runtime Graph Optimizations&lt;/a&gt;&lt;/li&gt;

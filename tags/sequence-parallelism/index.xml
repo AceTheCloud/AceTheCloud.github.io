@@ -164,6 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Long token sequence&lt;/strong&gt;, where shard token positions. The middle stage, &lt;strong&gt;Communication point&lt;/strong&gt;, gather needed context. The final stage, &lt;strong&gt;Sharded output&lt;/strong&gt;, shows the observable result: reduce or retain shards. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In Megatron-style sequence parallelism paired with tensor parallelism, operations such as LayerNorm and Dropout are computed on sequence shards. Reduce-scatter and all-gather replace replicated activation storage around tensor-parallel regions.&lt;/p&gt;
 &lt;p&gt;Context parallelism goes further: it partitions the sequence for all modules, including attention. Queries may stay local, but attention needs keys and values from the full causal context, requiring ring exchange or all-gather-like communication.&lt;/p&gt;
@@ -172,6 +173,28 @@
 &lt;a href="#a-worked-example" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A prompt has 32,768 tokens and activation width 8,192. Splitting the sequence four ways gives each rank 8,192 positions for token-local operations. Attention still needs access to the relevant K and V context, so ranks exchange blocks rather than pretending the sequence is independent.&lt;/p&gt;
 &lt;h2&gt;The performance model&lt;span class="hx:absolute hx:-mt-20" id="the-performance-model"&gt;&lt;/span&gt;
 &lt;a href="#the-performance-model" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Activation memory falls roughly with the sequence-parallel degree for the sharded regions. Communication grows with boundaries and attention context exchange. The best degree depends on sequence length, hidden size, topology, and overlap.&lt;/p&gt;
+&lt;figure class="ace-fig fast-path-figure"&gt;
+&lt;svg viewBox="0 0 960 430" role="img" aria-label="Where Sequence parallelism affects prefill and decode" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
+&lt;rect x="0" y="0" width="8" height="430" rx="4" fill="#06b6d4"/&gt;
+&lt;text x="42" y="35" font-family="JetBrains Mono,monospace" font-size="11" font-weight="800" letter-spacing="1.4" fill="#0e7490"&gt;PHASE FIT&lt;/text&gt;
+&lt;text x="42" y="68" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="800" fill="#0f172a"&gt;Where Sequence parallelism changes inference&lt;/text&gt;
+&lt;g font-family="Inter,Arial,sans-serif"&gt;
+&lt;rect x="42" y="104" width="405" height="188" rx="14" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/&gt;
+&lt;rect x="62" y="122" width="84" height="27" rx="13" fill="#dbeafe"/&gt;&lt;text x="104" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#1d4ed8"&gt;PREFILL&lt;/text&gt;
+&lt;text x="62" y="178" font-size="16" font-weight="800" fill="#1e40af"&gt;Many prompt tokens in parallel&lt;/text&gt;
+&lt;text x="62" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="62"&gt;High arithmetic intensity&lt;/tspan&gt;&lt;tspan x="62" dy="25"&gt;Shards long prompt activations&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="513" y="104" width="405" height="188" rx="14" fill="#f5f3ff" stroke="#a78bfa" stroke-width="2"/&gt;
+&lt;rect x="533" y="122" width="82" height="27" rx="13" fill="#ede9fe"/&gt;&lt;text x="574" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#6d28d9"&gt;DECODE&lt;/text&gt;
+&lt;text x="533" y="178" font-size="16" font-weight="800" fill="#5b21b6"&gt;One new token per iteration&lt;/text&gt;
+&lt;text x="533" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="533"&gt;Weight and KV bandwidth pressure&lt;/tspan&gt;&lt;tspan x="533" dy="25"&gt;Often smaller benefit per new token&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="42" y="320" width="416" height="64" rx="11" fill="#fff7ed" stroke="#fdba74"/&gt;&lt;text x="62" y="346" font-size="12" font-weight="800" fill="#9a3412"&gt;PROVE IT WITH&lt;/text&gt;&lt;text x="62" y="370" font-size="14" fill="#334155"&gt;Activation bytes and collectives&lt;/text&gt;
+&lt;rect x="480" y="320" width="438" height="64" rx="11" fill="#ecfdf5" stroke="#6ee7b7"/&gt;&lt;text x="500" y="346" font-size="12" font-weight="800" fill="#047857"&gt;DEPLOYMENT DECISION&lt;/text&gt;&lt;text x="500" y="370" font-size="14" fill="#334155"&gt;Enable above the memory crossover&lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Sequence parallelism&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Be explicit in design documents: Megatron sequence parallelism and full context parallelism are not synonyms. The former shards selected activations around TP; the latter shards the complete sequence and changes attention communication.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -197,6 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Replicated sequence&lt;/strong&gt;, characterized by every rank holds token activations and simple local operations. The right panel applies &lt;strong&gt;Sequence-sharded execution&lt;/strong&gt;, changing the cost profile to ranks own token ranges and lower activation memory. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Long-context prefill&lt;/li&gt;
@@ -298,6 +322,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Define&lt;/strong&gt; to &lt;strong&gt;Model&lt;/strong&gt;, then &lt;strong&gt;Verify&lt;/strong&gt; and &lt;strong&gt;Tune&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Sequence parallelism shards token positions for operations whose state would otherwise be replicated across tensor-parallel ranks. Layer normalization, dropout, residual paths, and some attention variants can operate on local token slices, reducing activation memory. Collective transitions restore the layouts required by sharded linear layers.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -315,6 +340,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Sequence parallelism reduces replicated activation state while preserving model semantics.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Partition tokens&lt;/strong&gt; through &lt;strong&gt;Local ops&lt;/strong&gt; and &lt;strong&gt;Transition&lt;/strong&gt; to &lt;strong&gt;Continue&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, layout transitions must match the tensor-parallel contract at every boundary. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;The memory gain grows with sequence length, batch size, and hidden width. Communication can dominate for short sequences or poorly fused transitions. Context parallelism extends the idea to attention over very long sequences, where ranks must exchange K/V context or use ring-style algorithms.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Activation memory versus communication" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -329,6 +355,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The crossover depends on sequence length, rank count, and fabric bandwidth.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Replicated sequence&lt;/strong&gt; with &lt;strong&gt;Sequence sharded&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Long sequences fit with less activation replication.”, remains larger than the risk, “Gather and reduce-scatter can dominate small workloads.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Padding and variable lengths complicate partitioning. Equal token counts can represent unequal useful work, especially with packed sequences or block-sparse masks. Partition metadata must preserve position IDs, masks, and sample boundaries so collective reconstruction cannot mix independent requests.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Layout state across a transformer block" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -345,6 +372,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Most sequence-parallel bugs are mismatched layouts rather than wrong arithmetic.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Token-sharded&lt;/strong&gt; to &lt;strong&gt;Transitioning&lt;/strong&gt;, &lt;strong&gt;Feature-sharded&lt;/strong&gt;, and finally &lt;strong&gt;Restored&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Every tensor carries an explicit layout descriptor, never an inferred convention. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four correctness boundaries" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -359,6 +387,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Sequence sharding must preserve both tensor values and token identity.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Positions&lt;/strong&gt;, &lt;strong&gt;Masks&lt;/strong&gt;, &lt;strong&gt;Layouts&lt;/strong&gt;, and &lt;strong&gt;Topology&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Validate distributed output against a single-rank reference across ragged inputs.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="A layout mismatch can stay numerically plausible" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -374,6 +403,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Distributed inference needs identity checks around every layout transition.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Metadata drifts&lt;/strong&gt; triggers &lt;strong&gt;Collective runs&lt;/strong&gt;, which creates &lt;strong&gt;Output corrupts&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/parallelism-guide.html"target="_blank" rel="noopener"&gt;Megatron Core Parallelism Guide&lt;/a&gt;&lt;/li&gt;

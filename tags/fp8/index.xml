@@ -164,6 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;High-precision model&lt;/strong&gt;, where profile tensor ranges. The middle stage, &lt;strong&gt;Quantized execution&lt;/strong&gt;, scale and accumulate. The final stage, &lt;strong&gt;Validated output&lt;/strong&gt;, shows the observable result: compare quality. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;BF16 and FP16 store 16 bits but trade dynamic range differently. BF16 keeps an FP32-like exponent with fewer mantissa bits; FP16 offers more mantissa precision but a narrower range. FP8 introduces formats such as E4M3 and E5M2, plus per-tensor or block scaling.&lt;/p&gt;
 &lt;p&gt;Matrix inputs may use low precision while accumulation remains FP16 or FP32. Normalization, reductions, softmax, and final logits are often kept at higher precision. The optimal recipe depends on hardware instructions and the model&amp;rsquo;s tensor distributions.&lt;/p&gt;
@@ -172,6 +173,28 @@
 &lt;a href="#a-worked-example" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A 70-billion-parameter model needs about 140 GB for BF16 weights and about 70 GB at one byte per weight before metadata and scales. That difference may change the deployment from four 40 GB GPUs to two 80 GB GPUs, but activation and KV formats still determine runtime capacity.&lt;/p&gt;
 &lt;h2&gt;The performance model&lt;span class="hx:absolute hx:-mt-20" id="the-performance-model"&gt;&lt;/span&gt;
 &lt;a href="#the-performance-model" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Lower precision reduces memory traffic and can unlock higher Tensor Core throughput. Speedup is limited by unsupported layers, conversion overhead, small matrix shapes, and non-matrix work. Compare complete request latency and quality, not theoretical TOPS.&lt;/p&gt;
+&lt;figure class="ace-fig fast-path-figure"&gt;
+&lt;svg viewBox="0 0 960 430" role="img" aria-label="Where Mixed precision affects prefill and decode" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
+&lt;rect x="0" y="0" width="8" height="430" rx="4" fill="#06b6d4"/&gt;
+&lt;text x="42" y="35" font-family="JetBrains Mono,monospace" font-size="11" font-weight="800" letter-spacing="1.4" fill="#0e7490"&gt;PHASE FIT&lt;/text&gt;
+&lt;text x="42" y="68" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="800" fill="#0f172a"&gt;Where Mixed precision changes inference&lt;/text&gt;
+&lt;g font-family="Inter,Arial,sans-serif"&gt;
+&lt;rect x="42" y="104" width="405" height="188" rx="14" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/&gt;
+&lt;rect x="62" y="122" width="84" height="27" rx="13" fill="#dbeafe"/&gt;&lt;text x="104" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#1d4ed8"&gt;PREFILL&lt;/text&gt;
+&lt;text x="62" y="178" font-size="16" font-weight="800" fill="#1e40af"&gt;Many prompt tokens in parallel&lt;/text&gt;
+&lt;text x="62" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="62"&gt;High arithmetic intensity&lt;/tspan&gt;&lt;tspan x="62" dy="25"&gt;Lowers matrix traffic and compute cost&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="513" y="104" width="405" height="188" rx="14" fill="#f5f3ff" stroke="#a78bfa" stroke-width="2"/&gt;
+&lt;rect x="533" y="122" width="82" height="27" rx="13" fill="#ede9fe"/&gt;&lt;text x="574" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#6d28d9"&gt;DECODE&lt;/text&gt;
+&lt;text x="533" y="178" font-size="16" font-weight="800" fill="#5b21b6"&gt;One new token per iteration&lt;/text&gt;
+&lt;text x="533" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="533"&gt;Weight and KV bandwidth pressure&lt;/tspan&gt;&lt;tspan x="533" dy="25"&gt;Reduces weight and KV bandwidth&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="42" y="320" width="416" height="64" rx="11" fill="#fff7ed" stroke="#fdba74"/&gt;&lt;text x="62" y="346" font-size="12" font-weight="800" fill="#9a3412"&gt;PROVE IT WITH&lt;/text&gt;&lt;text x="62" y="370" font-size="14" fill="#334155"&gt;TTFT, TPOT, saturation, quality&lt;/text&gt;
+&lt;rect x="480" y="320" width="438" height="64" rx="11" fill="#ecfdf5" stroke="#6ee7b7"/&gt;&lt;text x="500" y="346" font-size="12" font-weight="800" fill="#047857"&gt;DEPLOYMENT DECISION&lt;/text&gt;&lt;text x="500" y="370" font-size="14" fill="#334155"&gt;Use a phase-aware precision recipe&lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Mixed precision&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;FP8 is not merely an integer quantizer with a decimal point. Scaling policy, amax history, format choice, and accumulation determine stability. On newer hardware, microscaling formats apply scales to smaller blocks, changing both accuracy and kernel layout.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -197,6 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Uniform high precision&lt;/strong&gt;, characterized by simple numerical policy and higher bandwidth demand. The right panel applies &lt;strong&gt;Mixed precision&lt;/strong&gt;, changing the cost profile to format chosen per tensor and scaling and casts required. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Bandwidth-bound transformer layers&lt;/li&gt;
@@ -298,6 +322,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Calibrate&lt;/strong&gt; to &lt;strong&gt;Build&lt;/strong&gt;, then &lt;strong&gt;Validate&lt;/strong&gt; and &lt;strong&gt;Monitor&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Mixed precision is a per-operation numerical contract, not a model-wide dtype switch. Weights, activations, accumulators, normalization statistics, logits, and KV state have different sensitivity and bandwidth costs. A robust plan assigns formats intentionally and inserts casts only at known boundaries.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -315,6 +340,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Fast paths use narrow formats where error is bounded and wider formats where it compounds.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Load weights&lt;/strong&gt; through &lt;strong&gt;Matmul&lt;/strong&gt; and &lt;strong&gt;Sensitive ops&lt;/strong&gt; to &lt;strong&gt;Output&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the precision recipe must travel with the engine and calibration artifacts. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;FP16 has limited exponent range; BF16 keeps FP32-like range with fewer mantissa bits. FP8 formats trade range and precision differently, so scaling history and amax collection become runtime state. Accumulation commonly uses a wider format because thousands of small products can lose information or overflow even when each input is representable.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Precision changes both bytes and numerical margin" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -329,6 +355,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Actual speedup requires kernels that consume the chosen formats without cast overhead.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Uniform FP16&lt;/strong&gt; with &lt;strong&gt;Mixed FP8/BF16&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Lower bandwidth and larger effective memory capacity.”, remains larger than the risk, “Bad scales cause saturation, underflow, or unstable logits.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Calibration must cover real prompt lengths, activation outliers, adapters, and decoding phases. Prefill and decode can have different distributions. Per-tensor scaling is cheap but coarse; per-channel or block scaling reduces error at metadata and kernel cost. Evaluate task quality and logit divergence, not only perplexity.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Precision recipe lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -345,6 +372,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Precision metadata is versioned deployment state, not an offline suggestion.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Calibrate&lt;/strong&gt; to &lt;strong&gt;Compile&lt;/strong&gt;, &lt;strong&gt;Validate&lt;/strong&gt;, and finally &lt;strong&gt;Serve&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Any model, adapter, kernel, or hardware change invalidates part of the recipe. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Where precision decisions differ" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -359,6 +387,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A mixed-precision engine is a graph of numerical choices.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Weights&lt;/strong&gt;, &lt;strong&gt;Activations&lt;/strong&gt;, &lt;strong&gt;Accumulators&lt;/strong&gt;, and &lt;strong&gt;State&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Report the effective dtype of each major operator in engine metadata.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="Scale drift can fail without NaNs" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -374,6 +403,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Mixed precision needs semantic canaries in addition to runtime error checks.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Traffic shifts&lt;/strong&gt; triggers &lt;strong&gt;Values clip&lt;/strong&gt;, which creates &lt;strong&gt;Quality falls&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://docs.nvidia.com/deeplearning/transformer-engine/user-guide/"target="_blank" rel="noopener"&gt;NVIDIA Transformer Engine&lt;/a&gt;&lt;/li&gt;

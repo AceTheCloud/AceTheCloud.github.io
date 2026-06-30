@@ -164,6 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Microbatch&lt;/strong&gt;, where enter stage 1. The middle stage, &lt;strong&gt;Pipeline handoff&lt;/strong&gt;, send activations. The final stage, &lt;strong&gt;Final stage&lt;/strong&gt;, shows the observable result: run last layers. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The model&amp;rsquo;s ordered layers are partitioned into stages. Stage 0 receives token activations, executes its layers, and sends activations to stage 1. Each stage stores only its assigned weights, reducing per-device model memory.&lt;/p&gt;
 &lt;p&gt;Microbatches fill the pipeline so different requests or batch slices occupy different stages concurrently. Fill and drain periods create a pipeline bubble. More microbatches amortize that bubble but can increase queueing and memory.&lt;/p&gt;
@@ -172,6 +173,28 @@
 &lt;a href="#a-worked-example" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A 48-layer model is split into four 12-layer stages. With one request, the stages mostly work sequentially. With eight microbatches, stage 1 can process microbatch 4 while stage 2 handles 3, stage 3 handles 2, and stage 4 handles 1. Throughput rises after the pipe fills.&lt;/p&gt;
 &lt;h2&gt;The performance model&lt;span class="hx:absolute hx:-mt-20" id="the-performance-model"&gt;&lt;/span&gt;
 &lt;a href="#the-performance-model" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;For balanced stages, ideal utilization approaches microbatches divided by microbatches plus stages minus one for a simple forward pipeline. Real systems add transfer time, unequal layer cost, and decode synchronization.&lt;/p&gt;
+&lt;figure class="ace-fig fast-path-figure"&gt;
+&lt;svg viewBox="0 0 960 430" role="img" aria-label="Where Pipeline parallelism affects prefill and decode" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
+&lt;rect x="0" y="0" width="8" height="430" rx="4" fill="#06b6d4"/&gt;
+&lt;text x="42" y="35" font-family="JetBrains Mono,monospace" font-size="11" font-weight="800" letter-spacing="1.4" fill="#0e7490"&gt;PHASE FIT&lt;/text&gt;
+&lt;text x="42" y="68" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="800" fill="#0f172a"&gt;Where Pipeline parallelism changes inference&lt;/text&gt;
+&lt;g font-family="Inter,Arial,sans-serif"&gt;
+&lt;rect x="42" y="104" width="405" height="188" rx="14" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/&gt;
+&lt;rect x="62" y="122" width="84" height="27" rx="13" fill="#dbeafe"/&gt;&lt;text x="104" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#1d4ed8"&gt;PREFILL&lt;/text&gt;
+&lt;text x="62" y="178" font-size="16" font-weight="800" fill="#1e40af"&gt;Many prompt tokens in parallel&lt;/text&gt;
+&lt;text x="62" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="62"&gt;High arithmetic intensity&lt;/tspan&gt;&lt;tspan x="62" dy="25"&gt;Microbatches fill model stages&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="513" y="104" width="405" height="188" rx="14" fill="#f5f3ff" stroke="#a78bfa" stroke-width="2"/&gt;
+&lt;rect x="533" y="122" width="82" height="27" rx="13" fill="#ede9fe"/&gt;&lt;text x="574" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#6d28d9"&gt;DECODE&lt;/text&gt;
+&lt;text x="533" y="178" font-size="16" font-weight="800" fill="#5b21b6"&gt;One new token per iteration&lt;/text&gt;
+&lt;text x="533" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="533"&gt;Weight and KV bandwidth pressure&lt;/tspan&gt;&lt;tspan x="533" dy="25"&gt;Every token revisits all stages&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="42" y="320" width="416" height="64" rx="11" fill="#fff7ed" stroke="#fdba74"/&gt;&lt;text x="62" y="346" font-size="12" font-weight="800" fill="#9a3412"&gt;PROVE IT WITH&lt;/text&gt;&lt;text x="62" y="370" font-size="14" fill="#334155"&gt;Stage time, bubbles, TTFT, TPOT&lt;/text&gt;
+&lt;rect x="480" y="320" width="438" height="64" rx="11" fill="#ecfdf5" stroke="#6ee7b7"/&gt;&lt;text x="500" y="346" font-size="12" font-weight="800" fill="#047857"&gt;DEPLOYMENT DECISION&lt;/text&gt;&lt;text x="500" y="370" font-size="14" fill="#334155"&gt;Partition by measured stage cost&lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Pipeline parallelism&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Layer count is a poor balancing proxy when attention, MoE, embeddings, and final projection have different cost. Profile layer time and activation size, then place boundaries to balance compute and avoid expensive cross-node transfers.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -197,6 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Single-device depth&lt;/strong&gt;, characterized by all layers on one gpu and no stage transfers. The right panel applies &lt;strong&gt;Pipeline parallel depth&lt;/strong&gt;, changing the cost profile to layer groups on devices and activation handoffs. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Very deep models that exceed one GPU&lt;/li&gt;
@@ -298,6 +322,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Profile&lt;/strong&gt; to &lt;strong&gt;Partition&lt;/strong&gt;, then &lt;strong&gt;Fill&lt;/strong&gt; and &lt;strong&gt;Operate&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Pipeline parallelism assigns consecutive layer ranges to stages and sends activations between them. Microbatches keep stages busy concurrently, but a request still traverses every stage. The slowest stage sets steady-state throughput, while fill and drain bubbles determine efficiency for short runs.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -315,6 +340,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Pipelining overlaps requests or microbatches across model depth.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Stage 1&lt;/strong&gt; through &lt;strong&gt;Stage 2&lt;/strong&gt; and &lt;strong&gt;Stage 3&lt;/strong&gt; to &lt;strong&gt;Stage 4&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, steady throughput is constrained by the slowest stage plus activation transfer. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Balance by measured stage time, not layer count. Attention, MoE blocks, vocabulary projection, and communication can differ sharply. Boundaries also change activation size, so an apparently balanced split may overload a link. Reprofile after quantization, kernel, sequence-length, or hardware changes.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Pipeline efficiency depends on bubble fraction" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -329,6 +355,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The best microbatch count depends on latency SLO and stage balance.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Unbalanced stages&lt;/strong&gt; with &lt;strong&gt;Balanced pipeline&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Layer groups fit across multiple device memories.”, remains larger than the risk, “More microbatches improve fill but increase queueing and memory.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Inference scheduling differs from training. Autoregressive decode revisits the pipeline for every token and can interleave many sequences. Each stage needs bounded input buffers and cancellation propagation. A failed downstream stage must release upstream reservations to avoid deadlock.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="A microbatch inside the pipeline" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -345,6 +372,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Explicit handoff state prevents duplicate work and stranded buffers.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Queued&lt;/strong&gt; to &lt;strong&gt;Executing&lt;/strong&gt;, &lt;strong&gt;Transferring&lt;/strong&gt;, and finally &lt;strong&gt;Accepted&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Ownership transfers exactly once; cancellation follows the same stage sequence. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Pipeline design has four coupled variables" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -359,6 +387,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A pipeline is stable only when every stage can shed pressure upstream.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Partition&lt;/strong&gt;, &lt;strong&gt;Microbatch&lt;/strong&gt;, &lt;strong&gt;Topology&lt;/strong&gt;, and &lt;strong&gt;Scheduler&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Optimize the entire stage graph, not each GPU independently.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="Stage imbalance becomes a queue cascade" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -374,6 +403,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Backpressure must cross stage boundaries before memory is exhausted.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;One stage slows&lt;/strong&gt; triggers &lt;strong&gt;Upstream blocks&lt;/strong&gt;, which creates &lt;strong&gt;Pipeline stalls&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/1811.06965"target="_blank" rel="noopener"&gt;GPipe paper&lt;/a&gt;&lt;/li&gt;

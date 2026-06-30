@@ -164,6 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Packed weights&lt;/strong&gt;, where load low-bit tiles. The middle stage, &lt;strong&gt;Fused kernel&lt;/strong&gt;, dequantize in registers. The final stage, &lt;strong&gt;Output activation&lt;/strong&gt;, shows the observable result: accumulate safely. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Weight-only kernels keep activations in FP16 or BF16 and store weights as INT4 or INT8. They load packed weights, apply per-group scales and zero points, and multiply without materializing a full high-precision weight matrix in HBM.&lt;/p&gt;
 &lt;p&gt;Weight-and-activation schemes such as W8A8 can use native integer matrix instructions, but activation outliers make calibration harder. SmoothQuant moves difficulty from activations into weights through an equivalent scaling transformation.&lt;/p&gt;
@@ -172,6 +173,28 @@
 &lt;a href="#a-worked-example" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A BF16 matrix contains two bytes per weight; INT4 contains half a byte plus scales. A bandwidth-bound decode GEMM can read roughly one quarter the weight bytes. But if the runtime expands INT4 to BF16 in a separate kernel, it writes and rereads a large intermediate and may lose most of the benefit.&lt;/p&gt;
 &lt;h2&gt;The performance model&lt;span class="hx:absolute hx:-mt-20" id="the-performance-model"&gt;&lt;/span&gt;
 &lt;a href="#the-performance-model" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Quantization helps most when weight movement dominates, especially low-batch decode. At large prefill batches, the operation may become compute-bound and the relative gain can shrink. Kernel choice must be evaluated separately for prefill and decode.&lt;/p&gt;
+&lt;figure class="ace-fig fast-path-figure"&gt;
+&lt;svg viewBox="0 0 960 430" role="img" aria-label="Where Quantized kernels affects prefill and decode" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
+&lt;rect x="0" y="0" width="8" height="430" rx="4" fill="#06b6d4"/&gt;
+&lt;text x="42" y="35" font-family="JetBrains Mono,monospace" font-size="11" font-weight="800" letter-spacing="1.4" fill="#0e7490"&gt;PHASE FIT&lt;/text&gt;
+&lt;text x="42" y="68" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="800" fill="#0f172a"&gt;Where Quantized kernels changes inference&lt;/text&gt;
+&lt;g font-family="Inter,Arial,sans-serif"&gt;
+&lt;rect x="42" y="104" width="405" height="188" rx="14" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/&gt;
+&lt;rect x="62" y="122" width="84" height="27" rx="13" fill="#dbeafe"/&gt;&lt;text x="104" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#1d4ed8"&gt;PREFILL&lt;/text&gt;
+&lt;text x="62" y="178" font-size="16" font-weight="800" fill="#1e40af"&gt;Many prompt tokens in parallel&lt;/text&gt;
+&lt;text x="62" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="62"&gt;High arithmetic intensity&lt;/tspan&gt;&lt;tspan x="62" dy="25"&gt;Accelerates large prompt GEMMs&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="513" y="104" width="405" height="188" rx="14" fill="#f5f3ff" stroke="#a78bfa" stroke-width="2"/&gt;
+&lt;rect x="533" y="122" width="82" height="27" rx="13" fill="#ede9fe"/&gt;&lt;text x="574" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#6d28d9"&gt;DECODE&lt;/text&gt;
+&lt;text x="533" y="178" font-size="16" font-weight="800" fill="#5b21b6"&gt;One new token per iteration&lt;/text&gt;
+&lt;text x="533" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="533"&gt;Weight and KV bandwidth pressure&lt;/tspan&gt;&lt;tspan x="533" dy="25"&gt;Cuts repeated weight-read bandwidth&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="42" y="320" width="416" height="64" rx="11" fill="#fff7ed" stroke="#fdba74"/&gt;&lt;text x="62" y="346" font-size="12" font-weight="800" fill="#9a3412"&gt;PROVE IT WITH&lt;/text&gt;&lt;text x="62" y="370" font-size="14" fill="#334155"&gt;Kernel path, TTFT, and TPOT&lt;/text&gt;
+&lt;rect x="480" y="320" width="438" height="64" rx="11" fill="#ecfdf5" stroke="#6ee7b7"/&gt;&lt;text x="500" y="346" font-size="12" font-weight="800" fill="#047857"&gt;DEPLOYMENT DECISION&lt;/text&gt;&lt;text x="500" y="370" font-size="14" fill="#334155"&gt;Ship checkpoint and kernel together&lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Quantized kernels&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Quality and speed are coupled through layout. An accurate quantizer whose format lacks a production kernel may be less useful than a slightly different scheme with fused, hardware-tuned support. Deployment format is part of model selection.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -197,6 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Compressed checkpoint only&lt;/strong&gt;, characterized by small file on disk and may unpack before gemm. The right panel applies &lt;strong&gt;Quantized kernel path&lt;/strong&gt;, changing the cost profile to consumes packed weights and fuses scales with gemm. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Low-batch memory-bound decode&lt;/li&gt;
@@ -298,6 +322,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Calibrate&lt;/strong&gt; to &lt;strong&gt;Pack&lt;/strong&gt;, then &lt;strong&gt;Profile&lt;/strong&gt; and &lt;strong&gt;Qualify&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A quantized checkpoint is only compressed data until a kernel can consume it efficiently. The hot path must load packed values, reconstruct useful scales or zeros, perform dot products with supported tensor-core instructions, and fuse the epilogue. Dequantizing a whole matrix into FP16 before GEMM often saves storage while losing latency.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -315,6 +340,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Quantization is fast when compression, layout, and hardware instructions agree.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Load&lt;/strong&gt; through &lt;strong&gt;Unpack&lt;/strong&gt; and &lt;strong&gt;Compute&lt;/strong&gt; to &lt;strong&gt;Fuse&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the winning kernel fuses unpacking into the compute pipeline. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Group size controls the balance between accuracy and metadata. Small groups adapt scales to local outliers but add scale loads and reduce packing efficiency. Large groups are compact but force unrelated weights to share range. Activation-aware methods preserve important channels, while smooth-quantization methods move difficulty between weights and activations.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Compressed size does not guarantee lower latency" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -329,6 +355,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Measure end-to-end operator time, including scales, unpacking, and casts.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;INT4 &amp;#43; FP16 unpack&lt;/strong&gt; with &lt;strong&gt;Fused INT4 kernel&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Fewer weight bytes and no full temporary tensor.”, remains larger than the risk, “An unsupported shape can dequantize through a slow path.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Layout is part of the artifact. A kernel may require interleaved columns, architecture-specific tile ordering, or transposed scale metadata. Repacking at startup extends cold-start time; repacking per request is unacceptable. Store a canonical checkpoint plus compiled artifacts keyed by GPU target and kernel version.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Quantized artifact lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -345,6 +372,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Versioning prevents a compatible-looking tensor from reaching the wrong decoder.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Calibrated&lt;/strong&gt; to &lt;strong&gt;Packed&lt;/strong&gt;, &lt;strong&gt;Compiled&lt;/strong&gt;, and finally &lt;strong&gt;Validated&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A packed artifact is valid only for its declared format, layout, and kernel contract. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four sources of quantized performance" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -359,6 +387,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The checkpoint, kernel, and accelerator form one deployable unit.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Format&lt;/strong&gt;, &lt;strong&gt;Granularity&lt;/strong&gt;, &lt;strong&gt;Kernel&lt;/strong&gt;, and &lt;strong&gt;Hardware&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Publish fallback rate by model shape and GPU architecture.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="A quantized rollout that becomes slower" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -374,6 +403,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Trace operator dispatch so compression regressions cannot hide behind a healthy API.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Model changes&lt;/strong&gt; triggers &lt;strong&gt;Fallback runs&lt;/strong&gt;, which creates &lt;strong&gt;Service degrades&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2306.00978"target="_blank" rel="noopener"&gt;AWQ paper&lt;/a&gt;&lt;/li&gt;

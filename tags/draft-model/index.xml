@@ -164,6 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Draft model&lt;/strong&gt;, where propose k tokens. The middle stage, &lt;strong&gt;Target model&lt;/strong&gt;, verify in one pass. The final stage, &lt;strong&gt;Sampler&lt;/strong&gt;, shows the observable result: correct first rejection. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The draft model proposes a short token sequence. The target model evaluates those proposed positions in parallel. A rejection-sampling rule accepts a prefix and, when needed, samples a correction from the residual distribution. The original algorithm preserves the target model output distribution rather than approximating it.&lt;/p&gt;
 &lt;p&gt;Speed depends on the acceptance length: how many proposed tokens survive per target-model verification. A draft that is fast but consistently wrong adds overhead. A draft that is almost as expensive as the target saves little. The useful point lies between those extremes.&lt;/p&gt;
@@ -172,6 +173,28 @@
 &lt;a href="#a-worked-example" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Let the draft propose four tokens. If the target accepts three on average, one expensive verification advances generation by roughly three tokens instead of one. But if the draft consumes 40 percent of target latency and only 1.2 tokens are accepted, total latency may increase. Acceptance alone is not the goal; accepted tokens per unit of combined draft-plus-verify time is.&lt;/p&gt;
 &lt;h2&gt;The performance model&lt;span class="hx:absolute hx:-mt-20" id="the-performance-model"&gt;&lt;/span&gt;
 &lt;a href="#the-performance-model" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A useful approximation is speedup = baseline target time divided by draft time plus verification time per accepted advance. Memory bandwidth, batch size, target-model utilization, and draft placement all affect that denominator. Benchmark end-to-end TPOT, not only acceptance percentage.&lt;/p&gt;
+&lt;figure class="ace-fig fast-path-figure"&gt;
+&lt;svg viewBox="0 0 960 430" role="img" aria-label="Where Speculative decoding affects prefill and decode" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
+&lt;rect x="0" y="0" width="8" height="430" rx="4" fill="#06b6d4"/&gt;
+&lt;text x="42" y="35" font-family="JetBrains Mono,monospace" font-size="11" font-weight="800" letter-spacing="1.4" fill="#0e7490"&gt;PHASE FIT&lt;/text&gt;
+&lt;text x="42" y="68" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="800" fill="#0f172a"&gt;Where Speculative decoding changes inference&lt;/text&gt;
+&lt;g font-family="Inter,Arial,sans-serif"&gt;
+&lt;rect x="42" y="104" width="405" height="188" rx="14" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/&gt;
+&lt;rect x="62" y="122" width="84" height="27" rx="13" fill="#dbeafe"/&gt;&lt;text x="104" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#1d4ed8"&gt;PREFILL&lt;/text&gt;
+&lt;text x="62" y="178" font-size="16" font-weight="800" fill="#1e40af"&gt;Many prompt tokens in parallel&lt;/text&gt;
+&lt;text x="62" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="62"&gt;High arithmetic intensity&lt;/tspan&gt;&lt;tspan x="62" dy="25"&gt;Usually little direct prefill benefit&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="513" y="104" width="405" height="188" rx="14" fill="#f5f3ff" stroke="#a78bfa" stroke-width="2"/&gt;
+&lt;rect x="533" y="122" width="82" height="27" rx="13" fill="#ede9fe"/&gt;&lt;text x="574" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#6d28d9"&gt;DECODE&lt;/text&gt;
+&lt;text x="533" y="178" font-size="16" font-weight="800" fill="#5b21b6"&gt;One new token per iteration&lt;/text&gt;
+&lt;text x="533" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="533"&gt;Weight and KV bandwidth pressure&lt;/tspan&gt;&lt;tspan x="533" dy="25"&gt;Fewer sequential target-model passes&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="42" y="320" width="416" height="64" rx="11" fill="#fff7ed" stroke="#fdba74"/&gt;&lt;text x="62" y="346" font-size="12" font-weight="800" fill="#9a3412"&gt;PROVE IT WITH&lt;/text&gt;&lt;text x="62" y="370" font-size="14" fill="#334155"&gt;Accepted tokens/pass and TPOT&lt;/text&gt;
+&lt;rect x="480" y="320" width="438" height="64" rx="11" fill="#ecfdf5" stroke="#6ee7b7"/&gt;&lt;text x="500" y="346" font-size="12" font-weight="800" fill="#047857"&gt;DEPLOYMENT DECISION&lt;/text&gt;&lt;text x="500" y="370" font-size="14" fill="#334155"&gt;Enable only for positive net goodput&lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Speculative decoding&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Speculation can reduce single-request latency while hurting server throughput if verification batches become irregular or the draft competes for the same scarce GPU. Some systems colocate the draft, others reserve a smaller GPU, and self-speculative methods reuse early layers. The scheduler is part of the algorithm.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -197,6 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Ordinary decoding&lt;/strong&gt;, characterized by one target step per token and simple scheduler. The right panel applies &lt;strong&gt;Speculative decoding&lt;/strong&gt;, changing the cost profile to several candidates per verify and acceptance varies by prompt. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Latency-sensitive generation with a well-matched draft&lt;/li&gt;
@@ -296,6 +320,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Pair&lt;/strong&gt; to &lt;strong&gt;Verify&lt;/strong&gt;, then &lt;strong&gt;Measure&lt;/strong&gt; and &lt;strong&gt;Tune&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The speedup comes from replacing several sequential target-model decode calls with one wider verification call. If the draft proposes &lt;code&gt;k&lt;/code&gt; tokens and the target accepts &lt;code&gt;a&lt;/code&gt; on average, useful progress per target invocation is approximately &lt;code&gt;a + 1&lt;/code&gt; including the correction token. That gain must exceed draft latency, verification overhead, and rollback cost. Acceptance rate alone is insufficient: two configurations with equal acceptance can have different accepted-run lengths and therefore different speedups.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -313,6 +338,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Speculation is a transaction over tokens and KV state, not a loose race between models.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Draft&lt;/strong&gt; through &lt;strong&gt;Verify&lt;/strong&gt; and &lt;strong&gt;Commit&lt;/strong&gt; to &lt;strong&gt;Recover&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, correctness boundary: provisional state becomes visible only after target verification. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Draft and target tokenizers, vocabulary ordering, sampling transforms, and probability support must agree. Greedy verification is simpler but changes the applicable correctness argument. Sampling-preserving schemes compare target and draft distributions and sample from a corrected residual after rejection. Logit processors, banned-token lists, grammar masks, and temperature must be applied consistently at the correct stage.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Accepted progress must repay speculation overhead" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -327,6 +353,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Illustrative progress per target invocation; production results depend on acceptance and placement.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Ordinary decode&lt;/strong&gt; with &lt;strong&gt;Speculative&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Fewer sequential target-model round trips.”, remains larger than the risk, “Draft work and rejected KV consume real capacity.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;The scheduler decides whether the draft shares the target GPU, runs on a smaller device, or reuses early target layers. Colocation avoids network transfer but competes for memory bandwidth. A separate draft GPU isolates work but introduces transport and synchronization. Measure combined fleet tokens per second, not only target-model tokens per second.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="State ownership across one speculative round" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -343,6 +370,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Explicit states prevent rejected branches from leaking into later attention.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Eligible&lt;/strong&gt; to &lt;strong&gt;Provisional&lt;/strong&gt;, &lt;strong&gt;Verified&lt;/strong&gt;, and finally &lt;strong&gt;Committed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Cancellation or mismatch may discard provisional state, never committed history. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four controls determine real speedup" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -357,6 +385,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Speculative decoding is a model-pair, sampling, and scheduling problem at the same time.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Acceptance&lt;/strong&gt;, &lt;strong&gt;Placement&lt;/strong&gt;, &lt;strong&gt;Sampling&lt;/strong&gt;, and &lt;strong&gt;Scheduler&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Optimize end-to-end goodput subject to identical output semantics.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="How a promising draft becomes negative speedup" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -372,6 +401,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A safe controller removes speculation when its marginal value turns negative.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Domain shifts&lt;/strong&gt; triggers &lt;strong&gt;Verification grows&lt;/strong&gt;, which creates &lt;strong&gt;Fleet slows&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2211.17192"target="_blank" rel="noopener"&gt;Fast Inference from Transformers via Speculative Decoding&lt;/a&gt;&lt;/li&gt;

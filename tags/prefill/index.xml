@@ -164,6 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Frontend&lt;/strong&gt;, where route prompt to prefill. The middle stage, &lt;strong&gt;KV transfer&lt;/strong&gt;, move or expose state. The final stage, &lt;strong&gt;Decode pool&lt;/strong&gt;, shows the observable result: generate token stream. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A prefill worker processes the prompt and produces KV cache state. Transfer metadata identifies blocks and endpoints. A decode worker acquires that state, continues autoregressive generation, and streams results through the frontend.&lt;/p&gt;
 &lt;p&gt;Independent pools let operators scale for input-token load and output-token concurrency separately. Prefill and decode can also use different tensor-parallel degrees or hardware shapes, provided KV layouts can be transferred or transformed correctly.&lt;/p&gt;
@@ -172,6 +173,28 @@
 &lt;a href="#a-worked-example" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A retrieval workload sends 16,000-token prompts and generates 200-token answers. Prefill workers become compute-bound while decode workers need capacity for many active sequences. A 2P:6D pool can scale independently. If each KV handoff takes longer than local prefill would, conditional routing should keep short prompts local.&lt;/p&gt;
 &lt;h2&gt;The performance model&lt;span class="hx:absolute hx:-mt-20" id="the-performance-model"&gt;&lt;/span&gt;
 &lt;a href="#the-performance-model" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Goodput means requests completed while meeting both TTFT and TPOT SLOs. Disaggregation removes phase interference and uncouples parallelism, but adds routing, queueing, and KV transfer. Compare against an aggregated baseline with identical workloads.&lt;/p&gt;
+&lt;figure class="ace-fig fast-path-figure"&gt;
+&lt;svg viewBox="0 0 960 430" role="img" aria-label="Where Phase disaggregation affects prefill and decode" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
+&lt;rect x="0" y="0" width="8" height="430" rx="4" fill="#06b6d4"/&gt;
+&lt;text x="42" y="35" font-family="JetBrains Mono,monospace" font-size="11" font-weight="800" letter-spacing="1.4" fill="#0e7490"&gt;PHASE FIT&lt;/text&gt;
+&lt;text x="42" y="68" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="800" fill="#0f172a"&gt;Where Phase disaggregation changes inference&lt;/text&gt;
+&lt;g font-family="Inter,Arial,sans-serif"&gt;
+&lt;rect x="42" y="104" width="405" height="188" rx="14" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/&gt;
+&lt;rect x="62" y="122" width="84" height="27" rx="13" fill="#dbeafe"/&gt;&lt;text x="104" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#1d4ed8"&gt;PREFILL&lt;/text&gt;
+&lt;text x="62" y="178" font-size="16" font-weight="800" fill="#1e40af"&gt;Many prompt tokens in parallel&lt;/text&gt;
+&lt;text x="62" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="62"&gt;High arithmetic intensity&lt;/tspan&gt;&lt;tspan x="62" dy="25"&gt;Runs on compute-oriented workers&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="513" y="104" width="405" height="188" rx="14" fill="#f5f3ff" stroke="#a78bfa" stroke-width="2"/&gt;
+&lt;rect x="533" y="122" width="82" height="27" rx="13" fill="#ede9fe"/&gt;&lt;text x="574" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#6d28d9"&gt;DECODE&lt;/text&gt;
+&lt;text x="533" y="178" font-size="16" font-weight="800" fill="#5b21b6"&gt;One new token per iteration&lt;/text&gt;
+&lt;text x="533" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="533"&gt;Weight and KV bandwidth pressure&lt;/tspan&gt;&lt;tspan x="533" dy="25"&gt;Runs on bandwidth-oriented workers&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="42" y="320" width="416" height="64" rx="11" fill="#fff7ed" stroke="#fdba74"/&gt;&lt;text x="62" y="346" font-size="12" font-weight="800" fill="#9a3412"&gt;PROVE IT WITH&lt;/text&gt;&lt;text x="62" y="370" font-size="14" fill="#334155"&gt;TTFT, TPOT, handoff time, goodput&lt;/text&gt;
+&lt;rect x="480" y="320" width="438" height="64" rx="11" fill="#ecfdf5" stroke="#6ee7b7"/&gt;&lt;text x="500" y="346" font-size="12" font-weight="800" fill="#047857"&gt;DEPLOYMENT DECISION&lt;/text&gt;&lt;text x="500" y="370" font-size="14" fill="#334155"&gt;Place phases with transfer included&lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Phase disaggregation&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Disaggregation should often be conditional. A short uncached prompt may be faster on the decode worker; a long prompt belongs in the prefill pool. Prefix overlap, prefill queue age, decode load, and topology can drive the decision.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -197,6 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Aggregated worker&lt;/strong&gt;, characterized by prefill and decode colocated and no kv network handoff. The right panel applies &lt;strong&gt;Disaggregated pools&lt;/strong&gt;, changing the cost profile to independent p and d scaling and kv state must move. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Long prompts with strict decode latency&lt;/li&gt;
@@ -298,6 +322,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Classify&lt;/strong&gt; to &lt;strong&gt;Route&lt;/strong&gt;, then &lt;strong&gt;Transfer&lt;/strong&gt; and &lt;strong&gt;Recover&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Disaggregation places compute-heavy prefill and bandwidth-sensitive decode on separate worker pools. A prefill worker processes the prompt and produces KV state; that state is transferred or published so a decode worker can continue token generation without repeating prefill.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -315,6 +340,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Disaggregation inserts a distributed state-transfer protocol between two inference phases.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Route prefill&lt;/strong&gt; through &lt;strong&gt;Build KV&lt;/strong&gt; and &lt;strong&gt;Transfer&lt;/strong&gt; to &lt;strong&gt;Decode&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the handoff is complete only when decode can read every required block. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;The routing decision must include transfer time. A remote decode worker with an empty queue may lose to a colocated worker when the prompt produces gigabytes of KV. Estimate &lt;code&gt;prefill queue + prefill compute + KV transfer + decode queue + decode service&lt;/code&gt;, then choose jointly rather than routing each phase independently.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Specialized pools gain efficiency but add a handoff" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -329,6 +355,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Disaggregation wins only when specialization repays transfer and queue costs.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Colocated worker&lt;/strong&gt; with &lt;strong&gt;Disaggregated pools&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Prefill and decode scale on different hardware ratios.”, remains larger than the risk, “KV movement and coordination can exceed compute savings.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;KV manifests carry model revision, tokenizer and adapter scope, layer layout, dtype, block order, positions, ownership, and integrity. Decode must reject incompatible state and fall back safely. Partial transfers remain private until an atomic readiness marker publishes the complete manifest.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="KV handoff state machine" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -345,6 +372,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Single-owner transitions prevent leaks and use of partial KV state.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Producing&lt;/strong&gt; to &lt;strong&gt;Sealed&lt;/strong&gt;, &lt;strong&gt;Transferring&lt;/strong&gt;, and finally &lt;strong&gt;Adopted&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Failure before adoption leaves prefill responsible for cleanup; after adoption decode owns it. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four disaggregation control planes" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -359,6 +387,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Operationally, disaggregation is a distributed transaction on inference state.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Placement&lt;/strong&gt;, &lt;strong&gt;Transfer&lt;/strong&gt;, &lt;strong&gt;Compatibility&lt;/strong&gt;, and &lt;strong&gt;Recovery&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Trace one request identity across both pools and the transfer service.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="A slow KV fabric strands both pools" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -374,6 +403,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A healthy pair of GPU pools can still fail because the state plane is saturated.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Transfers slow&lt;/strong&gt; triggers &lt;strong&gt;Decode starves&lt;/strong&gt;, which creates &lt;strong&gt;Memory pins&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2401.09670"target="_blank" rel="noopener"&gt;DistServe paper&lt;/a&gt;&lt;/li&gt;
@@ -547,6 +577,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Long prompt&lt;/strong&gt;, where split into token chunks. The middle stage, &lt;strong&gt;Mixed scheduler&lt;/strong&gt;, fit decode plus chunk. The final stage, &lt;strong&gt;Completed prefill&lt;/strong&gt;, shows the observable result: join decode set. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Prefill computes attention for prompt tokens and builds KV state. It is typically compute-heavy and can form large matrix operations. Decode is usually memory-bandwidth-heavy and latency-sensitive. Co-scheduling an unbounded prefill can therefore disrupt inter-token latency.&lt;/p&gt;
 &lt;p&gt;Chunked prefill limits the prompt tokens admitted in one iteration. The scheduler fills a token budget with decode work first or according to policy, then uses remaining capacity for one or more prefill chunks.&lt;/p&gt;
@@ -555,6 +586,28 @@ data-copied-label="Copied!"
 &lt;a href="#a-worked-example" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Assume a scheduler budget of 4,096 tokens per iteration and active decode uses 256 token positions. A 20,000-token prompt can enter as chunks near 3,840 tokens instead of monopolizing one giant iteration. Existing streams continue to receive decode steps between chunks.&lt;/p&gt;
 &lt;h2&gt;The performance model&lt;span class="hx:absolute hx:-mt-20" id="the-performance-model"&gt;&lt;/span&gt;
 &lt;a href="#the-performance-model" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Smaller chunks protect TPOT but add more scheduling rounds and may reduce prefill GEMM efficiency. Larger chunks improve prefill throughput but create longer stalls. Tune against both TTFT for new prompts and TPOT for active streams.&lt;/p&gt;
+&lt;figure class="ace-fig fast-path-figure"&gt;
+&lt;svg viewBox="0 0 960 430" role="img" aria-label="Where Chunked prefill affects prefill and decode" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
+&lt;rect x="0" y="0" width="8" height="430" rx="4" fill="#06b6d4"/&gt;
+&lt;text x="42" y="35" font-family="JetBrains Mono,monospace" font-size="11" font-weight="800" letter-spacing="1.4" fill="#0e7490"&gt;PHASE FIT&lt;/text&gt;
+&lt;text x="42" y="68" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="800" fill="#0f172a"&gt;Where Chunked prefill changes inference&lt;/text&gt;
+&lt;g font-family="Inter,Arial,sans-serif"&gt;
+&lt;rect x="42" y="104" width="405" height="188" rx="14" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/&gt;
+&lt;rect x="62" y="122" width="84" height="27" rx="13" fill="#dbeafe"/&gt;&lt;text x="104" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#1d4ed8"&gt;PREFILL&lt;/text&gt;
+&lt;text x="62" y="178" font-size="16" font-weight="800" fill="#1e40af"&gt;Many prompt tokens in parallel&lt;/text&gt;
+&lt;text x="62" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="62"&gt;High arithmetic intensity&lt;/tspan&gt;&lt;tspan x="62" dy="25"&gt;Splits long compute into bounded work&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="513" y="104" width="405" height="188" rx="14" fill="#f5f3ff" stroke="#a78bfa" stroke-width="2"/&gt;
+&lt;rect x="533" y="122" width="82" height="27" rx="13" fill="#ede9fe"/&gt;&lt;text x="574" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#6d28d9"&gt;DECODE&lt;/text&gt;
+&lt;text x="533" y="178" font-size="16" font-weight="800" fill="#5b21b6"&gt;One new token per iteration&lt;/text&gt;
+&lt;text x="533" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="533"&gt;Weight and KV bandwidth pressure&lt;/tspan&gt;&lt;tspan x="533" dy="25"&gt;Protects active streams between chunks&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="42" y="320" width="416" height="64" rx="11" fill="#fff7ed" stroke="#fdba74"/&gt;&lt;text x="62" y="346" font-size="12" font-weight="800" fill="#9a3412"&gt;PROVE IT WITH&lt;/text&gt;&lt;text x="62" y="370" font-size="14" fill="#334155"&gt;Chunk TTFT and decode inter-token gap&lt;/text&gt;
+&lt;rect x="480" y="320" width="438" height="64" rx="11" fill="#ecfdf5" stroke="#6ee7b7"/&gt;&lt;text x="500" y="346" font-size="12" font-weight="800" fill="#047857"&gt;DEPLOYMENT DECISION&lt;/text&gt;&lt;text x="500" y="370" font-size="14" fill="#334155"&gt;Size chunks from the decode SLO&lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Chunked prefill&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A fixed chunk size is not always optimal. The scheduler can adapt to active decode load, prompt length, prefix hits, and SLO class. When decode load is low, larger chunks are efficient; under pressure, shrink them.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -580,6 +633,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Monolithic prefill&lt;/strong&gt;, characterized by one large prompt iteration and efficient large gemm. The right panel applies &lt;strong&gt;Chunked prefill&lt;/strong&gt;, changing the cost profile to bounded prompt slices and more scheduler rounds. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Mixed long-prompt and streaming traffic&lt;/li&gt;
@@ -681,6 +735,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Budget&lt;/strong&gt; to &lt;strong&gt;Execute&lt;/strong&gt;, then &lt;strong&gt;Adapt&lt;/strong&gt; and &lt;strong&gt;Clean&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Chunked prefill divides a long prompt into bounded token segments and schedules those segments across iterations. KV state is appended in order, but active decode requests can run between chunks. The mechanism turns one monolithic latency spike into controlled, preemptible work.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -698,6 +753,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Chunking changes scheduling granularity without changing the model-visible sequence.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Plan&lt;/strong&gt; through &lt;strong&gt;Prefill A&lt;/strong&gt; and &lt;strong&gt;Interleave&lt;/strong&gt; to &lt;strong&gt;Prefill B&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, position ids and attention visibility must remain identical to monolithic prefill. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Chunk size balances efficiency and responsiveness. Large chunks use efficient kernels but create longer non-preemptible intervals. Small chunks improve fairness but add launches, scheduler work, and boundary overhead. Adaptive sizing can use active decode count, queue deadlines, and GPU utilization.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Chunk size trades kernel efficiency for preemption" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -712,6 +768,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Choose chunks from inter-token SLO and deployed kernel behavior.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Monolithic prefill&lt;/strong&gt; with &lt;strong&gt;Bounded chunks&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Decode and urgent requests progress between chunks.”, remains larger than the risk, “More launches and scheduler transitions reduce efficiency.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Correctness requires global positions, causal visibility, and KV append order to match one-pass prefill. Multimodal embeddings, prefix-cache hits, packed prompts, and sliding windows create boundary cases. Compare logits after every chunk boundary against the monolithic reference.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Chunked prompt lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -728,6 +785,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Explicit partial state prevents decode from attending to an incomplete prompt.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Planned&lt;/strong&gt; to &lt;strong&gt;Partial&lt;/strong&gt;, &lt;strong&gt;Yielded&lt;/strong&gt;, and finally &lt;strong&gt;Complete&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A partially prefetched request is never visible as a decodable sequence. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four chunk-boundary concerns" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -742,6 +800,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Chunked prefill is correct only when partitioning is invisible to the model.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Positions&lt;/strong&gt;, &lt;strong&gt;Masks&lt;/strong&gt;, &lt;strong&gt;Cache&lt;/strong&gt;, and &lt;strong&gt;Scheduling&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Golden tests should sweep every boundary around block and page sizes.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="A position reset silently corrupts a long prompt" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -757,6 +816,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Partition-transparent numerical tests are mandatory before enabling chunking.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Chunk resumes&lt;/strong&gt; triggers &lt;strong&gt;KV appends&lt;/strong&gt;, which creates &lt;strong&gt;Decode degrades&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2403.02310"target="_blank" rel="noopener"&gt;Sarathi-Serve paper&lt;/a&gt;&lt;/li&gt;

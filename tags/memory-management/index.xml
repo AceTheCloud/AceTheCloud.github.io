@@ -164,6 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Logical sequence&lt;/strong&gt;, where token block table. The middle stage, &lt;strong&gt;Block manager&lt;/strong&gt;, map logical blocks. The final stage, &lt;strong&gt;Physical KV pool&lt;/strong&gt;, shows the observable result: noncontiguous blocks. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;PagedAttention separates a sequence&amp;rsquo;s logical KV address space from physical GPU blocks. A block table records the mapping. Attention kernels follow that table, so a sequence does not require one contiguous allocation sized for its maximum possible length.&lt;/p&gt;
 &lt;p&gt;Fixed-size blocks sharply reduce external fragmentation and make allocation incremental. The final block can still have internal slack. Copy-on-write or reference counting lets beams and requests share full prefix blocks until their token paths diverge.&lt;/p&gt;
@@ -172,6 +173,28 @@
 &lt;a href="#a-worked-example" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Consider three sequences that need 300, 700, and 1,100 tokens of cache, with 128-token blocks. They consume 3, 6, and 9 blocks: capacity for 384, 768, and 1,152 tokens. Waste is confined mostly to the three tail blocks instead of large per-request reservations.&lt;/p&gt;
 &lt;h2&gt;The performance model&lt;span class="hx:absolute hx:-mt-20" id="the-performance-model"&gt;&lt;/span&gt;
 &lt;a href="#the-performance-model" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Paged allocation increases the number of sequences that fit in HBM, which allows larger effective batches and higher throughput. Its largest gain is often indirect: memory utilization unlocks scheduler concurrency. Block-table indirection and small-block metadata are the cost side.&lt;/p&gt;
+&lt;figure class="ace-fig fast-path-figure"&gt;
+&lt;svg viewBox="0 0 960 430" role="img" aria-label="Where PagedAttention affects prefill and decode" xmlns="http://www.w3.org/2000/svg"&gt;
+&lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
+&lt;rect x="0" y="0" width="8" height="430" rx="4" fill="#06b6d4"/&gt;
+&lt;text x="42" y="35" font-family="JetBrains Mono,monospace" font-size="11" font-weight="800" letter-spacing="1.4" fill="#0e7490"&gt;PHASE FIT&lt;/text&gt;
+&lt;text x="42" y="68" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="800" fill="#0f172a"&gt;Where PagedAttention changes inference&lt;/text&gt;
+&lt;g font-family="Inter,Arial,sans-serif"&gt;
+&lt;rect x="42" y="104" width="405" height="188" rx="14" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/&gt;
+&lt;rect x="62" y="122" width="84" height="27" rx="13" fill="#dbeafe"/&gt;&lt;text x="104" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#1d4ed8"&gt;PREFILL&lt;/text&gt;
+&lt;text x="62" y="178" font-size="16" font-weight="800" fill="#1e40af"&gt;Many prompt tokens in parallel&lt;/text&gt;
+&lt;text x="62" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="62"&gt;High arithmetic intensity&lt;/tspan&gt;&lt;tspan x="62" dy="25"&gt;Allocates prompt KV incrementally&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="513" y="104" width="405" height="188" rx="14" fill="#f5f3ff" stroke="#a78bfa" stroke-width="2"/&gt;
+&lt;rect x="533" y="122" width="82" height="27" rx="13" fill="#ede9fe"/&gt;&lt;text x="574" y="140" text-anchor="middle" font-size="11" font-weight="800" fill="#6d28d9"&gt;DECODE&lt;/text&gt;
+&lt;text x="533" y="178" font-size="16" font-weight="800" fill="#5b21b6"&gt;One new token per iteration&lt;/text&gt;
+&lt;text x="533" y="209" font-size="13" fill="#334155"&gt;&lt;tspan x="533"&gt;Weight and KV bandwidth pressure&lt;/tspan&gt;&lt;tspan x="533" dy="25"&gt;Reads and grows paged KV each step&lt;/tspan&gt;&lt;/text&gt;
+&lt;rect x="42" y="320" width="416" height="64" rx="11" fill="#fff7ed" stroke="#fdba74"/&gt;&lt;text x="62" y="346" font-size="12" font-weight="800" fill="#9a3412"&gt;PROVE IT WITH&lt;/text&gt;&lt;text x="62" y="370" font-size="14" fill="#334155"&gt;Block waste, faults, and TPOT&lt;/text&gt;
+&lt;rect x="480" y="320" width="438" height="64" rx="11" fill="#ecfdf5" stroke="#6ee7b7"/&gt;&lt;text x="500" y="346" font-size="12" font-weight="800" fill="#047857"&gt;DEPLOYMENT DECISION&lt;/text&gt;&lt;text x="500" y="370" font-size="14" fill="#334155"&gt;Tune block size from real lengths&lt;/text&gt;
+&lt;/g&gt;
+&lt;/svg&gt;
+&lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
+&lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;PagedAttention&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Block size couples allocator efficiency to kernel efficiency. Prefix sharing also depends on block boundaries: only complete matching blocks are trivially shareable, though some engines support partial reuse. Benchmark fragmentation, lookup overhead, and reuse together.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -197,6 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Contiguous reservation&lt;/strong&gt;, characterized by reserve for maximum growth and external fragmentation. The right panel applies &lt;strong&gt;Paged allocation&lt;/strong&gt;, changing the cost profile to allocate fixed blocks on demand and small tail fragmentation. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Mixed-length online traffic&lt;/li&gt;
@@ -300,6 +324,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Model&lt;/strong&gt; to &lt;strong&gt;Allocate&lt;/strong&gt;, then &lt;strong&gt;Stress&lt;/strong&gt; and &lt;strong&gt;Tune&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;PagedAttention separates a sequence&amp;rsquo;s logical token positions from physical KV storage. Fixed-size physical blocks are allocated on demand, and a block table maps logical block numbers to those locations. The attention kernel follows that table while reading K and V. Sequences can grow without reserving one contiguous maximum-context buffer.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -317,6 +342,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Paged KV storage converts large contiguous reservations into incremental allocation.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Reserve&lt;/strong&gt; through &lt;strong&gt;Map&lt;/strong&gt; and &lt;strong&gt;Attend&lt;/strong&gt; to &lt;strong&gt;Reclaim&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the block table is correctness-critical state on every decode iteration. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Block size mediates metadata overhead, fragmentation, kernel efficiency, and prefix granularity. Smaller blocks waste fewer tail tokens and improve partial-prefix reuse but create larger tables and more pointer chasing. Larger blocks make kernels and transfers efficient but increase internal fragmentation. Select size from the joint prompt, output, and cancellation distribution.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Contiguous reservation versus paged allocation" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -331,6 +357,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The exact gain depends on sequence-length variance and allocator behavior.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Reserved maximum&lt;/strong&gt; with &lt;strong&gt;Allocated blocks&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Memory follows active tokens instead of max length.”, remains larger than the risk, “Block tables and gathers add metadata and kernel work.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Shared prefixes require immutable blocks or copy-on-write. Two sequences may reference the same full block until one diverges. A partially filled shared block cannot be appended independently without copying. Reference counts, cancellation, beam pruning, and retries must be idempotent or the pool slowly leaks capacity.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="KV block lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -347,6 +374,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Explicit lifecycle states prevent use-after-free and allocator leaks.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Free&lt;/strong&gt; to &lt;strong&gt;Reserved&lt;/strong&gt;, &lt;strong&gt;Active&lt;/strong&gt;, and finally &lt;strong&gt;Reclaimed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A block is reusable only after writes complete and every prior reference is gone. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="What a production block manager owns" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -361,6 +389,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The allocator, scheduler, and attention kernel share one memory contract.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Allocation&lt;/strong&gt;, &lt;strong&gt;Sharing&lt;/strong&gt;, &lt;strong&gt;Placement&lt;/strong&gt;, and &lt;strong&gt;Evidence&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Free-block count alone cannot explain fragmentation or sharing efficiency.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="How a reference leak becomes an outage" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -376,6 +405,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Allocator correctness is measured over hours of churn, not one successful request.&lt;/figcaption&gt;
 &lt;/figure&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Cancel races&lt;/strong&gt; triggers &lt;strong&gt;Pool shrinks&lt;/strong&gt;, which creates &lt;strong&gt;Admission stalls&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2309.06180"target="_blank" rel="noopener"&gt;PagedAttention and vLLM paper&lt;/a&gt;&lt;/li&gt;
