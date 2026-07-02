@@ -164,7 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;HBM&lt;/strong&gt;, where load q k v tiles. The middle stage, &lt;strong&gt;On-chip SRAM&lt;/strong&gt;, online softmax. The final stage, &lt;strong&gt;HBM&lt;/strong&gt;, shows the observable result: write final output. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;HBM&lt;/strong&gt;, where load q k v tiles. The middle stage, &lt;strong&gt;On-chip SRAM&lt;/strong&gt;, online softmax. The final stage, &lt;strong&gt;HBM&lt;/strong&gt;, shows the observable result: write final output. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Standard attention forms scores QK^T, applies softmax, and multiplies by V. A naive implementation materializes the large score and probability matrices in HBM. FlashAttention tiles Q, K, and V so blocks fit in on-chip SRAM and fuses the operations.&lt;/p&gt;
 &lt;p&gt;Softmax normally needs the maximum and normalization sum over a full row. FlashAttention uses an online softmax recurrence, maintaining a running maximum and rescaling partial sums as new tiles arrive. That makes tiling exact up to normal floating-point behavior.&lt;/p&gt;
@@ -194,7 +194,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;FlashAttention&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;FlashAttention&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;FlashAttention is an algorithm family, not a magic compiler flag. Version-specific kernels change work partitioning, parallelism, and support for causal masks, grouped-query attention, variable lengths, and newer GPU instructions. Confirm which backend path actually ran rather than trusting a configuration label.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -220,7 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Materialized attention&lt;/strong&gt;, characterized by writes score matrix to hbm and multiple kernel boundaries. The right panel applies &lt;strong&gt;FlashAttention&lt;/strong&gt;, changing the cost profile to tiles through on-chip sram and fused exact computation. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Materialized attention&lt;/strong&gt;, characterized by writes score matrix to hbm and multiple kernel boundaries. The right panel applies &lt;strong&gt;FlashAttention&lt;/strong&gt;, changing the cost profile to tiles through on-chip sram and fused exact computation. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Long-context prefill and training&lt;/li&gt;
@@ -323,7 +323,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Qualify&lt;/strong&gt; to &lt;strong&gt;Profile&lt;/strong&gt;, then &lt;strong&gt;Compare&lt;/strong&gt; and &lt;strong&gt;Ship&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Qualify&lt;/strong&gt; to &lt;strong&gt;Profile&lt;/strong&gt;, then &lt;strong&gt;Compare&lt;/strong&gt; and &lt;strong&gt;Ship&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Standard attention materializes or repeatedly moves the &lt;code&gt;N x N&lt;/code&gt; score matrix through high-bandwidth memory. FlashAttention changes the execution order: tiles of Q, K, and V are loaded into on-chip SRAM, partial scores are computed, and an online softmax maintains running maxima and normalization terms. The exact attention result is preserved while HBM traffic falls dramatically.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -341,7 +341,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;FlashAttention is an IO-aware exact algorithm, not an approximation to attention.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Load tile&lt;/strong&gt; through &lt;strong&gt;Score&lt;/strong&gt; and &lt;strong&gt;Normalize&lt;/strong&gt; to &lt;strong&gt;Accumulate&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the algorithm saves traffic by fusing operations around a bounded on-chip tile. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Load tile&lt;/strong&gt; through &lt;strong&gt;Score&lt;/strong&gt; and &lt;strong&gt;Normalize&lt;/strong&gt; to &lt;strong&gt;Accumulate&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the algorithm saves traffic by fusing operations around a bounded on-chip tile. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Online softmax is the mathematical key. When a later tile contains a larger score, previously accumulated exponentials and outputs are rescaled to the new maximum before adding the tile. This preserves numerical stability without retaining every score. Causal masks, sliding windows, dropout during training, and variable sequence lengths alter tile work and must be supported by the selected kernel.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Attention cost is often bytes moved, not FLOPs issued" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -356,7 +356,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Relative bars illustrate data movement, not a universal benchmark ratio.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Materialized scores&lt;/strong&gt; with &lt;strong&gt;Tiled fused kernel&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Long contexts fit with lower latency and memory.”, remains larger than the risk, “Unsupported shapes can silently restore the slow path.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Materialized scores&lt;/strong&gt; with &lt;strong&gt;Tiled fused kernel&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Long contexts fit with lower latency and memory.”, remains larger than the risk, “Unsupported shapes can silently restore the slow path.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Hardware fit matters. Head dimension, dtype, sequence length, GPU generation, causal mode, and layout determine tile shape and occupancy. A theoretically efficient kernel can underperform when register pressure reduces active warps or when short sequences do not amortize launch cost. Dispatch should select among validated kernels rather than assume one implementation wins everywhere.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="One row of online softmax" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -373,7 +373,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The state is tiny compared with a materialized attention matrix.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Initialize&lt;/strong&gt; to &lt;strong&gt;Consume tile&lt;/strong&gt;, &lt;strong&gt;Rescale&lt;/strong&gt;, and finally &lt;strong&gt;Accumulate&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: The running maximum and denominator make tile order numerically safe. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Initialize&lt;/strong&gt; to &lt;strong&gt;Consume tile&lt;/strong&gt;, &lt;strong&gt;Rescale&lt;/strong&gt;, and finally &lt;strong&gt;Accumulate&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: The running maximum and denominator make tile order numerically safe. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Kernel eligibility must be explicit" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -388,7 +388,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;FastAttention performance depends on a complete execution contract.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Shape&lt;/strong&gt;, &lt;strong&gt;Semantics&lt;/strong&gt;, &lt;strong&gt;Precision&lt;/strong&gt;, and &lt;strong&gt;Hardware&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Record the selected kernel in traces so regressions are explainable.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Shape&lt;/strong&gt;, &lt;strong&gt;Semantics&lt;/strong&gt;, &lt;strong&gt;Precision&lt;/strong&gt;, and &lt;strong&gt;Hardware&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Record the selected kernel in traces so regressions are explainable.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="The silent fallback failure chain" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -404,7 +404,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Correct output can hide a severe serving regression unless kernel selection is observable.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Shape changes&lt;/strong&gt; triggers &lt;strong&gt;Fallback runs&lt;/strong&gt;, which creates &lt;strong&gt;Tail degrades&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Shape changes&lt;/strong&gt; triggers &lt;strong&gt;Fallback runs&lt;/strong&gt;, which creates &lt;strong&gt;Tail degrades&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2205.14135"target="_blank" rel="noopener"&gt;FlashAttention paper&lt;/a&gt;&lt;/li&gt;

@@ -164,7 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Waiting requests&lt;/strong&gt;, where admission and token budget. The middle stage, &lt;strong&gt;Decode scheduler&lt;/strong&gt;, run one token step. The final stage, &lt;strong&gt;Active batch&lt;/strong&gt;, shows the observable result: changes every step. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Waiting requests&lt;/strong&gt;, where admission and token budget. The middle stage, &lt;strong&gt;Decode scheduler&lt;/strong&gt;, run one token step. The final stage, &lt;strong&gt;Active batch&lt;/strong&gt;, shows the observable result: changes every step. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Iteration-level scheduling runs one model iteration for the current active set, updates each sequence, retires completed or cancelled requests, and admits new work before the next iteration. Request lifetimes no longer define fixed batch boundaries.&lt;/p&gt;
 &lt;p&gt;The scheduler budgets tokens and KV blocks, not merely request count. A long prompt can consume far more work than one decode token, and a nearly full KV pool may prevent admission even when compute appears idle.&lt;/p&gt;
@@ -194,7 +194,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Continuous batching&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Continuous batching&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Token budgets are usually more stable than sequence-count limits. Decode cost scales with active sequences and context lengths, while prefill cost scales with prompt tokens. Modern schedulers often maintain separate budgets or chunk prefills to fit decode work around them.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -220,7 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Static request batch&lt;/strong&gt;, characterized by membership fixed to completion and short jobs leave holes. The right panel applies &lt;strong&gt;Continuous batch&lt;/strong&gt;, changing the cost profile to membership changes each step and finished slots refill. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Static request batch&lt;/strong&gt;, characterized by membership fixed to completion and short jobs leave holes. The right panel applies &lt;strong&gt;Continuous batch&lt;/strong&gt;, changing the cost profile to membership changes each step and finished slots refill. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Online generation with varied output lengths&lt;/li&gt;
@@ -322,7 +322,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Budget&lt;/strong&gt; to &lt;strong&gt;Schedule&lt;/strong&gt;, then &lt;strong&gt;Execute&lt;/strong&gt; and &lt;strong&gt;Audit&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Budget&lt;/strong&gt; to &lt;strong&gt;Schedule&lt;/strong&gt;, then &lt;strong&gt;Execute&lt;/strong&gt; and &lt;strong&gt;Audit&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Continuous batching schedules at decoder-iteration granularity. Finished sequences leave immediately, newly admitted sequences join open slots, and prefill work competes with decode work under a token budget. The batch is therefore a changing set of sequence states rather than a fixed request group.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -340,7 +340,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Iteration-level admission keeps GPU slots productive as sequences finish at different times.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Reap&lt;/strong&gt; through &lt;strong&gt;Admit&lt;/strong&gt; and &lt;strong&gt;Schedule&lt;/strong&gt; to &lt;strong&gt;Execute&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the scheduler accounts for tokens and memory, not a fixed request count. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Reap&lt;/strong&gt; through &lt;strong&gt;Admit&lt;/strong&gt; and &lt;strong&gt;Schedule&lt;/strong&gt; to &lt;strong&gt;Execute&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the scheduler accounts for tokens and memory, not a fixed request count. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Prefill and decode have different shapes. Large prefill chunks improve compute efficiency but can delay latency-sensitive decode. A token-budget scheduler caps total work per iteration and may chunk prompts so decode rows continue making progress. Fairness needs attained-service or deficit accounting because long prompts otherwise consume repeated large allocations.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Static batches leave holes; continuous batches refill them" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -355,7 +355,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Higher utilization is valuable only while per-request latency remains bounded.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Static batch&lt;/strong&gt; with &lt;strong&gt;Continuous batch&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Completed rows are replaced without draining the batch.”, remains larger than the risk, “Greedy admission can starve decode or long prompts.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Static batch&lt;/strong&gt; with &lt;strong&gt;Continuous batch&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Completed rows are replaced without draining the batch.”, remains larger than the risk, “Greedy admission can starve decode or long prompts.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Memory admission precedes compute admission. A request that fits the next token budget may not fit future KV growth. Reserve prompt blocks plus a bounded decode allowance, then update reservations as output progresses. Reject or queue before allocator exhaustion.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Sequence state in a live batch" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -372,7 +372,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The scheduler coordinates heterogeneous sequence phases inside one iteration loop.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Waiting&lt;/strong&gt; to &lt;strong&gt;Prefilling&lt;/strong&gt;, &lt;strong&gt;Decoding&lt;/strong&gt;, and finally &lt;strong&gt;Finished&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A sequence may move from prefill to decode only after its prompt state is complete. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Waiting&lt;/strong&gt; to &lt;strong&gt;Prefilling&lt;/strong&gt;, &lt;strong&gt;Decoding&lt;/strong&gt;, and finally &lt;strong&gt;Finished&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A sequence may move from prefill to decode only after its prompt state is complete. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four scheduler objectives" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -387,7 +387,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Continuous batching is a multi-objective online scheduler.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Goodput&lt;/strong&gt;, &lt;strong&gt;Latency&lt;/strong&gt;, &lt;strong&gt;Fairness&lt;/strong&gt;, and &lt;strong&gt;Memory&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Expose per-iteration prefill tokens, decode tokens, and admission reason.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Goodput&lt;/strong&gt;, &lt;strong&gt;Latency&lt;/strong&gt;, &lt;strong&gt;Fairness&lt;/strong&gt;, and &lt;strong&gt;Memory&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Expose per-iteration prefill tokens, decode tokens, and admission reason.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="Prefill greed can freeze active decoders" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -403,7 +403,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Maximum throughput is not goodput when active streams stop making progress.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Long prompts arrive&lt;/strong&gt; triggers &lt;strong&gt;Decode waits&lt;/strong&gt;, which creates &lt;strong&gt;Retries begin&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Long prompts arrive&lt;/strong&gt; triggers &lt;strong&gt;Decode waits&lt;/strong&gt;, which creates &lt;strong&gt;Retries begin&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://www.usenix.org/conference/osdi22/presentation/yu"target="_blank" rel="noopener"&gt;Orca OSDI paper&lt;/a&gt;&lt;/li&gt;

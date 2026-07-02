@@ -164,7 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Long prompt&lt;/strong&gt;, where split into token chunks. The middle stage, &lt;strong&gt;Mixed scheduler&lt;/strong&gt;, fit decode plus chunk. The final stage, &lt;strong&gt;Completed prefill&lt;/strong&gt;, shows the observable result: join decode set. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Long prompt&lt;/strong&gt;, where split into token chunks. The middle stage, &lt;strong&gt;Mixed scheduler&lt;/strong&gt;, fit decode plus chunk. The final stage, &lt;strong&gt;Completed prefill&lt;/strong&gt;, shows the observable result: join decode set. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Prefill computes attention for prompt tokens and builds KV state. It is typically compute-heavy and can form large matrix operations. Decode is usually memory-bandwidth-heavy and latency-sensitive. Co-scheduling an unbounded prefill can therefore disrupt inter-token latency.&lt;/p&gt;
 &lt;p&gt;Chunked prefill limits the prompt tokens admitted in one iteration. The scheduler fills a token budget with decode work first or according to policy, then uses remaining capacity for one or more prefill chunks.&lt;/p&gt;
@@ -194,7 +194,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Chunked prefill&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Chunked prefill&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A fixed chunk size is not always optimal. The scheduler can adapt to active decode load, prompt length, prefix hits, and SLO class. When decode load is low, larger chunks are efficient; under pressure, shrink them.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -220,7 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Monolithic prefill&lt;/strong&gt;, characterized by one large prompt iteration and efficient large gemm. The right panel applies &lt;strong&gt;Chunked prefill&lt;/strong&gt;, changing the cost profile to bounded prompt slices and more scheduler rounds. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Monolithic prefill&lt;/strong&gt;, characterized by one large prompt iteration and efficient large gemm. The right panel applies &lt;strong&gt;Chunked prefill&lt;/strong&gt;, changing the cost profile to bounded prompt slices and more scheduler rounds. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Mixed long-prompt and streaming traffic&lt;/li&gt;
@@ -322,7 +322,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Budget&lt;/strong&gt; to &lt;strong&gt;Execute&lt;/strong&gt;, then &lt;strong&gt;Adapt&lt;/strong&gt; and &lt;strong&gt;Clean&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Budget&lt;/strong&gt; to &lt;strong&gt;Execute&lt;/strong&gt;, then &lt;strong&gt;Adapt&lt;/strong&gt; and &lt;strong&gt;Clean&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Chunked prefill divides a long prompt into bounded token segments and schedules those segments across iterations. KV state is appended in order, but active decode requests can run between chunks. The mechanism turns one monolithic latency spike into controlled, preemptible work.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -340,7 +340,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Chunking changes scheduling granularity without changing the model-visible sequence.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Plan&lt;/strong&gt; through &lt;strong&gt;Prefill A&lt;/strong&gt; and &lt;strong&gt;Interleave&lt;/strong&gt; to &lt;strong&gt;Prefill B&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, position ids and attention visibility must remain identical to monolithic prefill. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Plan&lt;/strong&gt; through &lt;strong&gt;Prefill A&lt;/strong&gt; and &lt;strong&gt;Interleave&lt;/strong&gt; to &lt;strong&gt;Prefill B&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, position ids and attention visibility must remain identical to monolithic prefill. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Chunk size balances efficiency and responsiveness. Large chunks use efficient kernels but create longer non-preemptible intervals. Small chunks improve fairness but add launches, scheduler work, and boundary overhead. Adaptive sizing can use active decode count, queue deadlines, and GPU utilization.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Chunk size trades kernel efficiency for preemption" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -355,7 +355,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Choose chunks from inter-token SLO and deployed kernel behavior.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Monolithic prefill&lt;/strong&gt; with &lt;strong&gt;Bounded chunks&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Decode and urgent requests progress between chunks.”, remains larger than the risk, “More launches and scheduler transitions reduce efficiency.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Monolithic prefill&lt;/strong&gt; with &lt;strong&gt;Bounded chunks&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Decode and urgent requests progress between chunks.”, remains larger than the risk, “More launches and scheduler transitions reduce efficiency.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Correctness requires global positions, causal visibility, and KV append order to match one-pass prefill. Multimodal embeddings, prefix-cache hits, packed prompts, and sliding windows create boundary cases. Compare logits after every chunk boundary against the monolithic reference.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Chunked prompt lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -372,7 +372,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Explicit partial state prevents decode from attending to an incomplete prompt.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Planned&lt;/strong&gt; to &lt;strong&gt;Partial&lt;/strong&gt;, &lt;strong&gt;Yielded&lt;/strong&gt;, and finally &lt;strong&gt;Complete&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A partially prefetched request is never visible as a decodable sequence. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Planned&lt;/strong&gt; to &lt;strong&gt;Partial&lt;/strong&gt;, &lt;strong&gt;Yielded&lt;/strong&gt;, and finally &lt;strong&gt;Complete&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A partially prefetched request is never visible as a decodable sequence. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four chunk-boundary concerns" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -387,7 +387,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Chunked prefill is correct only when partitioning is invisible to the model.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Positions&lt;/strong&gt;, &lt;strong&gt;Masks&lt;/strong&gt;, &lt;strong&gt;Cache&lt;/strong&gt;, and &lt;strong&gt;Scheduling&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Golden tests should sweep every boundary around block and page sizes.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Positions&lt;/strong&gt;, &lt;strong&gt;Masks&lt;/strong&gt;, &lt;strong&gt;Cache&lt;/strong&gt;, and &lt;strong&gt;Scheduling&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Golden tests should sweep every boundary around block and page sizes.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="A position reset silently corrupts a long prompt" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -403,7 +403,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Partition-transparent numerical tests are mandatory before enabling chunking.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Chunk resumes&lt;/strong&gt; triggers &lt;strong&gt;KV appends&lt;/strong&gt;, which creates &lt;strong&gt;Decode degrades&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Chunk resumes&lt;/strong&gt; triggers &lt;strong&gt;KV appends&lt;/strong&gt;, which creates &lt;strong&gt;Decode degrades&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2403.02310"target="_blank" rel="noopener"&gt;Sarathi-Serve paper&lt;/a&gt;&lt;/li&gt;
@@ -577,7 +577,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Waiting requests&lt;/strong&gt;, where admission and token budget. The middle stage, &lt;strong&gt;Decode scheduler&lt;/strong&gt;, run one token step. The final stage, &lt;strong&gt;Active batch&lt;/strong&gt;, shows the observable result: changes every step. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Waiting requests&lt;/strong&gt;, where admission and token budget. The middle stage, &lt;strong&gt;Decode scheduler&lt;/strong&gt;, run one token step. The final stage, &lt;strong&gt;Active batch&lt;/strong&gt;, shows the observable result: changes every step. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Iteration-level scheduling runs one model iteration for the current active set, updates each sequence, retires completed or cancelled requests, and admits new work before the next iteration. Request lifetimes no longer define fixed batch boundaries.&lt;/p&gt;
 &lt;p&gt;The scheduler budgets tokens and KV blocks, not merely request count. A long prompt can consume far more work than one decode token, and a nearly full KV pool may prevent admission even when compute appears idle.&lt;/p&gt;
@@ -607,7 +607,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Continuous batching&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Continuous batching&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Token budgets are usually more stable than sequence-count limits. Decode cost scales with active sequences and context lengths, while prefill cost scales with prompt tokens. Modern schedulers often maintain separate budgets or chunk prefills to fit decode work around them.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -633,7 +633,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Static request batch&lt;/strong&gt;, characterized by membership fixed to completion and short jobs leave holes. The right panel applies &lt;strong&gt;Continuous batch&lt;/strong&gt;, changing the cost profile to membership changes each step and finished slots refill. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Static request batch&lt;/strong&gt;, characterized by membership fixed to completion and short jobs leave holes. The right panel applies &lt;strong&gt;Continuous batch&lt;/strong&gt;, changing the cost profile to membership changes each step and finished slots refill. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Online generation with varied output lengths&lt;/li&gt;
@@ -735,7 +735,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Budget&lt;/strong&gt; to &lt;strong&gt;Schedule&lt;/strong&gt;, then &lt;strong&gt;Execute&lt;/strong&gt; and &lt;strong&gt;Audit&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Budget&lt;/strong&gt; to &lt;strong&gt;Schedule&lt;/strong&gt;, then &lt;strong&gt;Execute&lt;/strong&gt; and &lt;strong&gt;Audit&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Continuous batching schedules at decoder-iteration granularity. Finished sequences leave immediately, newly admitted sequences join open slots, and prefill work competes with decode work under a token budget. The batch is therefore a changing set of sequence states rather than a fixed request group.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -753,7 +753,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Iteration-level admission keeps GPU slots productive as sequences finish at different times.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Reap&lt;/strong&gt; through &lt;strong&gt;Admit&lt;/strong&gt; and &lt;strong&gt;Schedule&lt;/strong&gt; to &lt;strong&gt;Execute&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the scheduler accounts for tokens and memory, not a fixed request count. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Reap&lt;/strong&gt; through &lt;strong&gt;Admit&lt;/strong&gt; and &lt;strong&gt;Schedule&lt;/strong&gt; to &lt;strong&gt;Execute&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the scheduler accounts for tokens and memory, not a fixed request count. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Prefill and decode have different shapes. Large prefill chunks improve compute efficiency but can delay latency-sensitive decode. A token-budget scheduler caps total work per iteration and may chunk prompts so decode rows continue making progress. Fairness needs attained-service or deficit accounting because long prompts otherwise consume repeated large allocations.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Static batches leave holes; continuous batches refill them" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -768,7 +768,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Higher utilization is valuable only while per-request latency remains bounded.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Static batch&lt;/strong&gt; with &lt;strong&gt;Continuous batch&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Completed rows are replaced without draining the batch.”, remains larger than the risk, “Greedy admission can starve decode or long prompts.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Static batch&lt;/strong&gt; with &lt;strong&gt;Continuous batch&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Completed rows are replaced without draining the batch.”, remains larger than the risk, “Greedy admission can starve decode or long prompts.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Memory admission precedes compute admission. A request that fits the next token budget may not fit future KV growth. Reserve prompt blocks plus a bounded decode allowance, then update reservations as output progresses. Reject or queue before allocator exhaustion.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Sequence state in a live batch" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -785,7 +785,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The scheduler coordinates heterogeneous sequence phases inside one iteration loop.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Waiting&lt;/strong&gt; to &lt;strong&gt;Prefilling&lt;/strong&gt;, &lt;strong&gt;Decoding&lt;/strong&gt;, and finally &lt;strong&gt;Finished&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A sequence may move from prefill to decode only after its prompt state is complete. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Waiting&lt;/strong&gt; to &lt;strong&gt;Prefilling&lt;/strong&gt;, &lt;strong&gt;Decoding&lt;/strong&gt;, and finally &lt;strong&gt;Finished&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A sequence may move from prefill to decode only after its prompt state is complete. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four scheduler objectives" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -800,7 +800,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Continuous batching is a multi-objective online scheduler.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Goodput&lt;/strong&gt;, &lt;strong&gt;Latency&lt;/strong&gt;, &lt;strong&gt;Fairness&lt;/strong&gt;, and &lt;strong&gt;Memory&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Expose per-iteration prefill tokens, decode tokens, and admission reason.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Goodput&lt;/strong&gt;, &lt;strong&gt;Latency&lt;/strong&gt;, &lt;strong&gt;Fairness&lt;/strong&gt;, and &lt;strong&gt;Memory&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Expose per-iteration prefill tokens, decode tokens, and admission reason.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="Prefill greed can freeze active decoders" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -816,7 +816,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Maximum throughput is not goodput when active streams stop making progress.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Long prompts arrive&lt;/strong&gt; triggers &lt;strong&gt;Decode waits&lt;/strong&gt;, which creates &lt;strong&gt;Retries begin&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Long prompts arrive&lt;/strong&gt; triggers &lt;strong&gt;Decode waits&lt;/strong&gt;, which creates &lt;strong&gt;Retries begin&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://www.usenix.org/conference/osdi22/presentation/yu"target="_blank" rel="noopener"&gt;Orca OSDI paper&lt;/a&gt;&lt;/li&gt;
@@ -990,7 +990,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Live requests&lt;/strong&gt;, where enter model queue. The middle stage, &lt;strong&gt;Dynamic batcher&lt;/strong&gt;, group compatible shapes. The final stage, &lt;strong&gt;GPU execution&lt;/strong&gt;, shows the observable result: run one larger call. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Live requests&lt;/strong&gt;, where enter model queue. The middle stage, &lt;strong&gt;Dynamic batcher&lt;/strong&gt;, group compatible shapes. The final stage, &lt;strong&gt;GPU execution&lt;/strong&gt;, shows the observable result: run one larger call. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A dynamic batcher maintains a queue per model or execution profile. When an instance becomes available, it forms a batch from compatible requests, bounded by maximum batch size, preferred sizes, queue delay, priority, and timeout policies.&lt;/p&gt;
 &lt;p&gt;Compatibility includes tensor shapes, dtypes, model version, adapters, and request options. Ragged batching or padding can combine variable lengths, but padded tokens are real work unless the backend supports packed representations.&lt;/p&gt;
@@ -1020,7 +1020,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Dynamic batching&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Dynamic batching&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Preferred batch sizes should correspond to measured engine performance cliffs, not round numbers. If TensorRT profiles or kernels are equally efficient across sizes, forcing a preferred size can add needless delay.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -1046,7 +1046,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Immediate dispatch&lt;/strong&gt;, characterized by near-zero scheduler wait and small underfilled kernels. The right panel applies &lt;strong&gt;Dynamic batching&lt;/strong&gt;, changing the cost profile to short bounded queue wait and larger efficient kernels. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Immediate dispatch&lt;/strong&gt;, characterized by near-zero scheduler wait and small underfilled kernels. The right panel applies &lt;strong&gt;Dynamic batching&lt;/strong&gt;, changing the cost profile to short bounded queue wait and larger efficient kernels. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Stateless inference with bursty compatible traffic&lt;/li&gt;
@@ -1147,7 +1147,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Characterize&lt;/strong&gt; to &lt;strong&gt;Configure&lt;/strong&gt;, then &lt;strong&gt;Load test&lt;/strong&gt; and &lt;strong&gt;Adapt&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Characterize&lt;/strong&gt; to &lt;strong&gt;Configure&lt;/strong&gt;, then &lt;strong&gt;Load test&lt;/strong&gt; and &lt;strong&gt;Adapt&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A dynamic batcher is a deadline-aware packing scheduler. It groups only requests compatible in model revision, adapter, dtype, shape profile, and execution options. Dispatch occurs when an efficient batch is ready, the oldest deadline approaches, or waiting would leave the device idle longer than the expected batching gain.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -1165,7 +1165,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Dynamic batching deliberately spends a bounded amount of latency to buy efficient work.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Enqueue&lt;/strong&gt; through &lt;strong&gt;Collect&lt;/strong&gt; and &lt;strong&gt;Pack&lt;/strong&gt; to &lt;strong&gt;Dispatch&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the queue uses remaining end-to-end budget, not a fresh local timeout. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Enqueue&lt;/strong&gt; through &lt;strong&gt;Collect&lt;/strong&gt; and &lt;strong&gt;Pack&lt;/strong&gt; to &lt;strong&gt;Dispatch&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the queue uses remaining end-to-end budget, not a fresh local timeout. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Batch size is an incomplete metric for variable-length models. Count padded or packed tokens, tensor shape, and expected execution time. A batch of eight long prompts can be far larger than a batch of 64 short embeddings. Token-budget packing reduces OOM risk and makes capacity limits portable across traffic mixes.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Small wait can reduce total completion time" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -1180,7 +1180,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The collection window must come from the request latency budget.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Immediate tiny calls&lt;/strong&gt; with &lt;strong&gt;Bounded collection&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Larger kernels improve utilization and throughput.”, remains larger than the risk, “Sparse traffic may pay the full collection window.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Immediate tiny calls&lt;/strong&gt; with &lt;strong&gt;Bounded collection&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Larger kernels improve utilization and throughput.”, remains larger than the risk, “Sparse traffic may pay the full collection window.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Priority requires aging or reserved service. Strict priority can starve background work; plain FIFO lets large low-value requests block urgent ones. Maintain separate class budgets, promote old requests gradually, and reject before deadlines become impossible rather than dispatching doomed work.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Request state inside a dynamic batcher" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -1197,7 +1197,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A clear state boundary prevents races between timers, cancellation, and GPU launch.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Queued&lt;/strong&gt; to &lt;strong&gt;Compatible&lt;/strong&gt;, &lt;strong&gt;Packed&lt;/strong&gt;, and finally &lt;strong&gt;Dispatched&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Cancellation before dispatch releases capacity; after dispatch it suppresses delivery only. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Queued&lt;/strong&gt; to &lt;strong&gt;Compatible&lt;/strong&gt;, &lt;strong&gt;Packed&lt;/strong&gt;, and finally &lt;strong&gt;Dispatched&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Cancellation before dispatch releases capacity; after dispatch it suppresses delivery only. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four inputs to a batching decision" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -1212,7 +1212,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Observable dispatch reasons make latency and utilization tradeoffs tunable.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Deadline&lt;/strong&gt;, &lt;strong&gt;Compatibility&lt;/strong&gt;, &lt;strong&gt;Efficiency&lt;/strong&gt;, and &lt;strong&gt;Fairness&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Export why each batch dispatched: full, deadline, idle, or policy.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Deadline&lt;/strong&gt;, &lt;strong&gt;Compatibility&lt;/strong&gt;, &lt;strong&gt;Efficiency&lt;/strong&gt;, and &lt;strong&gt;Fairness&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Export why each batch dispatched: full, deadline, idle, or policy.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="A preferred batch size causes head-of-line delay" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -1228,7 +1228,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The batcher must become more eager as traffic becomes sparse.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Traffic drops&lt;/strong&gt; triggers &lt;strong&gt;Oldest ages&lt;/strong&gt;, which creates &lt;strong&gt;Tail rises&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Traffic drops&lt;/strong&gt; triggers &lt;strong&gt;Oldest ages&lt;/strong&gt;, which creates &lt;strong&gt;Tail rises&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/tutorials/Conceptual_Guide/Part_2-improving_resource_utilization/README.html"target="_blank" rel="noopener"&gt;NVIDIA Triton Dynamic Batching Guide&lt;/a&gt;&lt;/li&gt;

@@ -164,7 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Input activation&lt;/strong&gt;, where shard matrix columns. The middle stage, &lt;strong&gt;Collective boundary&lt;/strong&gt;, all-reduce or gather. The final stage, &lt;strong&gt;Next sublayer&lt;/strong&gt;, shows the observable result: shard rows. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Input activation&lt;/strong&gt;, where shard matrix columns. The middle stage, &lt;strong&gt;Collective boundary&lt;/strong&gt;, all-reduce or gather. The final stage, &lt;strong&gt;Next sublayer&lt;/strong&gt;, shows the observable result: shard rows. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In a transformer MLP, a column-parallel linear layer splits output features across ranks. Each rank computes a slice. A following row-parallel layer consumes corresponding input slices and combines partial outputs with an all-reduce. Attention projections use related partitioning patterns.&lt;/p&gt;
 &lt;p&gt;Tensor parallelism reduces per-GPU weight and activation storage but introduces communication inside nearly every transformer layer. It therefore prefers high-bandwidth, low-latency links such as NVLink or NVSwitch and carefully formed process groups.&lt;/p&gt;
@@ -194,7 +194,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Tensor parallelism&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Tensor parallelism&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Topology-aware placement matters more than the TP number alone. TP across GPUs behind one NVSwitch is different from TP crossing PCIe hosts or a slower fabric. Keep latency-sensitive TP groups local and scale replicas across nodes when possible.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -220,7 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Single-GPU layer&lt;/strong&gt;, characterized by no intra-layer collectives and full weights on one device. The right panel applies &lt;strong&gt;Tensor-parallel layer&lt;/strong&gt;, changing the cost profile to weights split across ranks and collectives every layer. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Single-GPU layer&lt;/strong&gt;, characterized by no intra-layer collectives and full weights on one device. The right panel applies &lt;strong&gt;Tensor-parallel layer&lt;/strong&gt;, changing the cost profile to weights split across ranks and collectives every layer. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Layers or models that do not fit one accelerator&lt;/li&gt;
@@ -319,7 +319,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Place&lt;/strong&gt; to &lt;strong&gt;Fit&lt;/strong&gt;, then &lt;strong&gt;Trace&lt;/strong&gt; and &lt;strong&gt;Scale&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Place&lt;/strong&gt; to &lt;strong&gt;Fit&lt;/strong&gt;, then &lt;strong&gt;Trace&lt;/strong&gt; and &lt;strong&gt;Scale&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Tensor parallelism shards the matrices inside a transformer layer. Column-parallel projections split output features; row-parallel projections split input features and reduce partial outputs. Attention heads and MLP intermediate dimensions are common shard axes. Every layer therefore alternates local GEMMs with collective communication.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -337,7 +337,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Tensor parallelism buys model capacity by inserting collectives inside each layer.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Shard input&lt;/strong&gt; through &lt;strong&gt;Local compute&lt;/strong&gt; and &lt;strong&gt;Collective&lt;/strong&gt; to &lt;strong&gt;Next block&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, communication is on the token critical path and repeats across model depth. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Shard input&lt;/strong&gt; through &lt;strong&gt;Local compute&lt;/strong&gt; and &lt;strong&gt;Collective&lt;/strong&gt; to &lt;strong&gt;Next block&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, communication is on the token critical path and repeats across model depth. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;The compute-to-communication ratio worsens at small batches and decode batch-one. Prefill provides larger matrices that amortize collectives; decode may spend a large fraction of time in latency-bound all-reduces. Fast intra-node fabrics help, while crossing ordinary Ethernet can erase the gain.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Scaling stops when collectives dominate" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -352,7 +352,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Illustrative balance; topology and batch shape determine the crossover.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Local GEMM work&lt;/strong&gt; with &lt;strong&gt;Collective cost&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Large weights and KV heads fit across device memory.”, remains larger than the risk, “More ranks can add latency after local tiles become too small.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Local GEMM work&lt;/strong&gt; with &lt;strong&gt;Collective cost&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Large weights and KV heads fit across device memory.”, remains larger than the risk, “More ranks can add latency after local tiles become too small.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Shard placement must follow topology. Keep a tensor-parallel group inside the fastest fabric domain, pin ranks deterministically, and verify peer-to-peer access. A single slow link delays the collective for every rank. Health checks should include collective microbenchmarks rather than only GPU visibility.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Tensor-parallel request synchronization" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -369,7 +369,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The serving unit is the rank group, not an individual GPU process.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Ready&lt;/strong&gt; to &lt;strong&gt;Computing&lt;/strong&gt;, &lt;strong&gt;Collective&lt;/strong&gt;, and finally &lt;strong&gt;Advanced&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A timeout or failure on one rank fails the coordinated request across the group. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Ready&lt;/strong&gt; to &lt;strong&gt;Computing&lt;/strong&gt;, &lt;strong&gt;Collective&lt;/strong&gt;, and finally &lt;strong&gt;Advanced&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A timeout or failure on one rank fails the coordinated request across the group. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four dimensions of TP efficiency" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -384,7 +384,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Tensor parallelism is a distributed kernel, not merely split weights.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Shard axis&lt;/strong&gt;, &lt;strong&gt;Topology&lt;/strong&gt;, &lt;strong&gt;Workload&lt;/strong&gt;, and &lt;strong&gt;Runtime&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Benchmark p50 and p99 collective time at deployed message sizes.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Shard axis&lt;/strong&gt;, &lt;strong&gt;Topology&lt;/strong&gt;, &lt;strong&gt;Workload&lt;/strong&gt;, and &lt;strong&gt;Runtime&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Benchmark p50 and p99 collective time at deployed message sizes.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="One degraded link slows every token" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -400,7 +400,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Collective tail latency compounds through model depth.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Link degrades&lt;/strong&gt; triggers &lt;strong&gt;Collectives wait&lt;/strong&gt;, which creates &lt;strong&gt;Tail explodes&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Link degrades&lt;/strong&gt; triggers &lt;strong&gt;Collectives wait&lt;/strong&gt;, which creates &lt;strong&gt;Tail explodes&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/1909.08053"target="_blank" rel="noopener"&gt;Megatron-LM paper&lt;/a&gt;&lt;/li&gt;

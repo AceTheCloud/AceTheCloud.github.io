@@ -164,7 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Token activations&lt;/strong&gt;, where router selects top-k. The middle stage, &lt;strong&gt;All-to-all exchange&lt;/strong&gt;, run local experts. The final stage, &lt;strong&gt;Return activations&lt;/strong&gt;, shows the observable result: combine expert outputs. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Token activations&lt;/strong&gt;, where router selects top-k. The middle stage, &lt;strong&gt;All-to-all exchange&lt;/strong&gt;, run local experts. The final stage, &lt;strong&gt;Return activations&lt;/strong&gt;, shows the observable result: combine expert outputs. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The router scores experts for each token and selects top-k destinations. Tokens are packed by destination, exchanged across the expert-parallel group, processed by local expert MLPs, and sent back for weighted combination.&lt;/p&gt;
 &lt;p&gt;Expert parallelism reduces expert-weight memory per GPU and spreads sparse compute. Its defining collective is all-to-all, unlike the all-reduce patterns common in tensor parallelism. Traffic volume and imbalance depend on routing decisions.&lt;/p&gt;
@@ -194,7 +194,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Expert parallelism&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Expert parallelism&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Combining EP with TP changes process groups and communication order. Some stacks require sequence parallelism when TP and EP coexist. Expert placement can exploit routing affinity, but dynamic placement must preserve weights, cache state, and reproducibility.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -220,7 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Dense transformer MLP&lt;/strong&gt;, characterized by every token uses all weights and predictable compute. The right panel applies &lt;strong&gt;Expert-parallel MoE&lt;/strong&gt;, changing the cost profile to top-k experts per token and all-to-all token exchange. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Dense transformer MLP&lt;/strong&gt;, characterized by every token uses all weights and predictable compute. The right panel applies &lt;strong&gt;Expert-parallel MoE&lt;/strong&gt;, changing the cost profile to top-k experts per token and all-to-all token exchange. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Large MoE models whose expert weights exceed one GPU&lt;/li&gt;
@@ -319,7 +319,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Observe&lt;/strong&gt; to &lt;strong&gt;Place&lt;/strong&gt;, then &lt;strong&gt;Execute&lt;/strong&gt; and &lt;strong&gt;Balance&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Observe&lt;/strong&gt; to &lt;strong&gt;Place&lt;/strong&gt;, then &lt;strong&gt;Execute&lt;/strong&gt; and &lt;strong&gt;Balance&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In a mixture-of-experts layer, a router scores each token, selects top-k experts, dispatches token activations to the ranks hosting those experts, runs expert MLPs, and combines weighted outputs. Only selected experts compute each token, but communication and load imbalance become first-order costs.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -337,7 +337,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Expert parallelism replaces dense compute with sparse routing and distributed communication.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Score&lt;/strong&gt; through &lt;strong&gt;Dispatch&lt;/strong&gt; and &lt;strong&gt;Execute&lt;/strong&gt; to &lt;strong&gt;Combine&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, token identity and ordering must survive the all-to-all exchange. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Score&lt;/strong&gt; through &lt;strong&gt;Dispatch&lt;/strong&gt; and &lt;strong&gt;Execute&lt;/strong&gt; to &lt;strong&gt;Combine&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, token identity and ordering must survive the all-to-all exchange. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Average load can look balanced while one expert forms a hot spot. Capacity factor reserves slots above the average, but excess capacity wastes memory and too little causes drops, reroutes, or queueing. Auxiliary training losses help, yet serving traffic can differ from training and needs live expert-level telemetry.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Sparse compute is paid for with routing variance" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -352,7 +352,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The realized gain depends on expert balance and communication topology.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Dense MLP&lt;/strong&gt; with &lt;strong&gt;Top-k experts&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “More total parameters with bounded active compute.”, remains larger than the risk, “Hot experts create all-to-all and queue bottlenecks.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Dense MLP&lt;/strong&gt; with &lt;strong&gt;Top-k experts&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “More total parameters with bounded active compute.”, remains larger than the risk, “Hot experts create all-to-all and queue bottlenecks.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Placement should keep frequently co-selected experts near traffic and distribute hot experts across failure domains. Replication can relieve hot experts but complicates routing consistency and weight updates. The scheduler may combine tokens by expert to create efficient GEMMs while preserving each request&amp;rsquo;s deadline.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Token state through an MoE layer" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -369,7 +369,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Routing metadata is correctness state, not scheduler bookkeeping.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Routed&lt;/strong&gt; to &lt;strong&gt;Dispatched&lt;/strong&gt;, &lt;strong&gt;Executed&lt;/strong&gt;, and finally &lt;strong&gt;Combined&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Every selected expert contribution is accounted for exactly once or explicitly dropped by policy. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Routed&lt;/strong&gt; to &lt;strong&gt;Dispatched&lt;/strong&gt;, &lt;strong&gt;Executed&lt;/strong&gt;, and finally &lt;strong&gt;Combined&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Every selected expert contribution is accounted for exactly once or explicitly dropped by policy. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four MoE serving constraints" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -384,7 +384,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;MoE performance is governed by the busiest expert and slowest exchange.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Balance&lt;/strong&gt;, &lt;strong&gt;Topology&lt;/strong&gt;, &lt;strong&gt;Batching&lt;/strong&gt;, and &lt;strong&gt;Resilience&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Dashboard p99 expert load and communication, not only layer averages.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Balance&lt;/strong&gt;, &lt;strong&gt;Topology&lt;/strong&gt;, &lt;strong&gt;Batching&lt;/strong&gt;, and &lt;strong&gt;Resilience&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Dashboard p99 expert load and communication, not only layer averages.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="One hot expert throttles the whole layer" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -400,7 +400,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Sparse models require sparse observability at the same routing granularity.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Traffic shifts&lt;/strong&gt; triggers &lt;strong&gt;Expert fills&lt;/strong&gt;, which creates &lt;strong&gt;Layer stalls&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Traffic shifts&lt;/strong&gt; triggers &lt;strong&gt;Expert fills&lt;/strong&gt;, which creates &lt;strong&gt;Layer stalls&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/features/moe.html"target="_blank" rel="noopener"&gt;Megatron Core MoE Guide&lt;/a&gt;&lt;/li&gt;
@@ -575,7 +575,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Model decoder&lt;/strong&gt;, where emit token ids. The middle stage, &lt;strong&gt;Stream adapter&lt;/strong&gt;, decode text safely. The final stage, &lt;strong&gt;Client UI&lt;/strong&gt;, shows the observable result: render deltas. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Model decoder&lt;/strong&gt;, where emit token ids. The middle stage, &lt;strong&gt;Stream adapter&lt;/strong&gt;, decode text safely. The final stage, &lt;strong&gt;Client UI&lt;/strong&gt;, shows the observable result: render deltas. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The engine produces token IDs. A streamer incrementally decodes them while respecting byte-pair or sentence-piece boundaries, applies stop conditions, and emits deltas. The server frames those deltas as SSE, chunked HTTP, WebSocket, or streaming gRPC messages.&lt;/p&gt;
 &lt;p&gt;Production streams need typed lifecycle events: started, text delta, tool call, usage, completed, cancelled, and error. A stream that only emits text cannot reliably distinguish a clean finish from a broken connection.&lt;/p&gt;
@@ -605,7 +605,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Streaming&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Streaming&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Unicode and tokenizer boundaries matter. One token ID may not decode to valid standalone text, and naive concatenation can emit replacement characters or duplicate bytes. Use incremental tokenizer decoding and test multilingual output.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -631,7 +631,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Buffered response&lt;/strong&gt;, characterized by one final payload and simple accounting. The right panel applies &lt;strong&gt;Streaming response&lt;/strong&gt;, changing the cost profile to early visible deltas and typed lifecycle events. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Buffered response&lt;/strong&gt;, characterized by one final payload and simple accounting. The right panel applies &lt;strong&gt;Streaming response&lt;/strong&gt;, changing the cost profile to early visible deltas and typed lifecycle events. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Chat, coding, and long-form generation&lt;/li&gt;
@@ -733,7 +733,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Contract&lt;/strong&gt; to &lt;strong&gt;Transport&lt;/strong&gt;, then &lt;strong&gt;Cancel&lt;/strong&gt; and &lt;strong&gt;Observe&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Contract&lt;/strong&gt; to &lt;strong&gt;Transport&lt;/strong&gt;, then &lt;strong&gt;Cancel&lt;/strong&gt; and &lt;strong&gt;Observe&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Streaming is a transport protocol around an incremental decoder. The server emits structured events for role, text delta, tool arguments, usage, finish reason, and errors. Those events must preserve UTF-8 boundaries, JSON framing, ordering, and one terminal outcome across proxies and client libraries.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -751,7 +751,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Streaming converts model progress into a reliable ordered protocol.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Decode&lt;/strong&gt; through &lt;strong&gt;Assemble&lt;/strong&gt; and &lt;strong&gt;Transport&lt;/strong&gt; to &lt;strong&gt;Consume&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the stream contract includes event order, retry semantics, and final accounting. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Decode&lt;/strong&gt; through &lt;strong&gt;Assemble&lt;/strong&gt; and &lt;strong&gt;Transport&lt;/strong&gt; to &lt;strong&gt;Consume&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the stream contract includes event order, retry semantics, and final accounting. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Time to first token and inter-token latency shape perceived performance, but excessive flushing wastes CPU and bandwidth. Coalesce tiny byte fragments without delaying semantic tokens. Proxies may buffer unless compression, headers, and idle timeouts are configured correctly. Heartbeats protect long tool or reasoning gaps without pretending they are model output.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Streaming changes perceived latency, not model work" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -766,7 +766,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Total compute may be equal while time to visible value changes dramatically.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Buffered response&lt;/strong&gt; with &lt;strong&gt;Token stream&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Users see progress and can cancel unhelpful output.”, remains larger than the risk, “Too many tiny flushes increase CPU and network overhead.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Buffered response&lt;/strong&gt; with &lt;strong&gt;Token stream&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Users see progress and can cancel unhelpful output.”, remains larger than the risk, “Too many tiny flushes increase CPU and network overhead.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Disconnect is a cancellation signal, not proof the GPU stopped. Propagate cancellation through gateway, scheduler, and engine; release KV and reserved output capacity idempotently. If billing reflects generated tokens, account for work completed before cancellation even when delivery failed.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Streaming response lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -783,7 +783,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A strict lifecycle prevents duplicate completion and ambiguous client state.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Open&lt;/strong&gt; to &lt;strong&gt;Emitting&lt;/strong&gt;, &lt;strong&gt;Finishing&lt;/strong&gt;, and finally &lt;strong&gt;Closed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: After a terminal event, no additional content or usage event is legal. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Open&lt;/strong&gt; to &lt;strong&gt;Emitting&lt;/strong&gt;, &lt;strong&gt;Finishing&lt;/strong&gt;, and finally &lt;strong&gt;Closed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: After a terminal event, no additional content or usage event is legal. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four streaming contracts" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -798,7 +798,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A stream that works on localhost can still fail behind production buffering.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Framing&lt;/strong&gt;, &lt;strong&gt;Text&lt;/strong&gt;, &lt;strong&gt;Liveness&lt;/strong&gt;, and &lt;strong&gt;Accounting&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Test every contract through the real load balancer and proxy chain.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Framing&lt;/strong&gt;, &lt;strong&gt;Text&lt;/strong&gt;, &lt;strong&gt;Liveness&lt;/strong&gt;, and &lt;strong&gt;Accounting&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Test every contract through the real load balancer and proxy chain.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="Proxy buffering defeats a healthy model" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -814,7 +814,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;End-to-end streaming health cannot be inferred from server-side TTFT alone.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Tokens emit&lt;/strong&gt; triggers &lt;strong&gt;Proxy buffers&lt;/strong&gt;, which creates &lt;strong&gt;Timeout fires&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Tokens emit&lt;/strong&gt; triggers &lt;strong&gt;Proxy buffers&lt;/strong&gt;, which creates &lt;strong&gt;Timeout fires&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://huggingface.co/docs/transformers/main/generation_features"target="_blank" rel="noopener"&gt;Hugging Face Generation Streaming&lt;/a&gt;&lt;/li&gt;
@@ -988,7 +988,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;GPU HBM&lt;/strong&gt;, where use active weights. The middle stage, &lt;strong&gt;Offload manager&lt;/strong&gt;, prefetch next data. The final stage, &lt;strong&gt;CPU or NVMe&lt;/strong&gt;, shows the observable result: store larger state. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;GPU HBM&lt;/strong&gt;, where use active weights. The middle stage, &lt;strong&gt;Offload manager&lt;/strong&gt;, prefetch next data. The final stage, &lt;strong&gt;CPU or NVMe&lt;/strong&gt;, shows the observable result: store larger state. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Weight offloading streams model layers from CPU RAM or NVMe into GPU memory, computes the layer, and releases or replaces it. Prefetching overlaps transfer of the next layer with compute on the current layer.&lt;/p&gt;
 &lt;p&gt;KV offloading moves cold or reusable cache blocks out of HBM while active decode blocks remain local. Reloading a prefix can still beat recomputing it, but only when transfer latency and bandwidth are favorable.&lt;/p&gt;
@@ -1018,7 +1018,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Memory offloading&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Memory offloading&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Weights and KV cache have different reuse patterns. Weights are read in a deterministic layer order every step; KV blocks are request-specific and may be cold for long periods. They need different prefetch and eviction policies.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -1044,7 +1044,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;HBM-only serving&lt;/strong&gt;, characterized by lowest access latency and strict capacity ceiling. The right panel applies &lt;strong&gt;Tiered offloading&lt;/strong&gt;, changing the cost profile to larger effective capacity and transfer and prefetch cost. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;HBM-only serving&lt;/strong&gt;, characterized by lowest access latency and strict capacity ceiling. The right panel applies &lt;strong&gt;Tiered offloading&lt;/strong&gt;, changing the cost profile to larger effective capacity and transfer and prefetch cost. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Models or contexts that otherwise cannot fit&lt;/li&gt;
@@ -1146,7 +1146,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Inventory&lt;/strong&gt; to &lt;strong&gt;Classify&lt;/strong&gt;, then &lt;strong&gt;Overlap&lt;/strong&gt; and &lt;strong&gt;Control&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Inventory&lt;/strong&gt; to &lt;strong&gt;Classify&lt;/strong&gt;, then &lt;strong&gt;Overlap&lt;/strong&gt; and &lt;strong&gt;Control&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Offloading creates a hierarchy: HBM for imminent compute, host DRAM for warm state, local NVMe for colder state, and sometimes remote storage for durable artifacts. Moving a tensor is worthwhile only when transfer plus restore costs less than recomputation and completes before the request deadline.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -1164,7 +1164,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Offloading succeeds when placement anticipates future use rather than reacting after a miss.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Classify&lt;/strong&gt; through &lt;strong&gt;Evict&lt;/strong&gt; and &lt;strong&gt;Prefetch&lt;/strong&gt; to &lt;strong&gt;Consume&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, every move needs a deadline, bandwidth budget, and cancellation path. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Classify&lt;/strong&gt; through &lt;strong&gt;Evict&lt;/strong&gt; and &lt;strong&gt;Prefetch&lt;/strong&gt; to &lt;strong&gt;Consume&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, every move needs a deadline, bandwidth budget, and cancellation path. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Bandwidth is shared. Aggressive KV spill can compete with model loading, collectives, storage writes, and active decode. Limit concurrent transfers per link and prioritize state required by near-deadline requests. Pinned host memory improves DMA but is finite and affects the operating system.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Capacity increases by spending transfer time" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -1179,7 +1179,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The right tier depends on reuse distance and recomputation cost.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;HBM-only&lt;/strong&gt; with &lt;strong&gt;HBM &amp;#43; host tier&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Cold state stops evicting immediately useful tensors.”, remains larger than the risk, “A late prefetch stalls the compute stream on transfer.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;HBM-only&lt;/strong&gt; with &lt;strong&gt;HBM &amp;#43; host tier&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Cold state stops evicting immediately useful tensors.”, remains larger than the risk, “A late prefetch stalls the compute stream on transfer.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Eviction value should include bytes, predicted reuse, restore latency, and recompute time. Plain LRU can retain a huge cheap-to-recompute tensor while evicting a small expensive prefix. Admission to a lower tier also needs limits or the tier becomes a slower unbounded queue.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Offloaded object lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -1196,7 +1196,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Explicit ownership prevents stale reads during overlapping migration and compute.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Resident&lt;/strong&gt; to &lt;strong&gt;Migrating&lt;/strong&gt;, &lt;strong&gt;Cold&lt;/strong&gt;, and finally &lt;strong&gt;Restoring&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Only one authoritative version is writable; transfers publish atomically. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Resident&lt;/strong&gt; to &lt;strong&gt;Migrating&lt;/strong&gt;, &lt;strong&gt;Cold&lt;/strong&gt;, and finally &lt;strong&gt;Restoring&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Only one authoritative version is writable; transfers publish atomically. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four inputs to placement value" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -1211,7 +1211,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Tiering policy should optimize useful work, not cache occupancy.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Reuse&lt;/strong&gt;, &lt;strong&gt;Cost&lt;/strong&gt;, &lt;strong&gt;Pressure&lt;/strong&gt;, and &lt;strong&gt;Correctness&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Report bytes moved, useful prefetches, late restores, and avoided recompute.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Reuse&lt;/strong&gt;, &lt;strong&gt;Cost&lt;/strong&gt;, &lt;strong&gt;Pressure&lt;/strong&gt;, and &lt;strong&gt;Correctness&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Report bytes moved, useful prefetches, late restores, and avoided recompute.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="An offload storm can amplify overload" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -1227,7 +1227,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Offload must degrade into extra compute, not an availability dependency.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;HBM fills&lt;/strong&gt; triggers &lt;strong&gt;Prefetches wait&lt;/strong&gt;, which creates &lt;strong&gt;Queues grow&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;HBM fills&lt;/strong&gt; triggers &lt;strong&gt;Prefetches wait&lt;/strong&gt;, which creates &lt;strong&gt;Queues grow&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://www.deepspeed.ai/2022/09/09/zero-inference.html"target="_blank" rel="noopener"&gt;ZeRO-Inference&lt;/a&gt;&lt;/li&gt;
@@ -1401,7 +1401,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Input activation&lt;/strong&gt;, where shard matrix columns. The middle stage, &lt;strong&gt;Collective boundary&lt;/strong&gt;, all-reduce or gather. The final stage, &lt;strong&gt;Next sublayer&lt;/strong&gt;, shows the observable result: shard rows. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Input activation&lt;/strong&gt;, where shard matrix columns. The middle stage, &lt;strong&gt;Collective boundary&lt;/strong&gt;, all-reduce or gather. The final stage, &lt;strong&gt;Next sublayer&lt;/strong&gt;, shows the observable result: shard rows. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In a transformer MLP, a column-parallel linear layer splits output features across ranks. Each rank computes a slice. A following row-parallel layer consumes corresponding input slices and combines partial outputs with an all-reduce. Attention projections use related partitioning patterns.&lt;/p&gt;
 &lt;p&gt;Tensor parallelism reduces per-GPU weight and activation storage but introduces communication inside nearly every transformer layer. It therefore prefers high-bandwidth, low-latency links such as NVLink or NVSwitch and carefully formed process groups.&lt;/p&gt;
@@ -1431,7 +1431,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Tensor parallelism&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Tensor parallelism&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Topology-aware placement matters more than the TP number alone. TP across GPUs behind one NVSwitch is different from TP crossing PCIe hosts or a slower fabric. Keep latency-sensitive TP groups local and scale replicas across nodes when possible.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -1457,7 +1457,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Single-GPU layer&lt;/strong&gt;, characterized by no intra-layer collectives and full weights on one device. The right panel applies &lt;strong&gt;Tensor-parallel layer&lt;/strong&gt;, changing the cost profile to weights split across ranks and collectives every layer. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Single-GPU layer&lt;/strong&gt;, characterized by no intra-layer collectives and full weights on one device. The right panel applies &lt;strong&gt;Tensor-parallel layer&lt;/strong&gt;, changing the cost profile to weights split across ranks and collectives every layer. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Layers or models that do not fit one accelerator&lt;/li&gt;
@@ -1556,7 +1556,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Place&lt;/strong&gt; to &lt;strong&gt;Fit&lt;/strong&gt;, then &lt;strong&gt;Trace&lt;/strong&gt; and &lt;strong&gt;Scale&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Place&lt;/strong&gt; to &lt;strong&gt;Fit&lt;/strong&gt;, then &lt;strong&gt;Trace&lt;/strong&gt; and &lt;strong&gt;Scale&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Tensor parallelism shards the matrices inside a transformer layer. Column-parallel projections split output features; row-parallel projections split input features and reduce partial outputs. Attention heads and MLP intermediate dimensions are common shard axes. Every layer therefore alternates local GEMMs with collective communication.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -1574,7 +1574,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Tensor parallelism buys model capacity by inserting collectives inside each layer.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Shard input&lt;/strong&gt; through &lt;strong&gt;Local compute&lt;/strong&gt; and &lt;strong&gt;Collective&lt;/strong&gt; to &lt;strong&gt;Next block&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, communication is on the token critical path and repeats across model depth. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Shard input&lt;/strong&gt; through &lt;strong&gt;Local compute&lt;/strong&gt; and &lt;strong&gt;Collective&lt;/strong&gt; to &lt;strong&gt;Next block&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, communication is on the token critical path and repeats across model depth. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;The compute-to-communication ratio worsens at small batches and decode batch-one. Prefill provides larger matrices that amortize collectives; decode may spend a large fraction of time in latency-bound all-reduces. Fast intra-node fabrics help, while crossing ordinary Ethernet can erase the gain.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Scaling stops when collectives dominate" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -1589,7 +1589,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Illustrative balance; topology and batch shape determine the crossover.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Local GEMM work&lt;/strong&gt; with &lt;strong&gt;Collective cost&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Large weights and KV heads fit across device memory.”, remains larger than the risk, “More ranks can add latency after local tiles become too small.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Local GEMM work&lt;/strong&gt; with &lt;strong&gt;Collective cost&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Large weights and KV heads fit across device memory.”, remains larger than the risk, “More ranks can add latency after local tiles become too small.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Shard placement must follow topology. Keep a tensor-parallel group inside the fastest fabric domain, pin ranks deterministically, and verify peer-to-peer access. A single slow link delays the collective for every rank. Health checks should include collective microbenchmarks rather than only GPU visibility.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Tensor-parallel request synchronization" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -1606,7 +1606,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The serving unit is the rank group, not an individual GPU process.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Ready&lt;/strong&gt; to &lt;strong&gt;Computing&lt;/strong&gt;, &lt;strong&gt;Collective&lt;/strong&gt;, and finally &lt;strong&gt;Advanced&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A timeout or failure on one rank fails the coordinated request across the group. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Ready&lt;/strong&gt; to &lt;strong&gt;Computing&lt;/strong&gt;, &lt;strong&gt;Collective&lt;/strong&gt;, and finally &lt;strong&gt;Advanced&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A timeout or failure on one rank fails the coordinated request across the group. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four dimensions of TP efficiency" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -1621,7 +1621,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Tensor parallelism is a distributed kernel, not merely split weights.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Shard axis&lt;/strong&gt;, &lt;strong&gt;Topology&lt;/strong&gt;, &lt;strong&gt;Workload&lt;/strong&gt;, and &lt;strong&gt;Runtime&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Benchmark p50 and p99 collective time at deployed message sizes.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Shard axis&lt;/strong&gt;, &lt;strong&gt;Topology&lt;/strong&gt;, &lt;strong&gt;Workload&lt;/strong&gt;, and &lt;strong&gt;Runtime&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Benchmark p50 and p99 collective time at deployed message sizes.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="One degraded link slows every token" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -1637,7 +1637,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Collective tail latency compounds through model depth.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Link degrades&lt;/strong&gt; triggers &lt;strong&gt;Collectives wait&lt;/strong&gt;, which creates &lt;strong&gt;Tail explodes&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Link degrades&lt;/strong&gt; triggers &lt;strong&gt;Collectives wait&lt;/strong&gt;, which creates &lt;strong&gt;Tail explodes&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/1909.08053"target="_blank" rel="noopener"&gt;Megatron-LM paper&lt;/a&gt;&lt;/li&gt;
@@ -1811,7 +1811,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Packed weights&lt;/strong&gt;, where load low-bit tiles. The middle stage, &lt;strong&gt;Fused kernel&lt;/strong&gt;, dequantize in registers. The final stage, &lt;strong&gt;Output activation&lt;/strong&gt;, shows the observable result: accumulate safely. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Packed weights&lt;/strong&gt;, where load low-bit tiles. The middle stage, &lt;strong&gt;Fused kernel&lt;/strong&gt;, dequantize in registers. The final stage, &lt;strong&gt;Output activation&lt;/strong&gt;, shows the observable result: accumulate safely. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Weight-only kernels keep activations in FP16 or BF16 and store weights as INT4 or INT8. They load packed weights, apply per-group scales and zero points, and multiply without materializing a full high-precision weight matrix in HBM.&lt;/p&gt;
 &lt;p&gt;Weight-and-activation schemes such as W8A8 can use native integer matrix instructions, but activation outliers make calibration harder. SmoothQuant moves difficulty from activations into weights through an equivalent scaling transformation.&lt;/p&gt;
@@ -1841,7 +1841,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Quantized kernels&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Quantized kernels&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Quality and speed are coupled through layout. An accurate quantizer whose format lacks a production kernel may be less useful than a slightly different scheme with fused, hardware-tuned support. Deployment format is part of model selection.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -1867,7 +1867,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Compressed checkpoint only&lt;/strong&gt;, characterized by small file on disk and may unpack before gemm. The right panel applies &lt;strong&gt;Quantized kernel path&lt;/strong&gt;, changing the cost profile to consumes packed weights and fuses scales with gemm. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Compressed checkpoint only&lt;/strong&gt;, characterized by small file on disk and may unpack before gemm. The right panel applies &lt;strong&gt;Quantized kernel path&lt;/strong&gt;, changing the cost profile to consumes packed weights and fuses scales with gemm. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Low-batch memory-bound decode&lt;/li&gt;
@@ -1969,7 +1969,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Calibrate&lt;/strong&gt; to &lt;strong&gt;Pack&lt;/strong&gt;, then &lt;strong&gt;Profile&lt;/strong&gt; and &lt;strong&gt;Qualify&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Calibrate&lt;/strong&gt; to &lt;strong&gt;Pack&lt;/strong&gt;, then &lt;strong&gt;Profile&lt;/strong&gt; and &lt;strong&gt;Qualify&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A quantized checkpoint is only compressed data until a kernel can consume it efficiently. The hot path must load packed values, reconstruct useful scales or zeros, perform dot products with supported tensor-core instructions, and fuse the epilogue. Dequantizing a whole matrix into FP16 before GEMM often saves storage while losing latency.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -1987,7 +1987,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Quantization is fast when compression, layout, and hardware instructions agree.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Load&lt;/strong&gt; through &lt;strong&gt;Unpack&lt;/strong&gt; and &lt;strong&gt;Compute&lt;/strong&gt; to &lt;strong&gt;Fuse&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the winning kernel fuses unpacking into the compute pipeline. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Load&lt;/strong&gt; through &lt;strong&gt;Unpack&lt;/strong&gt; and &lt;strong&gt;Compute&lt;/strong&gt; to &lt;strong&gt;Fuse&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the winning kernel fuses unpacking into the compute pipeline. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Group size controls the balance between accuracy and metadata. Small groups adapt scales to local outliers but add scale loads and reduce packing efficiency. Large groups are compact but force unrelated weights to share range. Activation-aware methods preserve important channels, while smooth-quantization methods move difficulty between weights and activations.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Compressed size does not guarantee lower latency" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -2002,7 +2002,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Measure end-to-end operator time, including scales, unpacking, and casts.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;INT4 &amp;#43; FP16 unpack&lt;/strong&gt; with &lt;strong&gt;Fused INT4 kernel&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Fewer weight bytes and no full temporary tensor.”, remains larger than the risk, “An unsupported shape can dequantize through a slow path.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;INT4 &amp;#43; FP16 unpack&lt;/strong&gt; with &lt;strong&gt;Fused INT4 kernel&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Fewer weight bytes and no full temporary tensor.”, remains larger than the risk, “An unsupported shape can dequantize through a slow path.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Layout is part of the artifact. A kernel may require interleaved columns, architecture-specific tile ordering, or transposed scale metadata. Repacking at startup extends cold-start time; repacking per request is unacceptable. Store a canonical checkpoint plus compiled artifacts keyed by GPU target and kernel version.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Quantized artifact lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -2019,7 +2019,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Versioning prevents a compatible-looking tensor from reaching the wrong decoder.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Calibrated&lt;/strong&gt; to &lt;strong&gt;Packed&lt;/strong&gt;, &lt;strong&gt;Compiled&lt;/strong&gt;, and finally &lt;strong&gt;Validated&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A packed artifact is valid only for its declared format, layout, and kernel contract. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Calibrated&lt;/strong&gt; to &lt;strong&gt;Packed&lt;/strong&gt;, &lt;strong&gt;Compiled&lt;/strong&gt;, and finally &lt;strong&gt;Validated&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: A packed artifact is valid only for its declared format, layout, and kernel contract. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four sources of quantized performance" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -2034,7 +2034,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The checkpoint, kernel, and accelerator form one deployable unit.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Format&lt;/strong&gt;, &lt;strong&gt;Granularity&lt;/strong&gt;, &lt;strong&gt;Kernel&lt;/strong&gt;, and &lt;strong&gt;Hardware&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Publish fallback rate by model shape and GPU architecture.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Format&lt;/strong&gt;, &lt;strong&gt;Granularity&lt;/strong&gt;, &lt;strong&gt;Kernel&lt;/strong&gt;, and &lt;strong&gt;Hardware&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Publish fallback rate by model shape and GPU architecture.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="A quantized rollout that becomes slower" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -2050,7 +2050,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Trace operator dispatch so compression regressions cannot hide behind a healthy API.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Model changes&lt;/strong&gt; triggers &lt;strong&gt;Fallback runs&lt;/strong&gt;, which creates &lt;strong&gt;Service degrades&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Model changes&lt;/strong&gt; triggers &lt;strong&gt;Fallback runs&lt;/strong&gt;, which creates &lt;strong&gt;Service degrades&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2306.00978"target="_blank" rel="noopener"&gt;AWQ paper&lt;/a&gt;&lt;/li&gt;
@@ -2225,7 +2225,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Current prefix&lt;/strong&gt;, where multiple decode heads. The middle stage, &lt;strong&gt;Tree attention&lt;/strong&gt;, verify candidates. The final stage, &lt;strong&gt;Committed output&lt;/strong&gt;, shows the observable result: append valid tokens. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Current prefix&lt;/strong&gt;, where multiple decode heads. The middle stage, &lt;strong&gt;Tree attention&lt;/strong&gt;, verify candidates. The final stage, &lt;strong&gt;Committed output&lt;/strong&gt;, shows the observable result: append valid tokens. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Multi-token prediction attaches heads that predict tokens at several future offsets. Systems such as Medusa arrange candidates into a tree and use a tree-attention mask so the backbone can verify many candidate continuations in one pass.&lt;/p&gt;
 &lt;p&gt;Parallel decoding is broader than classic speculative decoding. It may use extra heads on the same model, iterative refinement, Jacobi-style updates, or candidate trees. The common objective is to reduce the number of serial decoding rounds.&lt;/p&gt;
@@ -2255,7 +2255,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Parallel decoding&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Parallel decoding&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Candidate selection is a hardware problem as much as a probability problem. Static trees simplify CUDA graphs and memory planning; dynamic trees may improve acceptance but introduce irregular shapes. Throughput-oriented servers may prefer predictable bounds over maximum single-request speedup.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -2281,7 +2281,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Serial decoding&lt;/strong&gt;, characterized by one position per model step and simple causal mask. The right panel applies &lt;strong&gt;Parallel decoding&lt;/strong&gt;, changing the cost profile to several positions or branches and tree or multi-token mask. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Serial decoding&lt;/strong&gt;, characterized by one position per model step and simple causal mask. The right panel applies &lt;strong&gt;Parallel decoding&lt;/strong&gt;, changing the cost profile to several positions or branches and tree or multi-token mask. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Models with trained multi-token heads&lt;/li&gt;
@@ -2380,7 +2380,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Propose&lt;/strong&gt; to &lt;strong&gt;Verify&lt;/strong&gt;, then &lt;strong&gt;Commit&lt;/strong&gt; and &lt;strong&gt;Tune&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Propose&lt;/strong&gt; to &lt;strong&gt;Verify&lt;/strong&gt;, then &lt;strong&gt;Commit&lt;/strong&gt; and &lt;strong&gt;Tune&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Parallel decoding is a family of methods that explores or proposes multiple future tokens per synchronization point. Some attach several prediction heads, some grow a candidate tree, and others solve multiple masked positions iteratively. The common objective is to convert a strictly serial token loop into wider work that modern accelerators execute efficiently.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -2398,7 +2398,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Parallel decoding exchanges serial steps for candidate width and branch management.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Propose&lt;/strong&gt; through &lt;strong&gt;Evaluate&lt;/strong&gt; and &lt;strong&gt;Select&lt;/strong&gt; to &lt;strong&gt;Commit&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, branch state is provisional until one path is selected under the target policy. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Propose&lt;/strong&gt; through &lt;strong&gt;Evaluate&lt;/strong&gt; and &lt;strong&gt;Select&lt;/strong&gt; to &lt;strong&gt;Commit&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, branch state is provisional until one path is selected under the target policy. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Speedup depends on useful committed tokens per round, not the number proposed. A width-eight tree that commits 1.3 tokens wastes more work than a width-three tree committing 2.4. Measure branch utilization, accepted depth, verification cost, and memory amplification together. Wider is not automatically faster once the GPU is already saturated by ordinary batching.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Serial depth versus candidate width" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -2413,7 +2413,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The winning width balances accepted depth against wasted branch work.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Serial decoding&lt;/strong&gt; with &lt;strong&gt;Parallel round&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Several tokens may commit per synchronization.”, remains larger than the risk, “Rejected candidates consume compute and KV memory.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Serial decoding&lt;/strong&gt; with &lt;strong&gt;Parallel round&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Several tokens may commit per synchronization.”, remains larger than the risk, “Rejected candidates consume compute and KV memory.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;KV ownership is central. Branches share the committed prefix, then allocate private suffix blocks. Selection atomically promotes one suffix and releases the others. Cancellation, beam pruning, and retries must not double-free shared references. Memory limits should constrain candidate tokens, not merely request count.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Candidate branch lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -2430,7 +2430,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Transactional branch ownership prevents rejected futures from corrupting decode.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Shared&lt;/strong&gt; to &lt;strong&gt;Forked&lt;/strong&gt;, &lt;strong&gt;Selected&lt;/strong&gt;, and finally &lt;strong&gt;Committed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Only selected tokens and state cross the response visibility boundary. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Shared&lt;/strong&gt; to &lt;strong&gt;Forked&lt;/strong&gt;, &lt;strong&gt;Selected&lt;/strong&gt;, and finally &lt;strong&gt;Committed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Only selected tokens and state cross the response visibility boundary. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four limits bound parallel decoding" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -2445,7 +2445,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The best candidate geometry depends on quality, load, and memory pressure.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Width&lt;/strong&gt;, &lt;strong&gt;Depth&lt;/strong&gt;, &lt;strong&gt;Memory&lt;/strong&gt;, and &lt;strong&gt;Policy&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Tune width and depth by workload cohort, not as model-wide constants.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Width&lt;/strong&gt;, &lt;strong&gt;Depth&lt;/strong&gt;, &lt;strong&gt;Memory&lt;/strong&gt;, and &lt;strong&gt;Policy&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Tune width and depth by workload cohort, not as model-wide constants.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="Candidate explosion under load" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -2461,7 +2461,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Parallel decoding needs a pressure-aware escape hatch to ordinary generation.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Width expands&lt;/strong&gt; triggers &lt;strong&gt;Batch bloats&lt;/strong&gt;, which creates &lt;strong&gt;Tail rises&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Width expands&lt;/strong&gt; triggers &lt;strong&gt;Batch bloats&lt;/strong&gt;, which creates &lt;strong&gt;Tail rises&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2401.10774"target="_blank" rel="noopener"&gt;Medusa paper&lt;/a&gt;&lt;/li&gt;
@@ -2635,7 +2635,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Input token state&lt;/strong&gt;, where run early layers. The middle stage, &lt;strong&gt;Exit controller&lt;/strong&gt;, accept or continue. The final stage, &lt;strong&gt;Output token&lt;/strong&gt;, shows the observable result: use shallow result. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Input token state&lt;/strong&gt;, where run early layers. The middle stage, &lt;strong&gt;Exit controller&lt;/strong&gt;, accept or continue. The final stage, &lt;strong&gt;Output token&lt;/strong&gt;, shows the observable result: use shallow result. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;An early-exit model exposes usable logits at intermediate layers. This usually requires training support, such as auxiliary losses or a shared output head, so early representations learn to predict tokens rather than merely feed later layers.&lt;/p&gt;
 &lt;p&gt;A controller decides whether to stop. Confidence can come from maximum probability, entropy, margin between top candidates, learned calibration, or a fixed layer schedule. Raw softmax confidence is often miscalibrated, so thresholds must be tuned against task-specific quality.&lt;/p&gt;
@@ -2665,7 +2665,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Early exit&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Early exit&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Adaptive depth creates scheduler divergence. A GPU kernel prefers uniform work, while early exit creates per-token variation. Grouping by exit policy, verifying in blocks, or combining early exit with speculative decoding can make the hardware path more regular.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -2691,7 +2691,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Fixed-depth decoding&lt;/strong&gt;, characterized by every token uses all layers and stable batch shapes. The right panel applies &lt;strong&gt;Early-exit decoding&lt;/strong&gt;, changing the cost profile to easy tokens use fewer layers and confidence must be calibrated. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Fixed-depth decoding&lt;/strong&gt;, characterized by every token uses all layers and stable batch shapes. The right panel applies &lt;strong&gt;Early-exit decoding&lt;/strong&gt;, changing the cost profile to easy tokens use fewer layers and confidence must be calibrated. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Models trained explicitly for intermediate exits&lt;/li&gt;
@@ -2792,7 +2792,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Train&lt;/strong&gt; to &lt;strong&gt;Calibrate&lt;/strong&gt;, then &lt;strong&gt;Guard&lt;/strong&gt; and &lt;strong&gt;Monitor&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Train&lt;/strong&gt; to &lt;strong&gt;Calibrate&lt;/strong&gt;, then &lt;strong&gt;Guard&lt;/strong&gt; and &lt;strong&gt;Monitor&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Early exit adds one or more prediction heads before the final transformer layer and decides whether an intermediate representation is trustworthy enough to emit or propose a token. The gate may use confidence, agreement between heads, entropy, margin, or a learned policy. Compute is saved only when the exit decision is cheaper than the skipped layers and quality remains within the product contract.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -2810,7 +2810,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Adaptive depth spends fewer layers only on tokens proven eligible by policy.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Run trunk&lt;/strong&gt; through &lt;strong&gt;Estimate&lt;/strong&gt; and &lt;strong&gt;Gate&lt;/strong&gt; to &lt;strong&gt;Resolve&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the gate is part of model semantics and must be versioned with the checkpoint. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Run trunk&lt;/strong&gt; through &lt;strong&gt;Estimate&lt;/strong&gt; and &lt;strong&gt;Gate&lt;/strong&gt; to &lt;strong&gt;Resolve&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the gate is part of model semantics and must be versioned with the checkpoint. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Confidence must be calibrated on deployment traffic. A high softmax maximum is not a universal guarantee, particularly after quantization, domain shift, temperature changes, or adversarial prompts. Build reliability curves by exit depth and cohort, then choose thresholds from an explicit quality-loss budget rather than a desired speedup.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Adaptive depth trades average compute for quality risk" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -2825,7 +2825,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Illustrative layer work; exit frequency varies by token and workload.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Full-depth decode&lt;/strong&gt; with &lt;strong&gt;Calibrated early exit&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Easy tokens avoid later-layer execution.”, remains larger than the risk, “Overconfidence can emit a wrong token irreversibly.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Full-depth decode&lt;/strong&gt; with &lt;strong&gt;Calibrated early exit&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Easy tokens avoid later-layer execution.”, remains larger than the risk, “Overconfidence can emit a wrong token irreversibly.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Autoregressive errors compound. A single incorrect early token changes every subsequent hidden state, so per-token agreement can overstate sequence quality. Evaluate exact match, task success, calibration error, and long-horizon divergence. Some systems use early heads only to draft tokens for later verification, turning an unsafe direct exit into self-speculative decoding.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Decision state for every candidate token" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -2842,7 +2842,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A conservative fallback keeps adaptive compute from becoming adaptive correctness.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Unscored&lt;/strong&gt; to &lt;strong&gt;Calibrated&lt;/strong&gt;, &lt;strong&gt;Eligible&lt;/strong&gt;, and finally &lt;strong&gt;Emitted&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Any uncertainty, unsupported option, or drift signal takes the full-depth path. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Unscored&lt;/strong&gt; to &lt;strong&gt;Calibrated&lt;/strong&gt;, &lt;strong&gt;Eligible&lt;/strong&gt;, and finally &lt;strong&gt;Emitted&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Any uncertainty, unsupported option, or drift signal takes the full-depth path. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Exit policy depends on four dimensions" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -2857,7 +2857,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;One global confidence threshold is rarely defensible in production.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Token&lt;/strong&gt;, &lt;strong&gt;Request&lt;/strong&gt;, &lt;strong&gt;Model&lt;/strong&gt;, and &lt;strong&gt;System&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Log the chosen depth without exposing sensitive prompt content.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Token&lt;/strong&gt;, &lt;strong&gt;Request&lt;/strong&gt;, &lt;strong&gt;Model&lt;/strong&gt;, and &lt;strong&gt;System&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Log the chosen depth without exposing sensitive prompt content.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="How calibration drift damages output" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -2873,7 +2873,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Shadow evaluation and instant fallback are mandatory for adaptive-depth serving.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Traffic shifts&lt;/strong&gt; triggers &lt;strong&gt;Gate exits early&lt;/strong&gt;, which creates &lt;strong&gt;Errors compound&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Traffic shifts&lt;/strong&gt; triggers &lt;strong&gt;Gate exits early&lt;/strong&gt;, which creates &lt;strong&gt;Errors compound&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2404.16710"target="_blank" rel="noopener"&gt;LayerSkip paper&lt;/a&gt;&lt;/li&gt;
@@ -3047,7 +3047,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;HBM&lt;/strong&gt;, where load q k v tiles. The middle stage, &lt;strong&gt;On-chip SRAM&lt;/strong&gt;, online softmax. The final stage, &lt;strong&gt;HBM&lt;/strong&gt;, shows the observable result: write final output. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;HBM&lt;/strong&gt;, where load q k v tiles. The middle stage, &lt;strong&gt;On-chip SRAM&lt;/strong&gt;, online softmax. The final stage, &lt;strong&gt;HBM&lt;/strong&gt;, shows the observable result: write final output. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Standard attention forms scores QK^T, applies softmax, and multiplies by V. A naive implementation materializes the large score and probability matrices in HBM. FlashAttention tiles Q, K, and V so blocks fit in on-chip SRAM and fuses the operations.&lt;/p&gt;
 &lt;p&gt;Softmax normally needs the maximum and normalization sum over a full row. FlashAttention uses an online softmax recurrence, maintaining a running maximum and rescaling partial sums as new tiles arrive. That makes tiling exact up to normal floating-point behavior.&lt;/p&gt;
@@ -3077,7 +3077,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;FlashAttention&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;FlashAttention&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;FlashAttention is an algorithm family, not a magic compiler flag. Version-specific kernels change work partitioning, parallelism, and support for causal masks, grouped-query attention, variable lengths, and newer GPU instructions. Confirm which backend path actually ran rather than trusting a configuration label.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -3103,7 +3103,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Materialized attention&lt;/strong&gt;, characterized by writes score matrix to hbm and multiple kernel boundaries. The right panel applies &lt;strong&gt;FlashAttention&lt;/strong&gt;, changing the cost profile to tiles through on-chip sram and fused exact computation. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Materialized attention&lt;/strong&gt;, characterized by writes score matrix to hbm and multiple kernel boundaries. The right panel applies &lt;strong&gt;FlashAttention&lt;/strong&gt;, changing the cost profile to tiles through on-chip sram and fused exact computation. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Long-context prefill and training&lt;/li&gt;
@@ -3206,7 +3206,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Qualify&lt;/strong&gt; to &lt;strong&gt;Profile&lt;/strong&gt;, then &lt;strong&gt;Compare&lt;/strong&gt; and &lt;strong&gt;Ship&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Qualify&lt;/strong&gt; to &lt;strong&gt;Profile&lt;/strong&gt;, then &lt;strong&gt;Compare&lt;/strong&gt; and &lt;strong&gt;Ship&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Standard attention materializes or repeatedly moves the &lt;code&gt;N x N&lt;/code&gt; score matrix through high-bandwidth memory. FlashAttention changes the execution order: tiles of Q, K, and V are loaded into on-chip SRAM, partial scores are computed, and an online softmax maintains running maxima and normalization terms. The exact attention result is preserved while HBM traffic falls dramatically.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -3224,7 +3224,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;FlashAttention is an IO-aware exact algorithm, not an approximation to attention.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Load tile&lt;/strong&gt; through &lt;strong&gt;Score&lt;/strong&gt; and &lt;strong&gt;Normalize&lt;/strong&gt; to &lt;strong&gt;Accumulate&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the algorithm saves traffic by fusing operations around a bounded on-chip tile. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Load tile&lt;/strong&gt; through &lt;strong&gt;Score&lt;/strong&gt; and &lt;strong&gt;Normalize&lt;/strong&gt; to &lt;strong&gt;Accumulate&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the algorithm saves traffic by fusing operations around a bounded on-chip tile. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Online softmax is the mathematical key. When a later tile contains a larger score, previously accumulated exponentials and outputs are rescaled to the new maximum before adding the tile. This preserves numerical stability without retaining every score. Causal masks, sliding windows, dropout during training, and variable sequence lengths alter tile work and must be supported by the selected kernel.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Attention cost is often bytes moved, not FLOPs issued" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -3239,7 +3239,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Relative bars illustrate data movement, not a universal benchmark ratio.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Materialized scores&lt;/strong&gt; with &lt;strong&gt;Tiled fused kernel&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Long contexts fit with lower latency and memory.”, remains larger than the risk, “Unsupported shapes can silently restore the slow path.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Materialized scores&lt;/strong&gt; with &lt;strong&gt;Tiled fused kernel&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Long contexts fit with lower latency and memory.”, remains larger than the risk, “Unsupported shapes can silently restore the slow path.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Hardware fit matters. Head dimension, dtype, sequence length, GPU generation, causal mode, and layout determine tile shape and occupancy. A theoretically efficient kernel can underperform when register pressure reduces active warps or when short sequences do not amortize launch cost. Dispatch should select among validated kernels rather than assume one implementation wins everywhere.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="One row of online softmax" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -3256,7 +3256,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The state is tiny compared with a materialized attention matrix.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Initialize&lt;/strong&gt; to &lt;strong&gt;Consume tile&lt;/strong&gt;, &lt;strong&gt;Rescale&lt;/strong&gt;, and finally &lt;strong&gt;Accumulate&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: The running maximum and denominator make tile order numerically safe. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Initialize&lt;/strong&gt; to &lt;strong&gt;Consume tile&lt;/strong&gt;, &lt;strong&gt;Rescale&lt;/strong&gt;, and finally &lt;strong&gt;Accumulate&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: The running maximum and denominator make tile order numerically safe. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Kernel eligibility must be explicit" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -3271,7 +3271,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;FastAttention performance depends on a complete execution contract.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Shape&lt;/strong&gt;, &lt;strong&gt;Semantics&lt;/strong&gt;, &lt;strong&gt;Precision&lt;/strong&gt;, and &lt;strong&gt;Hardware&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Record the selected kernel in traces so regressions are explainable.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Shape&lt;/strong&gt;, &lt;strong&gt;Semantics&lt;/strong&gt;, &lt;strong&gt;Precision&lt;/strong&gt;, and &lt;strong&gt;Hardware&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Record the selected kernel in traces so regressions are explainable.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="The silent fallback failure chain" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -3287,7 +3287,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Correct output can hide a severe serving regression unless kernel selection is observable.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Shape changes&lt;/strong&gt; triggers &lt;strong&gt;Fallback runs&lt;/strong&gt;, which creates &lt;strong&gt;Tail degrades&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Shape changes&lt;/strong&gt; triggers &lt;strong&gt;Fallback runs&lt;/strong&gt;, which creates &lt;strong&gt;Tail degrades&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2205.14135"target="_blank" rel="noopener"&gt;FlashAttention paper&lt;/a&gt;&lt;/li&gt;
@@ -3461,7 +3461,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Draft model&lt;/strong&gt;, where propose k tokens. The middle stage, &lt;strong&gt;Target model&lt;/strong&gt;, verify in one pass. The final stage, &lt;strong&gt;Sampler&lt;/strong&gt;, shows the observable result: correct first rejection. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Draft model&lt;/strong&gt;, where propose k tokens. The middle stage, &lt;strong&gt;Target model&lt;/strong&gt;, verify in one pass. The final stage, &lt;strong&gt;Sampler&lt;/strong&gt;, shows the observable result: correct first rejection. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The draft model proposes a short token sequence. The target model evaluates those proposed positions in parallel. A rejection-sampling rule accepts a prefix and, when needed, samples a correction from the residual distribution. The original algorithm preserves the target model output distribution rather than approximating it.&lt;/p&gt;
 &lt;p&gt;Speed depends on the acceptance length: how many proposed tokens survive per target-model verification. A draft that is fast but consistently wrong adds overhead. A draft that is almost as expensive as the target saves little. The useful point lies between those extremes.&lt;/p&gt;
@@ -3491,7 +3491,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Speculative decoding&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Speculative decoding&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Speculation can reduce single-request latency while hurting server throughput if verification batches become irregular or the draft competes for the same scarce GPU. Some systems colocate the draft, others reserve a smaller GPU, and self-speculative methods reuse early layers. The scheduler is part of the algorithm.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -3517,7 +3517,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Ordinary decoding&lt;/strong&gt;, characterized by one target step per token and simple scheduler. The right panel applies &lt;strong&gt;Speculative decoding&lt;/strong&gt;, changing the cost profile to several candidates per verify and acceptance varies by prompt. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Ordinary decoding&lt;/strong&gt;, characterized by one target step per token and simple scheduler. The right panel applies &lt;strong&gt;Speculative decoding&lt;/strong&gt;, changing the cost profile to several candidates per verify and acceptance varies by prompt. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Latency-sensitive generation with a well-matched draft&lt;/li&gt;
@@ -3617,7 +3617,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Pair&lt;/strong&gt; to &lt;strong&gt;Verify&lt;/strong&gt;, then &lt;strong&gt;Measure&lt;/strong&gt; and &lt;strong&gt;Tune&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Pair&lt;/strong&gt; to &lt;strong&gt;Verify&lt;/strong&gt;, then &lt;strong&gt;Measure&lt;/strong&gt; and &lt;strong&gt;Tune&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The speedup comes from replacing several sequential target-model decode calls with one wider verification call. If the draft proposes &lt;code&gt;k&lt;/code&gt; tokens and the target accepts &lt;code&gt;a&lt;/code&gt; on average, useful progress per target invocation is approximately &lt;code&gt;a + 1&lt;/code&gt; including the correction token. That gain must exceed draft latency, verification overhead, and rollback cost. Acceptance rate alone is insufficient: two configurations with equal acceptance can have different accepted-run lengths and therefore different speedups.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -3635,7 +3635,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Speculation is a transaction over tokens and KV state, not a loose race between models.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Draft&lt;/strong&gt; through &lt;strong&gt;Verify&lt;/strong&gt; and &lt;strong&gt;Commit&lt;/strong&gt; to &lt;strong&gt;Recover&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, correctness boundary: provisional state becomes visible only after target verification. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Draft&lt;/strong&gt; through &lt;strong&gt;Verify&lt;/strong&gt; and &lt;strong&gt;Commit&lt;/strong&gt; to &lt;strong&gt;Recover&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, correctness boundary: provisional state becomes visible only after target verification. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Draft and target tokenizers, vocabulary ordering, sampling transforms, and probability support must agree. Greedy verification is simpler but changes the applicable correctness argument. Sampling-preserving schemes compare target and draft distributions and sample from a corrected residual after rejection. Logit processors, banned-token lists, grammar masks, and temperature must be applied consistently at the correct stage.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Accepted progress must repay speculation overhead" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -3650,7 +3650,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Illustrative progress per target invocation; production results depend on acceptance and placement.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Ordinary decode&lt;/strong&gt; with &lt;strong&gt;Speculative&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Fewer sequential target-model round trips.”, remains larger than the risk, “Draft work and rejected KV consume real capacity.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Ordinary decode&lt;/strong&gt; with &lt;strong&gt;Speculative&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Fewer sequential target-model round trips.”, remains larger than the risk, “Draft work and rejected KV consume real capacity.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;The scheduler decides whether the draft shares the target GPU, runs on a smaller device, or reuses early target layers. Colocation avoids network transfer but competes for memory bandwidth. A separate draft GPU isolates work but introduces transport and synchronization. Measure combined fleet tokens per second, not only target-model tokens per second.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="State ownership across one speculative round" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -3667,7 +3667,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Explicit states prevent rejected branches from leaking into later attention.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Eligible&lt;/strong&gt; to &lt;strong&gt;Provisional&lt;/strong&gt;, &lt;strong&gt;Verified&lt;/strong&gt;, and finally &lt;strong&gt;Committed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Cancellation or mismatch may discard provisional state, never committed history. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Eligible&lt;/strong&gt; to &lt;strong&gt;Provisional&lt;/strong&gt;, &lt;strong&gt;Verified&lt;/strong&gt;, and finally &lt;strong&gt;Committed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Cancellation or mismatch may discard provisional state, never committed history. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four controls determine real speedup" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -3682,7 +3682,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Speculative decoding is a model-pair, sampling, and scheduling problem at the same time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Acceptance&lt;/strong&gt;, &lt;strong&gt;Placement&lt;/strong&gt;, &lt;strong&gt;Sampling&lt;/strong&gt;, and &lt;strong&gt;Scheduler&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Optimize end-to-end goodput subject to identical output semantics.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Acceptance&lt;/strong&gt;, &lt;strong&gt;Placement&lt;/strong&gt;, &lt;strong&gt;Sampling&lt;/strong&gt;, and &lt;strong&gt;Scheduler&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Optimize end-to-end goodput subject to identical output semantics.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="How a promising draft becomes negative speedup" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -3698,7 +3698,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A safe controller removes speculation when its marginal value turns negative.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Domain shifts&lt;/strong&gt; triggers &lt;strong&gt;Verification grows&lt;/strong&gt;, which creates &lt;strong&gt;Fleet slows&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Domain shifts&lt;/strong&gt; triggers &lt;strong&gt;Verification grows&lt;/strong&gt;, which creates &lt;strong&gt;Fleet slows&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2211.17192"target="_blank" rel="noopener"&gt;Fast Inference from Transformers via Speculative Decoding&lt;/a&gt;&lt;/li&gt;
@@ -3872,7 +3872,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Prompt tokens&lt;/strong&gt;, where project k and v. The middle stage, &lt;strong&gt;Decode one token&lt;/strong&gt;, read old k and v. The final stage, &lt;strong&gt;Next token&lt;/strong&gt;, shows the observable result: reuse prior state. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Prompt tokens&lt;/strong&gt;, where project k and v. The middle stage, &lt;strong&gt;Decode one token&lt;/strong&gt;, read old k and v. The final stage, &lt;strong&gt;Next token&lt;/strong&gt;, shows the observable result: reuse prior state. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;First, separate three kinds of cache&lt;span class="hx:absolute hx:-mt-20" id="first-separate-three-kinds-of-cache"&gt;&lt;/span&gt;
 &lt;a href="#first-separate-three-kinds-of-cache" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Teams often say “the cache” while referring to three unrelated mechanisms. A &lt;strong&gt;response cache&lt;/strong&gt; stores the final answer for an exact request and can avoid model execution entirely. A &lt;strong&gt;prefix KV cache&lt;/strong&gt; stores attention state for token blocks shared by later prompts and avoids only the matching part of prefill. A &lt;strong&gt;sequence KV cache&lt;/strong&gt; is the live state of one active generation; without it, every decode step would have to reconstruct the whole history.&lt;/p&gt;
 &lt;p&gt;This distinction matters during incidents. A Redis response-cache hit can return a byte-for-byte stored answer in milliseconds. A prefix-cache hit still runs the model and can still produce a different sampled answer. A live sequence-cache lookup is not a cross-request hit at all; it is ordinary decoder operation. Dashboards should name these independently instead of reporting one ambiguous “cache hit rate.”&lt;/p&gt;
@@ -3895,7 +3895,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Response reuse, prefix reuse, and live decode state solve different problems and require different metrics.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Move left to right from the broadest reuse to the most request-local state. A response cache bypasses inference, a prefix KV cache skips matched prompt work, and a sequence KV cache accelerates the active decode loop. Their hit rates, lifetimes, security boundaries, and failure modes must be reported separately.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Move left to right from the broadest reuse to the most request-local state. A response cache bypasses inference, a prefix KV cache skips matched prompt work, and a sequence KV cache accelerates the active decode loop. Their hit rates, lifetimes, security boundaries, and failure modes must be reported separately.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;During prefill, each transformer layer projects every prompt token into query, key, and value vectors. The keys and values are retained. During decode, the new token produces one new query, key, and value; attention reads the cached keys and values for earlier positions and appends the new pair.&lt;/p&gt;
 &lt;p&gt;For a simplified multi-head attention model, KV memory grows roughly with 2 x layers x cached tokens x KV heads x head dimension x bytes per element. Grouped-query and multi-query attention reduce KV heads, which is why two models with similar parameter counts can have very different concurrency limits.&lt;/p&gt;
@@ -3926,7 +3926,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill is a wide write; decode repeatedly reads the history and appends one position.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The upper row shows prefill producing K and V for many prompt positions in parallel. The lower row shows decode reading those retained positions and appending exactly one new pair. This asymmetry explains both the first-token pause and the memory-bandwidth pressure of long generation.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The upper row shows prefill producing K and V for many prompt positions in parallel. The lower row shows decode reading those retained positions and appending exactly one new pair. This asymmetry explains both the first-token pause and the memory-bandwidth pressure of long generation.&lt;/p&gt;
 &lt;h3&gt;Why cache keys and values, but not queries?&lt;span class="hx:absolute hx:-mt-20" id="why-cache-keys-and-values-but-not-queries"&gt;&lt;/span&gt;
 &lt;a href="#why-cache-keys-and-values-but-not-queries" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;For one attention head, the current query is compared with keys from every visible position; the resulting scores weight the corresponding values. At decode step &lt;code&gt;t&lt;/code&gt;, the model needs one new query for position &lt;code&gt;t&lt;/code&gt;, but it needs keys and values from positions &lt;code&gt;1..t&lt;/code&gt;. Earlier queries are no longer needed because their outputs were already used to produce earlier hidden states. Retaining K and V therefore removes repeated projection work while preserving exactly the state required by the next token.&lt;/p&gt;
 &lt;p&gt;The cache does not store “what the model knows.” It stores layer-specific tensors derived from a particular token sequence under particular weights. You cannot move those tensors to a model with a different revision, tokenizer, rotary-position configuration, or adapter and expect correctness. Even when tensor shapes match, the numerical meaning may not.&lt;/p&gt;
@@ -3950,7 +3950,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Parameter count alone does not determine cache capacity; the attention architecture matters directly.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Every factor in the formula multiplies cache size. The three lower panels hold query-head count constant while reducing KV heads from MHA to GQA and MQA. That reduction changes cache capacity directly, so parameter count alone cannot predict concurrent context capacity.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Every factor in the formula multiplies cache size. The three lower panels hold query-head count constant while reducing KV heads from MHA to GQA and MQA. That reduction changes cache capacity directly, so parameter count alone cannot predict concurrent context capacity.&lt;/p&gt;
 &lt;p&gt;Now add the parts omitted by the clean equation. A block allocator rounds each sequence to block boundaries, so the last block is partly empty. Beam search, parallel samples, or speculative branches may temporarily duplicate state. CUDA graphs and attention kernels need workspace. Tensor parallelism can shard KV heads, while pipeline parallelism places different layers on different devices. The result is that “bytes per token” is an architecture property, but safe concurrency is a deployment property.&lt;/p&gt;
 &lt;p&gt;For capacity planning, calculate at least three numbers:&lt;/p&gt;
 &lt;ol&gt;
@@ -3982,7 +3982,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A useful cache metric connects matched tokens to TTFT saved under comparable load.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Compare the red uncached-prefill span in the upper timeline with the small amber miss span below. Queue and first-decode work remain. The difference is TTFT saved by matched prompt tokens; it should not be reported as faster output-token decode.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Compare the red uncached-prefill span in the upper timeline with the small amber miss span below. Queue and first-decode work remain. The difference is TTFT saved by matched prompt tokens; it should not be reported as faster output-token decode.&lt;/p&gt;
 &lt;p&gt;A token-weighted hit rate is more useful than a request hit rate. If nine short prompts each reuse 16 tokens while one long prompt misses 8,000 tokens, the request hit rate is 90 percent but almost all prefill work remains. Track &lt;code&gt;reused_prefix_tokens / eligible_prefix_tokens&lt;/code&gt;, then correlate it with prefill milliseconds avoided. Keep exact hits, partial hits, host-tier reloads, and misses separate because they have different costs.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Where KV caching affects prefill and decode" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -4005,7 +4005,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;KV caching&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;KV caching&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Block size is a real tuning knob. Large blocks reduce allocator and kernel overhead but waste more tail space and make partial prefix matches less likely. Small blocks improve reuse granularity but expand metadata, lookup work, and transfer operations. Measure with your prompt-length distribution rather than selecting a block size by folklore.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -4029,7 +4029,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Paged allocation enables non-contiguous growth and reclamation, while block size controls tail waste.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The logical table at the top gives a sequence a contiguous view, while the physical pool below can be scattered. Green blocks contain useful state, gray blocks are reusable, and the amber tail is allocated but partially empty. Block size trades tail waste against table and lookup overhead.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The logical table at the top gives a sequence a contiguous view, while the physical pool below can be scattered. Green blocks contain useful state, gray blocks are reusable, and the amber tail is allocated but partially empty. Block size trades tail waste against table and lookup overhead.&lt;/p&gt;
 &lt;p&gt;Paged allocation solves a problem similar to virtual memory. A sequence owns a logical list of cache blocks, while those blocks may live anywhere in the physical pool. Growth needs one free block rather than one larger contiguous allocation. Cancellation can return blocks immediately. Shared prefixes can point multiple logical sequences at immutable physical blocks with reference counts.&lt;/p&gt;
 &lt;p&gt;The last partially filled block is where policy becomes subtle. Reusing a partial block may require copy-on-write semantics because the next request can diverge at the following token. Some engines therefore share only full blocks. That simplifies ownership and hashing but makes block size directly affect reuse granularity. A 64-token block can waste up to 63 matching tokens at a divergence boundary; a 16-token block makes more matches available but quadruples block-table pressure.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -4055,7 +4055,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;No KV cache&lt;/strong&gt;, characterized by repeat all prior projections and compute grows every step. The right panel applies &lt;strong&gt;With KV cache&lt;/strong&gt;, changing the cost profile to compute only the new token and memory grows with sequence. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;No KV cache&lt;/strong&gt;, characterized by repeat all prior projections and compute grows every step. The right panel applies &lt;strong&gt;With KV cache&lt;/strong&gt;, changing the cost profile to compute only the new token and memory grows with sequence. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Interactive chat with long histories&lt;/li&gt;
@@ -4091,7 +4091,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefix caching is token- and block-aligned; semantic similarity does not create a KV hit.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Requests A and B share two complete system-prompt blocks, so B can reuse them. Their third blocks differ, and matching stops at that exact token boundary. Semantic similarity is irrelevant: prefix reuse follows token IDs, parent hashes, block alignment, and cache scope.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Requests A and B share two complete system-prompt blocks, so B can reuse them. Their third blocks differ, and matching stops at that exact token boundary. Semantic similarity is irrelevant: prefix reuse follows token IDs, parent hashes, block alignment, and cache scope.&lt;/p&gt;
 &lt;p&gt;Hashing is an index, not the security boundary. A collision-resistant digest makes lookup practical, but the preimage must include immutable model identity and an authorization scope. When two tenants are explicitly permitted to share a public system prefix, assign that prefix a deliberate shared namespace. Never infer sharing from equal text after the request has entered a private tenant scope.&lt;/p&gt;
 &lt;h2&gt;Cache identity and tenant isolation&lt;span class="hx:absolute hx:-mt-20" id="cache-identity-and-tenant-isolation"&gt;&lt;/span&gt;
 &lt;a href="#cache-identity-and-tenant-isolation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Every reusable block should inherit a scope digest built from at least the model revision, tokenizer and chat-template revision, adapter identity, positional configuration, relevant multimodal inputs, and tenant security salt. The block hash then extends that scope with parent hash and token IDs. Changing any correctness field creates a miss by construction.&lt;/p&gt;
@@ -4115,7 +4115,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Reusable state must be namespaced before prefix lookup, not filtered after a hit.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four identity inputs are hashed before token-block lookup. Only requests in the same resulting scope may attempt prefix reuse. A different model, tokenizer, adapter, modality, or tenant salt must force a miss, even when the visible prompt text is identical.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four identity inputs are hashed before token-block lookup. Only requests in the same resulting scope may attempt prefix reuse. A different model, tokenizer, adapter, modality, or tenant salt must force a miss, even when the visible prompt text is identical.&lt;/p&gt;
 &lt;p&gt;Isolation must happen before lookup. Fetching a block globally and checking ownership afterward can leak the existence, timing, or contents of another tenant&amp;rsquo;s prompt. It also invites reference-count bugs in which a private block remains reachable after its owner is deleted. Namespace indexes, metrics, eviction accounting, and administrative inspection consistently.&lt;/p&gt;
 &lt;p&gt;Encryption at rest does not solve cross-tenant reuse. GPU HBM is normally plaintext while kernels operate, and a logically authorized pointer is enough to expose state. The strongest control is not to create the pointer across isolation domains. Scrub or overwrite memory when required by the threat model, but do not use scrubbing as a substitute for correct ownership metadata.&lt;/p&gt;
 &lt;h2&gt;Production checklist&lt;span class="hx:absolute hx:-mt-20" id="production-checklist"&gt;&lt;/span&gt;
@@ -4158,7 +4158,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Locality-aware routing should minimize predicted completion time while respecting deadlines and isolation.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Worker A owns most of the prefix but has a long queue; worker B has no hit but can finish sooner. The route score combines queue delay, missing prefill, transfer, and decode estimates. Cache affinity is one cost term, not an unconditional routing rule.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Worker A owns most of the prefix but has a long queue; worker B has no hit but can finish sooner. The route score combines queue delay, missing prefill, transfer, and decode estimates. Cache affinity is one cost term, not an unconditional routing rule.&lt;/p&gt;
 &lt;p&gt;A practical routing score estimates completion time rather than maximizing matched tokens. One simple form is &lt;code&gt;queue_delay + miss_prefill_time + transfer_time + expected_decode_time&lt;/code&gt;. Worker A may own a large prefix yet still lose when its queue is long. Worker B may be uncached but idle. The estimates need confidence bounds because stale cache advertisements can otherwise herd traffic toward a worker that has already evicted the blocks.&lt;/p&gt;
 &lt;p&gt;Cache metadata also has a cardinality cost. Broadcasting every block hash to every router is rarely sustainable. Production systems use summaries, hierarchical directories, ownership events, or a two-stage route in which the gateway selects a pool and the pool-local scheduler chooses a worker. Expire advertisements earlier than the underlying blocks or version them so a stale positive lookup degrades to a miss rather than a failed request.&lt;/p&gt;
 &lt;p&gt;A practical rollout begins with per-instance reuse, then adds routing based on observed block events, and only then considers host or distributed cache tiers. Each step adds failure modes. Preserve an uncached path so cache infrastructure remains an optimization rather than an availability dependency.&lt;/p&gt;
@@ -4238,7 +4238,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Size&lt;/strong&gt; to &lt;strong&gt;Protect&lt;/strong&gt;, then &lt;strong&gt;Observe&lt;/strong&gt; and &lt;strong&gt;Tune&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Size&lt;/strong&gt; to &lt;strong&gt;Protect&lt;/strong&gt;, then &lt;strong&gt;Observe&lt;/strong&gt; and &lt;strong&gt;Tune&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Further visual reading&lt;span class="hx:absolute hx:-mt-20" id="further-visual-reading"&gt;&lt;/span&gt;
 &lt;a href="#further-visual-reading" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://x.com/_avichawla/status/2071201619530956863"target="_blank" rel="noopener"&gt;Avi Chawla&amp;rsquo;s visual explanation of prefill and decode&lt;/a&gt;&lt;/li&gt;

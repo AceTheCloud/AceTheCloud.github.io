@@ -164,7 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;GPU HBM&lt;/strong&gt;, where use active weights. The middle stage, &lt;strong&gt;Offload manager&lt;/strong&gt;, prefetch next data. The final stage, &lt;strong&gt;CPU or NVMe&lt;/strong&gt;, shows the observable result: store larger state. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;GPU HBM&lt;/strong&gt;, where use active weights. The middle stage, &lt;strong&gt;Offload manager&lt;/strong&gt;, prefetch next data. The final stage, &lt;strong&gt;CPU or NVMe&lt;/strong&gt;, shows the observable result: store larger state. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Weight offloading streams model layers from CPU RAM or NVMe into GPU memory, computes the layer, and releases or replaces it. Prefetching overlaps transfer of the next layer with compute on the current layer.&lt;/p&gt;
 &lt;p&gt;KV offloading moves cold or reusable cache blocks out of HBM while active decode blocks remain local. Reloading a prefix can still beat recomputing it, but only when transfer latency and bandwidth are favorable.&lt;/p&gt;
@@ -194,7 +194,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Memory offloading&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Memory offloading&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Weights and KV cache have different reuse patterns. Weights are read in a deterministic layer order every step; KV blocks are request-specific and may be cold for long periods. They need different prefetch and eviction policies.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -220,7 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;HBM-only serving&lt;/strong&gt;, characterized by lowest access latency and strict capacity ceiling. The right panel applies &lt;strong&gt;Tiered offloading&lt;/strong&gt;, changing the cost profile to larger effective capacity and transfer and prefetch cost. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;HBM-only serving&lt;/strong&gt;, characterized by lowest access latency and strict capacity ceiling. The right panel applies &lt;strong&gt;Tiered offloading&lt;/strong&gt;, changing the cost profile to larger effective capacity and transfer and prefetch cost. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Models or contexts that otherwise cannot fit&lt;/li&gt;
@@ -322,7 +322,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Inventory&lt;/strong&gt; to &lt;strong&gt;Classify&lt;/strong&gt;, then &lt;strong&gt;Overlap&lt;/strong&gt; and &lt;strong&gt;Control&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Inventory&lt;/strong&gt; to &lt;strong&gt;Classify&lt;/strong&gt;, then &lt;strong&gt;Overlap&lt;/strong&gt; and &lt;strong&gt;Control&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Offloading creates a hierarchy: HBM for imminent compute, host DRAM for warm state, local NVMe for colder state, and sometimes remote storage for durable artifacts. Moving a tensor is worthwhile only when transfer plus restore costs less than recomputation and completes before the request deadline.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -340,7 +340,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Offloading succeeds when placement anticipates future use rather than reacting after a miss.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Classify&lt;/strong&gt; through &lt;strong&gt;Evict&lt;/strong&gt; and &lt;strong&gt;Prefetch&lt;/strong&gt; to &lt;strong&gt;Consume&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, every move needs a deadline, bandwidth budget, and cancellation path. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Classify&lt;/strong&gt; through &lt;strong&gt;Evict&lt;/strong&gt; and &lt;strong&gt;Prefetch&lt;/strong&gt; to &lt;strong&gt;Consume&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, every move needs a deadline, bandwidth budget, and cancellation path. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Bandwidth is shared. Aggressive KV spill can compete with model loading, collectives, storage writes, and active decode. Limit concurrent transfers per link and prioritize state required by near-deadline requests. Pinned host memory improves DMA but is finite and affects the operating system.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Capacity increases by spending transfer time" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -355,7 +355,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The right tier depends on reuse distance and recomputation cost.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;HBM-only&lt;/strong&gt; with &lt;strong&gt;HBM &amp;#43; host tier&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Cold state stops evicting immediately useful tensors.”, remains larger than the risk, “A late prefetch stalls the compute stream on transfer.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;HBM-only&lt;/strong&gt; with &lt;strong&gt;HBM &amp;#43; host tier&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Cold state stops evicting immediately useful tensors.”, remains larger than the risk, “A late prefetch stalls the compute stream on transfer.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Eviction value should include bytes, predicted reuse, restore latency, and recompute time. Plain LRU can retain a huge cheap-to-recompute tensor while evicting a small expensive prefix. Admission to a lower tier also needs limits or the tier becomes a slower unbounded queue.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Offloaded object lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -372,7 +372,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Explicit ownership prevents stale reads during overlapping migration and compute.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Resident&lt;/strong&gt; to &lt;strong&gt;Migrating&lt;/strong&gt;, &lt;strong&gt;Cold&lt;/strong&gt;, and finally &lt;strong&gt;Restoring&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Only one authoritative version is writable; transfers publish atomically. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Resident&lt;/strong&gt; to &lt;strong&gt;Migrating&lt;/strong&gt;, &lt;strong&gt;Cold&lt;/strong&gt;, and finally &lt;strong&gt;Restoring&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Only one authoritative version is writable; transfers publish atomically. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four inputs to placement value" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -387,7 +387,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Tiering policy should optimize useful work, not cache occupancy.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Reuse&lt;/strong&gt;, &lt;strong&gt;Cost&lt;/strong&gt;, &lt;strong&gt;Pressure&lt;/strong&gt;, and &lt;strong&gt;Correctness&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Report bytes moved, useful prefetches, late restores, and avoided recompute.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Reuse&lt;/strong&gt;, &lt;strong&gt;Cost&lt;/strong&gt;, &lt;strong&gt;Pressure&lt;/strong&gt;, and &lt;strong&gt;Correctness&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Report bytes moved, useful prefetches, late restores, and avoided recompute.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="An offload storm can amplify overload" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -403,7 +403,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Offload must degrade into extra compute, not an availability dependency.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;HBM fills&lt;/strong&gt; triggers &lt;strong&gt;Prefetches wait&lt;/strong&gt;, which creates &lt;strong&gt;Queues grow&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;HBM fills&lt;/strong&gt; triggers &lt;strong&gt;Prefetches wait&lt;/strong&gt;, which creates &lt;strong&gt;Queues grow&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://www.deepspeed.ai/2022/09/09/zero-inference.html"target="_blank" rel="noopener"&gt;ZeRO-Inference&lt;/a&gt;&lt;/li&gt;

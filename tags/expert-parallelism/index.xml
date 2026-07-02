@@ -164,7 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Token activations&lt;/strong&gt;, where router selects top-k. The middle stage, &lt;strong&gt;All-to-all exchange&lt;/strong&gt;, run local experts. The final stage, &lt;strong&gt;Return activations&lt;/strong&gt;, shows the observable result: combine expert outputs. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Token activations&lt;/strong&gt;, where router selects top-k. The middle stage, &lt;strong&gt;All-to-all exchange&lt;/strong&gt;, run local experts. The final stage, &lt;strong&gt;Return activations&lt;/strong&gt;, shows the observable result: combine expert outputs. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The router scores experts for each token and selects top-k destinations. Tokens are packed by destination, exchanged across the expert-parallel group, processed by local expert MLPs, and sent back for weighted combination.&lt;/p&gt;
 &lt;p&gt;Expert parallelism reduces expert-weight memory per GPU and spreads sparse compute. Its defining collective is all-to-all, unlike the all-reduce patterns common in tensor parallelism. Traffic volume and imbalance depend on routing decisions.&lt;/p&gt;
@@ -194,7 +194,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Expert parallelism&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Expert parallelism&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Combining EP with TP changes process groups and communication order. Some stacks require sequence parallelism when TP and EP coexist. Expert placement can exploit routing affinity, but dynamic placement must preserve weights, cache state, and reproducibility.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -220,7 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Dense transformer MLP&lt;/strong&gt;, characterized by every token uses all weights and predictable compute. The right panel applies &lt;strong&gt;Expert-parallel MoE&lt;/strong&gt;, changing the cost profile to top-k experts per token and all-to-all token exchange. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Dense transformer MLP&lt;/strong&gt;, characterized by every token uses all weights and predictable compute. The right panel applies &lt;strong&gt;Expert-parallel MoE&lt;/strong&gt;, changing the cost profile to top-k experts per token and all-to-all token exchange. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Large MoE models whose expert weights exceed one GPU&lt;/li&gt;
@@ -319,7 +319,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Observe&lt;/strong&gt; to &lt;strong&gt;Place&lt;/strong&gt;, then &lt;strong&gt;Execute&lt;/strong&gt; and &lt;strong&gt;Balance&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Observe&lt;/strong&gt; to &lt;strong&gt;Place&lt;/strong&gt;, then &lt;strong&gt;Execute&lt;/strong&gt; and &lt;strong&gt;Balance&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In a mixture-of-experts layer, a router scores each token, selects top-k experts, dispatches token activations to the ranks hosting those experts, runs expert MLPs, and combines weighted outputs. Only selected experts compute each token, but communication and load imbalance become first-order costs.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -337,7 +337,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Expert parallelism replaces dense compute with sparse routing and distributed communication.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Score&lt;/strong&gt; through &lt;strong&gt;Dispatch&lt;/strong&gt; and &lt;strong&gt;Execute&lt;/strong&gt; to &lt;strong&gt;Combine&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, token identity and ordering must survive the all-to-all exchange. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Score&lt;/strong&gt; through &lt;strong&gt;Dispatch&lt;/strong&gt; and &lt;strong&gt;Execute&lt;/strong&gt; to &lt;strong&gt;Combine&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, token identity and ordering must survive the all-to-all exchange. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Average load can look balanced while one expert forms a hot spot. Capacity factor reserves slots above the average, but excess capacity wastes memory and too little causes drops, reroutes, or queueing. Auxiliary training losses help, yet serving traffic can differ from training and needs live expert-level telemetry.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Sparse compute is paid for with routing variance" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -352,7 +352,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The realized gain depends on expert balance and communication topology.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Dense MLP&lt;/strong&gt; with &lt;strong&gt;Top-k experts&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “More total parameters with bounded active compute.”, remains larger than the risk, “Hot experts create all-to-all and queue bottlenecks.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Dense MLP&lt;/strong&gt; with &lt;strong&gt;Top-k experts&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “More total parameters with bounded active compute.”, remains larger than the risk, “Hot experts create all-to-all and queue bottlenecks.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Placement should keep frequently co-selected experts near traffic and distribute hot experts across failure domains. Replication can relieve hot experts but complicates routing consistency and weight updates. The scheduler may combine tokens by expert to create efficient GEMMs while preserving each request&amp;rsquo;s deadline.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Token state through an MoE layer" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -369,7 +369,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Routing metadata is correctness state, not scheduler bookkeeping.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Routed&lt;/strong&gt; to &lt;strong&gt;Dispatched&lt;/strong&gt;, &lt;strong&gt;Executed&lt;/strong&gt;, and finally &lt;strong&gt;Combined&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Every selected expert contribution is accounted for exactly once or explicitly dropped by policy. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Routed&lt;/strong&gt; to &lt;strong&gt;Dispatched&lt;/strong&gt;, &lt;strong&gt;Executed&lt;/strong&gt;, and finally &lt;strong&gt;Combined&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Every selected expert contribution is accounted for exactly once or explicitly dropped by policy. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four MoE serving constraints" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -384,7 +384,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;MoE performance is governed by the busiest expert and slowest exchange.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Balance&lt;/strong&gt;, &lt;strong&gt;Topology&lt;/strong&gt;, &lt;strong&gt;Batching&lt;/strong&gt;, and &lt;strong&gt;Resilience&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Dashboard p99 expert load and communication, not only layer averages.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Balance&lt;/strong&gt;, &lt;strong&gt;Topology&lt;/strong&gt;, &lt;strong&gt;Batching&lt;/strong&gt;, and &lt;strong&gt;Resilience&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Dashboard p99 expert load and communication, not only layer averages.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="One hot expert throttles the whole layer" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -400,7 +400,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Sparse models require sparse observability at the same routing granularity.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Traffic shifts&lt;/strong&gt; triggers &lt;strong&gt;Expert fills&lt;/strong&gt;, which creates &lt;strong&gt;Layer stalls&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Traffic shifts&lt;/strong&gt; triggers &lt;strong&gt;Expert fills&lt;/strong&gt;, which creates &lt;strong&gt;Layer stalls&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/features/moe.html"target="_blank" rel="noopener"&gt;Megatron Core MoE Guide&lt;/a&gt;&lt;/li&gt;

@@ -164,7 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Model decoder&lt;/strong&gt;, where emit token ids. The middle stage, &lt;strong&gt;Stream adapter&lt;/strong&gt;, decode text safely. The final stage, &lt;strong&gt;Client UI&lt;/strong&gt;, shows the observable result: render deltas. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Model decoder&lt;/strong&gt;, where emit token ids. The middle stage, &lt;strong&gt;Stream adapter&lt;/strong&gt;, decode text safely. The final stage, &lt;strong&gt;Client UI&lt;/strong&gt;, shows the observable result: render deltas. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The engine produces token IDs. A streamer incrementally decodes them while respecting byte-pair or sentence-piece boundaries, applies stop conditions, and emits deltas. The server frames those deltas as SSE, chunked HTTP, WebSocket, or streaming gRPC messages.&lt;/p&gt;
 &lt;p&gt;Production streams need typed lifecycle events: started, text delta, tool call, usage, completed, cancelled, and error. A stream that only emits text cannot reliably distinguish a clean finish from a broken connection.&lt;/p&gt;
@@ -194,7 +194,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Streaming&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Streaming&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Unicode and tokenizer boundaries matter. One token ID may not decode to valid standalone text, and naive concatenation can emit replacement characters or duplicate bytes. Use incremental tokenizer decoding and test multilingual output.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -220,7 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Buffered response&lt;/strong&gt;, characterized by one final payload and simple accounting. The right panel applies &lt;strong&gt;Streaming response&lt;/strong&gt;, changing the cost profile to early visible deltas and typed lifecycle events. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Buffered response&lt;/strong&gt;, characterized by one final payload and simple accounting. The right panel applies &lt;strong&gt;Streaming response&lt;/strong&gt;, changing the cost profile to early visible deltas and typed lifecycle events. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Chat, coding, and long-form generation&lt;/li&gt;
@@ -322,7 +322,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Contract&lt;/strong&gt; to &lt;strong&gt;Transport&lt;/strong&gt;, then &lt;strong&gt;Cancel&lt;/strong&gt; and &lt;strong&gt;Observe&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Contract&lt;/strong&gt; to &lt;strong&gt;Transport&lt;/strong&gt;, then &lt;strong&gt;Cancel&lt;/strong&gt; and &lt;strong&gt;Observe&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Streaming is a transport protocol around an incremental decoder. The server emits structured events for role, text delta, tool arguments, usage, finish reason, and errors. Those events must preserve UTF-8 boundaries, JSON framing, ordering, and one terminal outcome across proxies and client libraries.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -340,7 +340,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Streaming converts model progress into a reliable ordered protocol.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Decode&lt;/strong&gt; through &lt;strong&gt;Assemble&lt;/strong&gt; and &lt;strong&gt;Transport&lt;/strong&gt; to &lt;strong&gt;Consume&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the stream contract includes event order, retry semantics, and final accounting. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Decode&lt;/strong&gt; through &lt;strong&gt;Assemble&lt;/strong&gt; and &lt;strong&gt;Transport&lt;/strong&gt; to &lt;strong&gt;Consume&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the stream contract includes event order, retry semantics, and final accounting. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Time to first token and inter-token latency shape perceived performance, but excessive flushing wastes CPU and bandwidth. Coalesce tiny byte fragments without delaying semantic tokens. Proxies may buffer unless compression, headers, and idle timeouts are configured correctly. Heartbeats protect long tool or reasoning gaps without pretending they are model output.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Streaming changes perceived latency, not model work" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -355,7 +355,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Total compute may be equal while time to visible value changes dramatically.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Buffered response&lt;/strong&gt; with &lt;strong&gt;Token stream&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Users see progress and can cancel unhelpful output.”, remains larger than the risk, “Too many tiny flushes increase CPU and network overhead.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Buffered response&lt;/strong&gt; with &lt;strong&gt;Token stream&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Users see progress and can cancel unhelpful output.”, remains larger than the risk, “Too many tiny flushes increase CPU and network overhead.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Disconnect is a cancellation signal, not proof the GPU stopped. Propagate cancellation through gateway, scheduler, and engine; release KV and reserved output capacity idempotently. If billing reflects generated tokens, account for work completed before cancellation even when delivery failed.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Streaming response lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -372,7 +372,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A strict lifecycle prevents duplicate completion and ambiguous client state.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Open&lt;/strong&gt; to &lt;strong&gt;Emitting&lt;/strong&gt;, &lt;strong&gt;Finishing&lt;/strong&gt;, and finally &lt;strong&gt;Closed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: After a terminal event, no additional content or usage event is legal. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Open&lt;/strong&gt; to &lt;strong&gt;Emitting&lt;/strong&gt;, &lt;strong&gt;Finishing&lt;/strong&gt;, and finally &lt;strong&gt;Closed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: After a terminal event, no additional content or usage event is legal. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four streaming contracts" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -387,7 +387,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A stream that works on localhost can still fail behind production buffering.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Framing&lt;/strong&gt;, &lt;strong&gt;Text&lt;/strong&gt;, &lt;strong&gt;Liveness&lt;/strong&gt;, and &lt;strong&gt;Accounting&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Test every contract through the real load balancer and proxy chain.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Framing&lt;/strong&gt;, &lt;strong&gt;Text&lt;/strong&gt;, &lt;strong&gt;Liveness&lt;/strong&gt;, and &lt;strong&gt;Accounting&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Test every contract through the real load balancer and proxy chain.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="Proxy buffering defeats a healthy model" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -403,7 +403,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;End-to-end streaming health cannot be inferred from server-side TTFT alone.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Tokens emit&lt;/strong&gt; triggers &lt;strong&gt;Proxy buffers&lt;/strong&gt;, which creates &lt;strong&gt;Timeout fires&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Tokens emit&lt;/strong&gt; triggers &lt;strong&gt;Proxy buffers&lt;/strong&gt;, which creates &lt;strong&gt;Timeout fires&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://huggingface.co/docs/transformers/main/generation_features"target="_blank" rel="noopener"&gt;Hugging Face Generation Streaming&lt;/a&gt;&lt;/li&gt;

@@ -164,7 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Current prefix&lt;/strong&gt;, where multiple decode heads. The middle stage, &lt;strong&gt;Tree attention&lt;/strong&gt;, verify candidates. The final stage, &lt;strong&gt;Committed output&lt;/strong&gt;, shows the observable result: append valid tokens. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Current prefix&lt;/strong&gt;, where multiple decode heads. The middle stage, &lt;strong&gt;Tree attention&lt;/strong&gt;, verify candidates. The final stage, &lt;strong&gt;Committed output&lt;/strong&gt;, shows the observable result: append valid tokens. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Multi-token prediction attaches heads that predict tokens at several future offsets. Systems such as Medusa arrange candidates into a tree and use a tree-attention mask so the backbone can verify many candidate continuations in one pass.&lt;/p&gt;
 &lt;p&gt;Parallel decoding is broader than classic speculative decoding. It may use extra heads on the same model, iterative refinement, Jacobi-style updates, or candidate trees. The common objective is to reduce the number of serial decoding rounds.&lt;/p&gt;
@@ -194,7 +194,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Parallel decoding&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Parallel decoding&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Candidate selection is a hardware problem as much as a probability problem. Static trees simplify CUDA graphs and memory planning; dynamic trees may improve acceptance but introduce irregular shapes. Throughput-oriented servers may prefer predictable bounds over maximum single-request speedup.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -220,7 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Serial decoding&lt;/strong&gt;, characterized by one position per model step and simple causal mask. The right panel applies &lt;strong&gt;Parallel decoding&lt;/strong&gt;, changing the cost profile to several positions or branches and tree or multi-token mask. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Serial decoding&lt;/strong&gt;, characterized by one position per model step and simple causal mask. The right panel applies &lt;strong&gt;Parallel decoding&lt;/strong&gt;, changing the cost profile to several positions or branches and tree or multi-token mask. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Models with trained multi-token heads&lt;/li&gt;
@@ -319,7 +319,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Propose&lt;/strong&gt; to &lt;strong&gt;Verify&lt;/strong&gt;, then &lt;strong&gt;Commit&lt;/strong&gt; and &lt;strong&gt;Tune&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Propose&lt;/strong&gt; to &lt;strong&gt;Verify&lt;/strong&gt;, then &lt;strong&gt;Commit&lt;/strong&gt; and &lt;strong&gt;Tune&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Parallel decoding is a family of methods that explores or proposes multiple future tokens per synchronization point. Some attach several prediction heads, some grow a candidate tree, and others solve multiple masked positions iteratively. The common objective is to convert a strictly serial token loop into wider work that modern accelerators execute efficiently.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -337,7 +337,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Parallel decoding exchanges serial steps for candidate width and branch management.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Propose&lt;/strong&gt; through &lt;strong&gt;Evaluate&lt;/strong&gt; and &lt;strong&gt;Select&lt;/strong&gt; to &lt;strong&gt;Commit&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, branch state is provisional until one path is selected under the target policy. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Propose&lt;/strong&gt; through &lt;strong&gt;Evaluate&lt;/strong&gt; and &lt;strong&gt;Select&lt;/strong&gt; to &lt;strong&gt;Commit&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, branch state is provisional until one path is selected under the target policy. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Speedup depends on useful committed tokens per round, not the number proposed. A width-eight tree that commits 1.3 tokens wastes more work than a width-three tree committing 2.4. Measure branch utilization, accepted depth, verification cost, and memory amplification together. Wider is not automatically faster once the GPU is already saturated by ordinary batching.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Serial depth versus candidate width" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -352,7 +352,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The winning width balances accepted depth against wasted branch work.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Serial decoding&lt;/strong&gt; with &lt;strong&gt;Parallel round&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Several tokens may commit per synchronization.”, remains larger than the risk, “Rejected candidates consume compute and KV memory.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Serial decoding&lt;/strong&gt; with &lt;strong&gt;Parallel round&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Several tokens may commit per synchronization.”, remains larger than the risk, “Rejected candidates consume compute and KV memory.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;KV ownership is central. Branches share the committed prefix, then allocate private suffix blocks. Selection atomically promotes one suffix and releases the others. Cancellation, beam pruning, and retries must not double-free shared references. Memory limits should constrain candidate tokens, not merely request count.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Candidate branch lifecycle" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -369,7 +369,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Transactional branch ownership prevents rejected futures from corrupting decode.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Shared&lt;/strong&gt; to &lt;strong&gt;Forked&lt;/strong&gt;, &lt;strong&gt;Selected&lt;/strong&gt;, and finally &lt;strong&gt;Committed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Only selected tokens and state cross the response visibility boundary. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Shared&lt;/strong&gt; to &lt;strong&gt;Forked&lt;/strong&gt;, &lt;strong&gt;Selected&lt;/strong&gt;, and finally &lt;strong&gt;Committed&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Only selected tokens and state cross the response visibility boundary. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Four limits bound parallel decoding" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -384,7 +384,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;The best candidate geometry depends on quality, load, and memory pressure.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Width&lt;/strong&gt;, &lt;strong&gt;Depth&lt;/strong&gt;, &lt;strong&gt;Memory&lt;/strong&gt;, and &lt;strong&gt;Policy&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Tune width and depth by workload cohort, not as model-wide constants.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Width&lt;/strong&gt;, &lt;strong&gt;Depth&lt;/strong&gt;, &lt;strong&gt;Memory&lt;/strong&gt;, and &lt;strong&gt;Policy&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Tune width and depth by workload cohort, not as model-wide constants.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="Candidate explosion under load" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -400,7 +400,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Parallel decoding needs a pressure-aware escape hatch to ordinary generation.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Width expands&lt;/strong&gt; triggers &lt;strong&gt;Batch bloats&lt;/strong&gt;, which creates &lt;strong&gt;Tail rises&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Width expands&lt;/strong&gt; triggers &lt;strong&gt;Batch bloats&lt;/strong&gt;, which creates &lt;strong&gt;Tail rises&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2401.10774"target="_blank" rel="noopener"&gt;Medusa paper&lt;/a&gt;&lt;/li&gt;

@@ -164,7 +164,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Follow the state and work from left to right.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Start with &lt;strong&gt;Input token state&lt;/strong&gt;, where run early layers. The middle stage, &lt;strong&gt;Exit controller&lt;/strong&gt;, accept or continue. The final stage, &lt;strong&gt;Output token&lt;/strong&gt;, shows the observable result: use shallow result. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Start with &lt;strong&gt;Input token state&lt;/strong&gt;, where run early layers. The middle stage, &lt;strong&gt;Exit controller&lt;/strong&gt;, accept or continue. The final stage, &lt;strong&gt;Output token&lt;/strong&gt;, shows the observable result: use shallow result. The arrows describe dependency order, not necessarily separate services.&lt;/p&gt;
 &lt;h2&gt;What actually happens&lt;span class="hx:absolute hx:-mt-20" id="what-actually-happens"&gt;&lt;/span&gt;
 &lt;a href="#what-actually-happens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;An early-exit model exposes usable logits at intermediate layers. This usually requires training support, such as auxiliary losses or a shared output head, so early representations learn to predict tokens rather than merely feed later layers.&lt;/p&gt;
 &lt;p&gt;A controller decides whether to stop. Confidence can come from maximum probability, entropy, margin between top candidates, learned calibration, or a fixed layer schedule. Raw softmax confidence is often miscalibrated, so thresholds must be tuned against task-specific quality.&lt;/p&gt;
@@ -194,7 +194,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;Prefill and decode run the same model but expose different bottlenecks and SLOs.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Early exit&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel asks how &lt;strong&gt;Early exit&lt;/strong&gt; changes prompt processing and TTFT; the right asks how it changes iterative generation and inter-token latency. The bottom row names the metric that must improve and the deployment choice justified by that evidence. Optimizing the wrong phase can add complexity without changing the user-visible bottleneck.&lt;/p&gt;
 &lt;h3&gt;Expert lens&lt;span class="hx:absolute hx:-mt-20" id="expert-lens"&gt;&lt;/span&gt;
 &lt;a href="#expert-lens" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Adaptive depth creates scheduler divergence. A GPU kernel prefers uniform work, while early exit creates per-token variation. Grouping by exit policy, verifying in blocks, or combining early exit with speculative decoding can make the hardware path more regular.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -220,7 +220,7 @@
 &lt;/svg&gt;
 &lt;figcaption&gt;The optimization changes where the system spends compute, memory, bandwidth, or waiting time.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Fixed-depth decoding&lt;/strong&gt;, characterized by every token uses all layers and stable batch shapes. The right panel applies &lt;strong&gt;Early-exit decoding&lt;/strong&gt;, changing the cost profile to easy tokens use fewer layers and confidence must be calibrated. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The left panel is the baseline, &lt;strong&gt;Fixed-depth decoding&lt;/strong&gt;, characterized by every token uses all layers and stable batch shapes. The right panel applies &lt;strong&gt;Early-exit decoding&lt;/strong&gt;, changing the cost profile to easy tokens use fewer layers and confidence must be calibrated. Compare both under the same request shape and load; the optimized side is not automatically better for every workload.&lt;/p&gt;
 &lt;h2&gt;Where it wins&lt;span class="hx:absolute hx:-mt-20" id="where-it-wins"&gt;&lt;/span&gt;
 &lt;a href="#where-it-wins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;Models trained explicitly for intermediate exits&lt;/li&gt;
@@ -321,7 +321,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Treat optimization as a measured loop, not a one-time flag.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Train&lt;/strong&gt; to &lt;strong&gt;Calibrate&lt;/strong&gt;, then &lt;strong&gt;Guard&lt;/strong&gt; and &lt;strong&gt;Monitor&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The operating cycle moves from &lt;strong&gt;Train&lt;/strong&gt; to &lt;strong&gt;Calibrate&lt;/strong&gt;, then &lt;strong&gt;Guard&lt;/strong&gt; and &lt;strong&gt;Monitor&lt;/strong&gt;. The return arrow matters: production evidence from the fourth step must change the assumptions and limits in the first, otherwise the optimization gradually drifts away from the workload it serves.&lt;/p&gt;
 &lt;h2&gt;Deeper engineering guide&lt;span class="hx:absolute hx:-mt-20" id="deeper-engineering-guide"&gt;&lt;/span&gt;
 &lt;a href="#deeper-engineering-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Early exit adds one or more prediction heads before the final transformer layer and decides whether an intermediate representation is trustworthy enough to emit or propose a token. The gate may use confidence, agreement between heads, entropy, margin, or a learned policy. Compute is saved only when the exit decision is cheaper than the skipped layers and quality remains within the product contract.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
@@ -339,7 +339,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Adaptive depth spends fewer layers only on tokens proven eligible by policy.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; Follow the state from &lt;strong&gt;Run trunk&lt;/strong&gt; through &lt;strong&gt;Estimate&lt;/strong&gt; and &lt;strong&gt;Gate&lt;/strong&gt; to &lt;strong&gt;Resolve&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the gate is part of model semantics and must be versioned with the checkpoint. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; Follow the state from &lt;strong&gt;Run trunk&lt;/strong&gt; through &lt;strong&gt;Estimate&lt;/strong&gt; and &lt;strong&gt;Gate&lt;/strong&gt; to &lt;strong&gt;Resolve&lt;/strong&gt;. Each box is an ownership or computation boundary. In particular, the gate is part of model semantics and must be versioned with the checkpoint. A real implementation may fuse boxes, but it must preserve their ordering and correctness contract.&lt;/p&gt;
 &lt;p&gt;Confidence must be calibrated on deployment traffic. A high softmax maximum is not a universal guarantee, particularly after quantization, domain shift, temperature changes, or adversarial prompts. Build reliability curves by exit depth and cohort, then choose thresholds from an explicit quality-loss budget rather than a desired speedup.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Adaptive depth trades average compute for quality risk" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -354,7 +354,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Illustrative layer work; exit frequency varies by token and workload.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The bars compare &lt;strong&gt;Full-depth decode&lt;/strong&gt; with &lt;strong&gt;Calibrated early exit&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Easy tokens avoid later-layer execution.”, remains larger than the risk, “Overconfidence can emit a wrong token irreversibly.”, under production traffic.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The bars compare &lt;strong&gt;Full-depth decode&lt;/strong&gt; with &lt;strong&gt;Calibrated early exit&lt;/strong&gt; on the article's dominant cost axis. Their lengths are explanatory, not universal benchmark values. The design is worthwhile only when the stated gain, “Easy tokens avoid later-layer execution.”, remains larger than the risk, “Overconfidence can emit a wrong token irreversibly.”, under production traffic.&lt;/p&gt;
 &lt;p&gt;Autoregressive errors compound. A single incorrect early token changes every subsequent hidden state, so per-token agreement can overstate sequence quality. Evaluate exact match, task success, calibration error, and long-horizon divergence. Some systems use early heads only to draft tokens for later verification, turning an unsafe direct exit into self-speculative decoding.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 390" role="img" aria-label="Decision state for every candidate token" xmlns="http://www.w3.org/2000/svg"&gt;
@@ -371,7 +371,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;A conservative fallback keeps adaptive compute from becoming adaptive correctness.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; State advances from &lt;strong&gt;Unscored&lt;/strong&gt; to &lt;strong&gt;Calibrated&lt;/strong&gt;, &lt;strong&gt;Eligible&lt;/strong&gt;, and finally &lt;strong&gt;Emitted&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Any uncertainty, unsupported option, or drift signal takes the full-depth path. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; State advances from &lt;strong&gt;Unscored&lt;/strong&gt; to &lt;strong&gt;Calibrated&lt;/strong&gt;, &lt;strong&gt;Eligible&lt;/strong&gt;, and finally &lt;strong&gt;Emitted&lt;/strong&gt;. The labels below each state identify what becomes true at that boundary. The governing invariant is: Any uncertainty, unsupported option, or drift signal takes the full-depth path. Retries and cancellation must preserve the same transition rules.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 430" role="img" aria-label="Exit policy depends on four dimensions" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="430" rx="16" fill="#f8fafc"/&gt;
@@ -386,7 +386,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;One global confidence threshold is rarely defensible in production.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Token&lt;/strong&gt;, &lt;strong&gt;Request&lt;/strong&gt;, &lt;strong&gt;Model&lt;/strong&gt;, and &lt;strong&gt;System&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Log the chosen depth without exposing sensitive prompt content.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; The four panels are independent review axes: &lt;strong&gt;Token&lt;/strong&gt;, &lt;strong&gt;Request&lt;/strong&gt;, &lt;strong&gt;Model&lt;/strong&gt;, and &lt;strong&gt;System&lt;/strong&gt;. A design is incomplete when one panel is optimized while another is left implicit. Use the bottom note as the cross-panel operating rule: Log the chosen depth without exposing sensitive prompt content.&lt;/p&gt;
 &lt;figure class="ace-fig fast-path-figure"&gt;
 &lt;svg viewBox="0 0 960 380" role="img" aria-label="How calibration drift damages output" xmlns="http://www.w3.org/2000/svg"&gt;
 &lt;rect width="960" height="380" rx="16" fill="#f8fafc"/&gt;
@@ -402,7 +402,7 @@ data-copied-label="Copied!"
 &lt;/svg&gt;
 &lt;figcaption&gt;Shadow evaluation and instant fallback are mandatory for adaptive-depth serving.&lt;/figcaption&gt;
 &lt;/figure&gt;
-&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;How to read this diagram:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Traffic shifts&lt;/strong&gt; triggers &lt;strong&gt;Gate exits early&lt;/strong&gt;, which creates &lt;strong&gt;Errors compound&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
+&lt;p class="fast-path-diagram-note"&gt;&lt;strong&gt;Description:&lt;/strong&gt; This is a causal chain, not four unrelated symptoms. &lt;strong&gt;Traffic shifts&lt;/strong&gt; triggers &lt;strong&gt;Gate exits early&lt;/strong&gt;, which creates &lt;strong&gt;Errors compound&lt;/strong&gt;. The green &lt;strong&gt;Control&lt;/strong&gt; box is the intervention that should break the chain before users observe the final failure. The control must be tested under the initiating condition.&lt;/p&gt;
 &lt;h2&gt;Primary references&lt;span class="hx:absolute hx:-mt-20" id="primary-references"&gt;&lt;/span&gt;
 &lt;a href="#primary-references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a href="https://arxiv.org/abs/2404.16710"target="_blank" rel="noopener"&gt;LayerSkip paper&lt;/a&gt;&lt;/li&gt;
